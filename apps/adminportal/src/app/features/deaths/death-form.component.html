@@ -1,11 +1,13 @@
-<section class="flex flex-col gap-5">
-  <a routerLink="/" hlmBtn variant="link" size="sm" class="h-auto px-0">
+<section class="flex flex-col gap-6">
+  <a routerLink="/" hlmBtn variant="link" size="sm" class="text-muted-foreground h-auto px-0">
     <ng-icon name="lucideArrowLeft" />
     Home
   </a>
   <div>
     <h1 class="text-2xl font-semibold tracking-tight">Record death</h1>
-    <p class="text-muted-foreground text-sm">Mark an animal dead or culled and keep the reason.</p>
+    <p class="text-muted-foreground mt-1 text-sm leading-relaxed">
+      Mark an animal dead or culled and keep the reason.
+    </p>
   </div>
 
   @if (error()) {
@@ -19,26 +21,33 @@
     <div hlmCardContent class="flex flex-col gap-3">
       <div hlmField>
         <label hlmFieldLabel>Animal</label>
-        <hlm-native-select formControlName="animalId">
-          <option hlmNativeSelectOption value="">Select animal</option>
-          @for (animal of animals(); track animal.id) {
-            <option hlmNativeSelectOption [value]="animal.id">
-              {{ label(animal) }}
-            </option>
-          }
-        </hlm-native-select>
+        <hlm-select class="w-full" formControlName="animalId">
+          <hlm-select-trigger class="w-full">
+            <hlm-select-value placeholder="Select animal" />
+          </hlm-select-trigger>
+          <hlm-select-content *hlmSelectPortal>
+            @for (animal of animals(); track animal.id) {
+              <hlm-select-item [value]="animal.id">{{ label(animal) }}</hlm-select-item>
+            }
+          </hlm-select-content>
+        </hlm-select>
       </div>
       <div hlmField>
         <label hlmFieldLabel>Date</label>
-        <input hlmInput type="date" formControlName="date" />
+        <fma-iso-date-picker formControlName="date" placeholder="Pick a date" />
       </div>
       <div hlmField>
         <label hlmFieldLabel>Reason</label>
-        <hlm-native-select formControlName="reason">
-          @for (reason of reasons; track reason) {
-            <option hlmNativeSelectOption [value]="reason">{{ reasonLabel(reason) }}</option>
-          }
-        </hlm-native-select>
+        <hlm-select class="w-full" formControlName="reason">
+          <hlm-select-trigger class="w-full">
+            <hlm-select-value placeholder="Select reason" />
+          </hlm-select-trigger>
+          <hlm-select-content *hlmSelectPortal>
+            @for (reason of reasons; track reason) {
+              <hlm-select-item [value]="reason">{{ reasonLabel(reason) }}</hlm-select-item>
+            }
+          </hlm-select-content>
+        </hlm-select>
       </div>
       <div hlmField>
         <label hlmFieldLabel>Notes</label>

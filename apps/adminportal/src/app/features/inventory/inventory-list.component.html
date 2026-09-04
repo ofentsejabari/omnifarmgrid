@@ -1,8 +1,8 @@
-<section class="flex flex-col gap-5">
+<section class="flex flex-col gap-6">
   <div class="flex items-start justify-between gap-3">
     <div class="min-w-0">
       <h1 class="text-2xl font-semibold tracking-tight">Medicine stock</h1>
-      <p class="text-muted-foreground text-sm">
+      <p class="text-muted-foreground mt-1 text-sm leading-relaxed">
         Vaccines and treatments stay on this device. Receive stock, then vaccinate a kraal or pen.
       </p>
     </div>
@@ -28,16 +28,26 @@
     <form hlmCard [formGroup]="productForm" (ngSubmit)="addProduct()">
       <div hlmCardContent class="flex flex-col gap-3">
         <input hlmInput formControlName="name" placeholder="Product name" />
-        <hlm-native-select formControlName="kind">
-          @for (kind of kinds; track kind) {
-            <option hlmNativeSelectOption [value]="kind">{{ kindLabel(kind) }}</option>
-          }
-        </hlm-native-select>
-        <hlm-native-select formControlName="unit">
-          @for (unit of units; track unit) {
-            <option hlmNativeSelectOption [value]="unit">{{ unit }}</option>
-          }
-        </hlm-native-select>
+        <hlm-select class="w-full" formControlName="kind">
+          <hlm-select-trigger class="w-full">
+            <hlm-select-value placeholder="Select kind" />
+          </hlm-select-trigger>
+          <hlm-select-content *hlmSelectPortal>
+            @for (kind of kinds; track kind) {
+              <hlm-select-item [value]="kind">{{ kindLabel(kind) }}</hlm-select-item>
+            }
+          </hlm-select-content>
+        </hlm-select>
+        <hlm-select class="w-full" formControlName="unit">
+          <hlm-select-trigger class="w-full">
+            <hlm-select-value placeholder="Select unit" />
+          </hlm-select-trigger>
+          <hlm-select-content *hlmSelectPortal>
+            @for (unit of units; track unit) {
+              <hlm-select-item [value]="unit">{{ unit }}</hlm-select-item>
+            }
+          </hlm-select-content>
+        </hlm-select>
         <div hlmField>
           <label hlmFieldLabel>Low-stock warning</label>
           <input hlmInput type="number" min="0" formControlName="lowStockThreshold" />
@@ -53,11 +63,9 @@
   }
 
   @if (rows().length === 0) {
-    <div
-      class="bg-card ring-foreground/10 flex flex-col items-center gap-3 rounded-xl px-6 py-12 text-center ring-1"
-    >
-      <span class="bg-muted flex size-14 items-center justify-center rounded-full">
-        <ng-icon name="lucidePackage" size="24" class="text-muted-foreground" />
+    <div class="fma-empty">
+      <span class="fma-empty-icon">
+        <ng-icon name="lucidePackage" size="24" />
       </span>
       <div class="space-y-1">
         <p class="font-medium">No products yet</p>
@@ -71,7 +79,7 @@
   <ul class="flex flex-col gap-2">
     @for (row of rows(); track row.product.id) {
       <li>
-        <hlm-card size="sm">
+        <hlm-card size="sm" class="fma-list-card">
           <div hlmCardContent class="flex flex-col gap-3">
             <div class="flex items-start justify-between gap-2">
               <div class="min-w-0">
@@ -117,7 +125,7 @@
                   placeholder="Quantity"
                 />
                 <input hlmInput formControlName="batchNumber" placeholder="Batch number" />
-                <input hlmInput type="date" formControlName="expiryDate" />
+                <fma-iso-date-picker formControlName="expiryDate" placeholder="Expiry date" />
                 <div class="flex justify-end gap-2">
                   <button
                     type="button"

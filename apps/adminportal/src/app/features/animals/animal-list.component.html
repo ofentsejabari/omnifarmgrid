@@ -1,8 +1,8 @@
-<section class="flex flex-col gap-5">
+<section class="flex flex-col gap-6">
   <div class="flex items-start justify-between gap-3">
     <div class="min-w-0">
       <h1 class="text-2xl font-semibold tracking-tight">{{ heading() }}</h1>
-      <p class="text-muted-foreground text-sm">
+      <p class="text-muted-foreground mt-1 text-sm leading-relaxed">
         {{ animals().length }}
         {{ animals().length === 1 ? 'animal' : 'animals' }}
         @if (animalStore.filters.status() === 'alive') {
@@ -16,7 +16,7 @@
     </a>
   </div>
 
-  <div class="flex flex-col gap-3">
+  <div class="bg-card/80 ring-foreground/10 flex flex-col gap-3 rounded-2xl p-3 shadow-sm ring-1">
     <div class="relative">
       <ng-icon
         name="lucideSearch"
@@ -26,7 +26,7 @@
       <input
         hlmInput
         class="ps-8"
-        placeholder="Search name"
+        placeholder="Search name or tag"
         [ngModel]="animalStore.filters.name()"
         (ngModelChange)="onNameChange($event)"
         name="search"
@@ -34,35 +34,38 @@
     </div>
 
     <div class="grid grid-cols-2 gap-2">
-      <hlm-native-select
-        [ngModel]="kraalFilter()"
-        (ngModelChange)="kraalFilter.set($event ?? '')"
-        name="kraal"
-      >
-        <option hlmNativeSelectOption value="">{{ locationFilterLabel() }}</option>
-        @for (kraal of visibleKraals(); track kraal.id) {
-          <option hlmNativeSelectOption [value]="kraal.id">{{ kraal.name }}</option>
-        }
-      </hlm-native-select>
-      <hlm-native-select
+      <hlm-select class="w-full" [ngModel]="kraalFilter()" (ngModelChange)="kraalFilter.set($event ?? '')" name="kraal">
+        <hlm-select-trigger class="w-full">
+          <hlm-select-value [placeholder]="locationFilterLabel()" />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          <hlm-select-item value="">{{ locationFilterLabel() }}</hlm-select-item>
+          @for (kraal of visibleKraals(); track kraal.id) {
+            <hlm-select-item [value]="kraal.id">{{ kraal.name }}</hlm-select-item>
+          }
+        </hlm-select-content>
+      </hlm-select>
+      <hlm-select
+        class="w-full"
         [ngModel]="animalStore.filters.sex() ?? ''"
         (ngModelChange)="onSexFilter($event)"
         name="sex"
       >
-        <option hlmNativeSelectOption value="">All sexes</option>
-        @for (sex of sexes; track sex) {
-          <option hlmNativeSelectOption [value]="sex">
-            {{ sex === 'wether' ? 'Castrated' : sex }}
-          </option>
-        }
-      </hlm-native-select>
+        <hlm-select-trigger class="w-full">
+          <hlm-select-value placeholder="All sexes" />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          <hlm-select-item value="">All sexes</hlm-select-item>
+          @for (sex of sexes; track sex) {
+            <hlm-select-item [value]="sex">
+              {{ sex === 'wether' ? 'Castrated' : sex }}
+            </hlm-select-item>
+          }
+        </hlm-select-content>
+      </hlm-select>
     </div>
 
-    <div
-      hlmField
-      orientation="horizontal"
-      class="bg-card ring-foreground/10 rounded-xl px-3 py-2.5 ring-1"
-    >
+    <div hlmField orientation="horizontal" class="px-1 py-0.5">
       <hlm-checkbox
         [ngModel]="animalStore.filters.status() !== 'alive'"
         (ngModelChange)="onShowInactive($event)"
@@ -79,11 +82,9 @@
       }
     </div>
   } @else if (animals().length === 0) {
-    <div
-      class="bg-card ring-foreground/10 flex flex-col items-center gap-3 rounded-xl px-6 py-12 text-center ring-1"
-    >
-      <span class="bg-muted flex size-14 items-center justify-center rounded-full">
-        <ng-icon name="lucideInbox" size="24" class="text-muted-foreground" />
+    <div class="fma-empty">
+      <span class="fma-empty-icon">
+        <ng-icon name="lucideInbox" size="24" />
       </span>
       <div class="space-y-1">
         <p class="font-medium">{{ emptyTitle() }}</p>
@@ -104,7 +105,7 @@
             [routerLink]="['/flock', animal.id]"
             hlmCard
             size="sm"
-            class="hover:bg-muted/40 block transition-colors"
+            class="fma-list-card block"
           >
             <div hlmCardContent class="flex items-center gap-3">
               <span

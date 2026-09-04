@@ -1,0 +1,10 @@
+<hlm-date-picker
+  class="w-full"
+  captionLayout="dropdown"
+  autoCloseOnSelect
+  [date]="date()"
+  [disabled]="disabled()"
+  (dateChange)="onPicked($event)"
+>
+  <hlm-date-picker-input class="w-full" [placeholder]="placeholder()" />
+</hlm-date-picker>

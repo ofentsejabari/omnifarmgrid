@@ -98,9 +98,9 @@ export class DashboardComponent {
     const selected = this.speciesFilterStore.selected();
     const dimmed = selected !== 'all' && selected !== species;
     return [
-      'hover:bg-muted/40 h-full transition-colors',
+      'fma-list-card h-full',
       this.accentClass(species),
-      dimmed ? 'opacity-55' : '',
+      dimmed ? 'opacity-50' : '',
     ].join(' ');
   }
 

@@ -99,11 +99,11 @@ export const BREEDS: Record<Species, readonly string[]> = {
 export const speciesBadgeClass = (species: Species): string => {
   switch (species) {
     case 'goat':
-      return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200';
+      return 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200/80 dark:bg-emerald-900/50 dark:text-emerald-200 dark:ring-emerald-800/60';
     case 'sheep':
-      return 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200';
+      return 'bg-amber-50 text-amber-900 ring-1 ring-amber-200/80 dark:bg-amber-900/40 dark:text-amber-200 dark:ring-amber-800/60';
     case 'pig':
-      return 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-200';
+      return 'bg-rose-50 text-rose-800 ring-1 ring-rose-200/80 dark:bg-rose-900/40 dark:text-rose-200 dark:ring-rose-800/60';
   }
 };
 
@@ -121,22 +121,22 @@ export const speciesIconClass = (species: Species): string => {
 export const speciesAccentClass = (species: Species): string => {
   switch (species) {
     case 'goat':
-      return 'border-l-4 border-l-emerald-500';
+      return 'border-l-[3px] border-l-emerald-500';
     case 'sheep':
-      return 'border-l-4 border-l-amber-500';
+      return 'border-l-[3px] border-l-amber-500';
     case 'pig':
-      return 'border-l-4 border-l-rose-400';
+      return 'border-l-[3px] border-l-rose-400';
   }
 };
 
 export const speciesAvatarClass = (species: Species): string => {
   switch (species) {
     case 'goat':
-      return 'bg-emerald-100 dark:bg-emerald-900/50';
+      return 'bg-emerald-100 ring-1 ring-emerald-200/70 dark:bg-emerald-900/50 dark:ring-emerald-800/50';
     case 'sheep':
-      return 'bg-amber-100 dark:bg-amber-900/40';
+      return 'bg-amber-100 ring-1 ring-amber-200/70 dark:bg-amber-900/40 dark:ring-amber-800/50';
     case 'pig':
-      return 'bg-rose-100 dark:bg-rose-900/40';
+      return 'bg-rose-100 ring-1 ring-rose-200/70 dark:bg-rose-900/40 dark:ring-rose-800/50';
   }
 };
 

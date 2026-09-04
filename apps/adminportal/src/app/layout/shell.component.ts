@@ -34,6 +34,6 @@ export class ShellComponent {
     const active = this.speciesFilterStore.selected() === filter;
     return active
       ? 'bg-primary text-primary-foreground shadow-sm'
-      : 'text-muted-foreground hover:bg-background/70 hover:text-foreground';
+      : 'text-muted-foreground hover:bg-background hover:text-foreground';
   }
 }

@@ -1,11 +1,11 @@
-<section class="flex flex-col gap-5">
-  <a [routerLink]="['/kraals', kraal()?.id]" hlmBtn variant="link" size="sm" class="h-auto px-0">
+<section class="flex flex-col gap-6">
+  <a [routerLink]="['/kraals', kraal()?.id]" hlmBtn variant="link" size="sm" class="text-muted-foreground h-auto px-0">
     <ng-icon name="lucideArrowLeft" />
     {{ kraal()?.name || 'Kraal' }}
   </a>
   <div>
     <h1 class="text-2xl font-semibold tracking-tight">Vaccinate {{ placeLabel() }}</h1>
-    <p class="text-muted-foreground text-sm">
+    <p class="text-muted-foreground mt-1 text-sm leading-relaxed">
       Every animal here is included. Uncheck exceptions (too young, sick, already done).
     </p>
   </div>
@@ -21,34 +21,43 @@
     <div hlmCardContent class="flex flex-col gap-3">
       <div hlmField>
         <label hlmFieldLabel>Product</label>
-        <hlm-native-select
+        <hlm-select
+          class="w-full"
           [ngModel]="productId()"
           (ngModelChange)="productId.set($event ?? ''); batchId.set('')"
           name="product"
         >
-          <option hlmNativeSelectOption value="">Select vaccine or treatment</option>
-          @for (product of inventoryStore.products(); track product.id) {
-            <option hlmNativeSelectOption [value]="product.id">{{ product.name }}</option>
-          }
-        </hlm-native-select>
+          <hlm-select-trigger class="w-full">
+            <hlm-select-value placeholder="Select vaccine or treatment" />
+          </hlm-select-trigger>
+          <hlm-select-content *hlmSelectPortal>
+            @for (product of inventoryStore.products(); track product.id) {
+              <hlm-select-item [value]="product.id">{{ product.name }}</hlm-select-item>
+            }
+          </hlm-select-content>
+        </hlm-select>
       </div>
       <div hlmField>
         <label hlmFieldLabel>Batch</label>
-        <hlm-native-select [ngModel]="batchId()" (ngModelChange)="batchId.set($event ?? '')" name="batch">
-          <option hlmNativeSelectOption value="">Select batch</option>
-          @for (batch of batches(); track batch.id) {
-            <option hlmNativeSelectOption [value]="batch.id">
-              {{ batch.batchNumber || 'No batch no.' }} · {{ batch.quantityOnHand }} left
-              @if (batch.expiryDate) {
-                · exp {{ batch.expiryDate }}
-              }
-            </option>
-          }
-        </hlm-native-select>
+        <hlm-select class="w-full" [ngModel]="batchId()" (ngModelChange)="batchId.set($event ?? '')" name="batch">
+          <hlm-select-trigger class="w-full">
+            <hlm-select-value placeholder="Select batch" />
+          </hlm-select-trigger>
+          <hlm-select-content *hlmSelectPortal>
+            @for (batch of batches(); track batch.id) {
+              <hlm-select-item [value]="batch.id">
+                {{ batch.batchNumber || 'No batch no.' }} · {{ batch.quantityOnHand }} left
+                @if (batch.expiryDate) {
+                  · exp {{ batch.expiryDate }}
+                }
+              </hlm-select-item>
+            }
+          </hlm-select-content>
+        </hlm-select>
       </div>
       <div hlmField>
         <label hlmFieldLabel>Date</label>
-        <input hlmInput type="date" [ngModel]="date()" (ngModelChange)="date.set($event)" name="date" />
+        <fma-iso-date-picker [ngModel]="date()" (ngModelChange)="date.set($event ?? '')" name="date" />
       </div>
       <div hlmField>
         <label hlmFieldLabel>Notes</label>
@@ -88,17 +97,21 @@
                 <label hlmFieldLabel>{{ label(animal) }}</label>
               </div>
               @if (!isSelected(animal.id)) {
-                <hlm-native-select
-                  size="sm"
+                <hlm-select
+                  class="w-full"
                   [ngModel]="reasonFor(animal.id)"
                   (ngModelChange)="setReason(animal.id, $event ?? '')"
                   [name]="'reason-' + animal.id"
                 >
-                  <option hlmNativeSelectOption value="">Why skipped?</option>
-                  @for (reason of exclusionReasons; track reason) {
-                    <option hlmNativeSelectOption [value]="reason">{{ reason }}</option>
-                  }
-                </hlm-native-select>
+                  <hlm-select-trigger class="w-full" size="sm">
+                    <hlm-select-value placeholder="Why skipped?" />
+                  </hlm-select-trigger>
+                  <hlm-select-content *hlmSelectPortal>
+                    @for (reason of exclusionReasons; track reason) {
+                      <hlm-select-item [value]="reason">{{ reason }}</hlm-select-item>
+                    }
+                  </hlm-select-content>
+                </hlm-select>
               }
             </div>
           </hlm-card>

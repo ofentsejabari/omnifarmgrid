@@ -1,11 +1,11 @@
-<section class="flex flex-col gap-5">
-  <a routerLink="/" hlmBtn variant="link" size="sm" class="h-auto px-0">
+<section class="flex flex-col gap-6">
+  <a routerLink="/" hlmBtn variant="link" size="sm" class="text-muted-foreground h-auto px-0">
     <ng-icon name="lucideArrowLeft" />
     Home
   </a>
   <div>
     <h1 class="text-2xl font-semibold tracking-tight">{{ copy(birthSpecies()).birthVerb }}</h1>
-    <p class="text-muted-foreground text-sm">
+    <p class="text-muted-foreground mt-1 text-sm leading-relaxed">
       Record the dam and each {{ copy(birthSpecies()).young }}.
     </p>
   </div>
@@ -22,27 +22,33 @@
       <div hlmCardContent class="flex flex-col gap-3">
         <div hlmField>
           <label hlmFieldLabel>Dam ({{ copy(birthSpecies()).dam }})</label>
-          <hlm-native-select formControlName="damId">
-            <option hlmNativeSelectOption value="">Select {{ copy(birthSpecies()).dam }}</option>
-            @for (dam of dams(); track dam.id) {
-              <option hlmNativeSelectOption [value]="dam.id">
-                {{ label(dam) }}
-              </option>
-            }
-          </hlm-native-select>
+          <hlm-select class="w-full" formControlName="damId">
+            <hlm-select-trigger class="w-full">
+              <hlm-select-value placeholder="Select {{ copy(birthSpecies()).dam }}" />
+            </hlm-select-trigger>
+            <hlm-select-content *hlmSelectPortal>
+              @for (dam of dams(); track dam.id) {
+                <hlm-select-item [value]="dam.id">{{ label(dam) }}</hlm-select-item>
+              }
+            </hlm-select-content>
+          </hlm-select>
         </div>
         <div hlmField>
           <label hlmFieldLabel>{{ copy(birthSpecies()).location }} for {{ copy(birthSpecies()).youngPlural }}</label>
-          <hlm-native-select formControlName="kraalId">
-            <option hlmNativeSelectOption value="">Select {{ copy(birthSpecies()).location }}</option>
-            @for (kraal of matchingKraals(); track kraal.id) {
-              <option hlmNativeSelectOption [value]="kraal.id">{{ kraal.name }}</option>
-            }
-          </hlm-native-select>
+          <hlm-select class="w-full" formControlName="kraalId">
+            <hlm-select-trigger class="w-full">
+              <hlm-select-value placeholder="Select {{ copy(birthSpecies()).location }}" />
+            </hlm-select-trigger>
+            <hlm-select-content *hlmSelectPortal>
+              @for (kraal of matchingKraals(); track kraal.id) {
+                <hlm-select-item [value]="kraal.id">{{ kraal.name }}</hlm-select-item>
+              }
+            </hlm-select-content>
+          </hlm-select>
         </div>
         <div hlmField>
           <label hlmFieldLabel>{{ copy(birthSpecies()).birth }} date</label>
-          <input hlmInput type="date" formControlName="date" />
+          <fma-iso-date-picker formControlName="date" placeholder="Pick a date" />
         </div>
         <div hlmField>
           <label hlmFieldLabel>Notes</label>
@@ -68,11 +74,16 @@
             </div>
             <input hlmInput formControlName="tag" placeholder="Ear tag" />
             <input hlmInput formControlName="name" placeholder="Name (optional)" />
-            <hlm-native-select formControlName="sex">
-              @for (sex of sexes; track sex) {
-                <option hlmNativeSelectOption [value]="sex">{{ sexLabel(sex) }}</option>
-              }
-            </hlm-native-select>
+            <hlm-select class="w-full" formControlName="sex">
+              <hlm-select-trigger class="w-full">
+                <hlm-select-value placeholder="Select sex" />
+              </hlm-select-trigger>
+              <hlm-select-content *hlmSelectPortal>
+                @for (sex of sexes; track sex) {
+                  <hlm-select-item [value]="sex">{{ sexLabel(sex) }}</hlm-select-item>
+                }
+              </hlm-select-content>
+            </hlm-select>
           </div>
         </div>
       }

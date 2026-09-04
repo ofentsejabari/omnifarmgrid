@@ -1,4 +1,26 @@
-export const todayIsoDate = (): string => new Date().toISOString().slice(0, 10);
+export const isoToDate = (iso: string | undefined | null): Date | undefined => {
+  if (!iso) {
+    return undefined;
+  }
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  if (!match) {
+    return undefined;
+  }
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  return Number.isNaN(date.getTime()) ? undefined : date;
+};
+
+export const dateToIso = (date: Date | null | undefined): string => {
+  if (!date) {
+    return '';
+  }
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+export const todayIsoDate = (): string => dateToIso(new Date());
 
 export const nowIso = (): string => new Date().toISOString();
 
@@ -23,5 +45,5 @@ export const expiresWithinDays = (
 export const monthsAgoIsoDate = (months: number, from = new Date()): string => {
   const date = new Date(from);
   date.setMonth(date.getMonth() - months);
-  return date.toISOString().slice(0, 10);
+  return dateToIso(date);
 };

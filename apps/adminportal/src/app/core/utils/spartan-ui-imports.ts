@@ -6,7 +6,7 @@ import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmCheckboxImports } from '@spartan-ng/helm/checkbox';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
-import { HlmNativeSelectImports } from '@spartan-ng/helm/native-select';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 /** Common Spartan Helm pieces used across FMA screens. */
@@ -19,6 +19,6 @@ export const SpartanUiImports = [
   ...HlmCheckboxImports,
   ...HlmFieldImports,
   ...HlmInputImports,
-  ...HlmNativeSelectImports,
+  ...HlmSelectImports,
   ...HlmTextareaImports,
 ] as const;

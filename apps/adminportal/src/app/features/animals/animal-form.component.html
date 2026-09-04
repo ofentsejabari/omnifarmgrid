@@ -1,5 +1,5 @@
-<section class="flex flex-col gap-5">
-  <a routerLink="/flock" hlmBtn variant="link" size="sm" class="h-auto px-0">
+<section class="flex flex-col gap-6">
+  <a routerLink="/flock" hlmBtn variant="link" size="sm" class="text-muted-foreground h-auto px-0">
     <ng-icon name="lucideArrowLeft" />
     Animals
   </a>
@@ -7,7 +7,9 @@
     <h1 class="text-2xl font-semibold tracking-tight">
       {{ isEdit() ? 'Edit animal' : 'Add animal' }}
     </h1>
-    <p class="text-muted-foreground text-sm">Ear tag, place, and the details you actually use.</p>
+    <p class="text-muted-foreground mt-1 text-sm leading-relaxed">
+      Ear tag, place, and the details you actually use.
+    </p>
   </div>
 
   @if (error()) {
@@ -19,16 +21,19 @@
 
   @if (loaded()) {
     <form hlmCard [formGroup]="form" (ngSubmit)="save()">
-      <div hlmCardContent class="flex flex-col gap-3">
+      <div hlmCardContent class="flex flex-col gap-4">
         <div hlmField>
           <label hlmFieldLabel>Species</label>
-          <hlm-native-select formControlName="species">
-            @for (value of speciesOptions; track value) {
-              <option hlmNativeSelectOption [value]="value">
-              {{ copy(value).noun }}
-              </option>
-            }
-          </hlm-native-select>
+          <hlm-select class="w-full" formControlName="species">
+            <hlm-select-trigger class="w-full">
+              <hlm-select-value placeholder="Select species" />
+            </hlm-select-trigger>
+            <hlm-select-content *hlmSelectPortal>
+              @for (value of speciesOptions; track value) {
+                <hlm-select-item [value]="value">{{ copy(value).noun }}</hlm-select-item>
+              }
+            </hlm-select-content>
+          </hlm-select>
         </div>
         <div hlmField>
           <label hlmFieldLabel>Ear tag</label>
@@ -40,12 +45,16 @@
         </div>
         <div hlmField>
           <label hlmFieldLabel>{{ copy(currentSpecies()).location }}</label>
-          <hlm-native-select formControlName="kraalId">
-            <option hlmNativeSelectOption value="">Select {{ copy(currentSpecies()).location }}</option>
-            @for (kraal of matchingKraals(); track kraal.id) {
-              <option hlmNativeSelectOption [value]="kraal.id">{{ kraal.name }}</option>
-            }
-          </hlm-native-select>
+          <hlm-select class="w-full" formControlName="kraalId">
+            <hlm-select-trigger class="w-full">
+              <hlm-select-value placeholder="Select {{ copy(currentSpecies()).location }}" />
+            </hlm-select-trigger>
+            <hlm-select-content *hlmSelectPortal>
+              @for (kraal of matchingKraals(); track kraal.id) {
+                <hlm-select-item [value]="kraal.id">{{ kraal.name }}</hlm-select-item>
+              }
+            </hlm-select-content>
+          </hlm-select>
           @if (matchingKraals().length === 0) {
             <p class="text-muted-foreground text-sm">
               Add a {{ copy(currentSpecies()).location }} for
@@ -55,11 +64,16 @@
         </div>
         <div hlmField>
           <label hlmFieldLabel>Sex</label>
-          <hlm-native-select formControlName="sex">
-            @for (sex of sexes; track sex) {
-              <option hlmNativeSelectOption [value]="sex">{{ sexLabel(sex) }}</option>
-            }
-          </hlm-native-select>
+          <hlm-select class="w-full" formControlName="sex">
+            <hlm-select-trigger class="w-full">
+              <hlm-select-value placeholder="Select sex" />
+            </hlm-select-trigger>
+            <hlm-select-content *hlmSelectPortal>
+              @for (sex of sexes; track sex) {
+                <hlm-select-item [value]="sex">{{ sexLabel(sex) }}</hlm-select-item>
+              }
+            </hlm-select-content>
+          </hlm-select>
         </div>
         <div hlmField>
           <label hlmFieldLabel>Breed</label>
@@ -72,7 +86,7 @@
         </div>
         <div hlmField>
           <label hlmFieldLabel>Date of birth</label>
-          <input hlmInput type="date" formControlName="dateOfBirth" />
+          <fma-iso-date-picker formControlName="dateOfBirth" placeholder="Pick a date" />
         </div>
         <div hlmField orientation="horizontal">
           <hlm-checkbox formControlName="birthDateEstimated" />

@@ -1,8 +1,8 @@
-<section class="flex flex-col gap-5">
+<section class="flex flex-col gap-6">
   <div class="flex items-start justify-between gap-3">
     <div class="min-w-0">
       <h1 class="text-2xl font-semibold tracking-tight">{{ heading() }}</h1>
-      <p class="text-muted-foreground text-sm">
+      <p class="text-muted-foreground mt-1 text-sm leading-relaxed">
         {{ visibleKraals().length }}
         {{ visibleKraals().length === 1 ? 'place' : 'places' }}
       </p>
@@ -22,16 +22,19 @@
 
   @if (showForm()) {
     <form hlmCard (submit)="$event.preventDefault(); save()">
-      <div hlmCardContent class="flex flex-col gap-3">
+      <div hlmCardContent class="flex flex-col gap-4">
         <div hlmField>
           <label hlmFieldLabel>Species</label>
-          <hlm-native-select [ngModel]="species()" (ngModelChange)="onSpecies($event)" name="species">
-            @for (value of speciesOptions; track value) {
-              <option hlmNativeSelectOption [value]="value">
-                {{ speciesName(value) }}
-              </option>
-            }
-          </hlm-native-select>
+          <hlm-select class="w-full" [ngModel]="species()" (ngModelChange)="onSpecies($event)" name="species">
+            <hlm-select-trigger class="w-full">
+              <hlm-select-value placeholder="Select species" />
+            </hlm-select-trigger>
+            <hlm-select-content *hlmSelectPortal>
+              @for (value of speciesOptions; track value) {
+                <hlm-select-item [value]="value">{{ speciesName(value) }}</hlm-select-item>
+              }
+            </hlm-select-content>
+          </hlm-select>
         </div>
         <div hlmField>
           <label hlmFieldLabel>Name</label>
@@ -55,11 +58,9 @@
   }
 
   @if (visibleKraals().length === 0 && !showForm()) {
-    <div
-      class="bg-card ring-foreground/10 flex flex-col items-center gap-3 rounded-xl px-6 py-12 text-center ring-1"
-    >
-      <span class="bg-muted flex size-14 items-center justify-center rounded-full">
-        <ng-icon name="lucideFence" size="24" class="text-muted-foreground" />
+    <div class="fma-empty">
+      <span class="fma-empty-icon">
+        <ng-icon name="lucideFence" size="24" />
       </span>
       <div class="space-y-1">
         <p class="font-medium">No {{ heading().toLowerCase() }} yet</p>
@@ -77,7 +78,7 @@
   <ul class="flex flex-col gap-2">
     @for (kraal of visibleKraals(); track kraal.id) {
       <li>
-        <hlm-card size="sm">
+        <hlm-card size="sm" class="fma-list-card">
           <div hlmCardContent class="flex items-center gap-3">
             <a [routerLink]="['/kraals', kraal.id]" class="flex min-w-0 grow items-center gap-3">
               <span

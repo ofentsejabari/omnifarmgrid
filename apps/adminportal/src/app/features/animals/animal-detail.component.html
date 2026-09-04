@@ -1,5 +1,5 @@
-<section class="flex flex-col gap-5">
-  <a routerLink="/flock" hlmBtn variant="link" size="sm" class="h-auto px-0">
+<section class="flex flex-col gap-6">
+  <a routerLink="/flock" hlmBtn variant="link" size="sm" class="text-muted-foreground h-auto px-0">
     <ng-icon name="lucideArrowLeft" />
     Animals
   </a>
@@ -119,20 +119,18 @@
               <div hlmAlertDescription>{{ moveError() }}</div>
             </hlm-alert>
           }
-          <hlm-native-select
-            [ngModel]="moveKraalId()"
-            (ngModelChange)="moveKraalId.set($event ?? '')"
-            name="moveKraal"
-          >
-            <option hlmNativeSelectOption value="">
-              Choose {{ copy(current.species).location }}
-            </option>
-            @for (kraal of matchingKraals(); track kraal.id) {
-              @if (kraal.id !== current.kraalId) {
-                <option hlmNativeSelectOption [value]="kraal.id">{{ kraal.name }}</option>
+          <hlm-select class="w-full" [ngModel]="moveKraalId()" (ngModelChange)="moveKraalId.set($event ?? '')" name="moveKraal">
+            <hlm-select-trigger class="w-full">
+              <hlm-select-value placeholder="Choose {{ copy(current.species).location }}" />
+            </hlm-select-trigger>
+            <hlm-select-content *hlmSelectPortal>
+              @for (kraal of matchingKraals(); track kraal.id) {
+                @if (kraal.id !== current.kraalId) {
+                  <hlm-select-item [value]="kraal.id">{{ kraal.name }}</hlm-select-item>
+                }
               }
-            }
-          </hlm-native-select>
+            </hlm-select-content>
+          </hlm-select>
           <button type="button" hlmBtn (click)="move()">
             <ng-icon name="lucideMoveHorizontal" />
             Move {{ copy(current.species).noun }}
@@ -220,11 +218,9 @@
       </div>
     </hlm-card>
   } @else {
-    <div
-      class="bg-card ring-foreground/10 flex flex-col items-center gap-3 rounded-xl px-6 py-12 text-center ring-1"
-    >
-      <span class="bg-muted flex size-14 items-center justify-center rounded-full">
-        <ng-icon name="lucideInbox" size="24" class="text-muted-foreground" />
+    <div class="fma-empty">
+      <span class="fma-empty-icon">
+        <ng-icon name="lucideInbox" size="24" />
       </span>
       <p class="font-medium">Animal not found</p>
       <a routerLink="/flock" hlmBtn size="sm" variant="outline">Back to animals</a>
