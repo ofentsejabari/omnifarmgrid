@@ -1,0 +1,91 @@
+<section class="flex flex-col gap-5">
+  <a routerLink="/flock" hlmBtn variant="link" size="sm" class="h-auto px-0">
+    <ng-icon name="lucideArrowLeft" />
+    Animals
+  </a>
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">
+      {{ isEdit() ? 'Edit animal' : 'Add animal' }}
+    </h1>
+    <p class="text-muted-foreground text-sm">Ear tag, place, and the details you actually use.</p>
+  </div>
+
+  @if (error()) {
+    <hlm-alert class="bg-warning/30 text-warning-foreground">
+      <ng-icon name="lucideTriangleAlert" />
+      <div hlmAlertDescription>{{ error() }}</div>
+    </hlm-alert>
+  }
+
+  @if (loaded()) {
+    <form hlmCard [formGroup]="form" (ngSubmit)="save()">
+      <div hlmCardContent class="flex flex-col gap-3">
+        <div hlmField>
+          <label hlmFieldLabel>Species</label>
+          <hlm-native-select formControlName="species">
+            @for (value of speciesOptions; track value) {
+              <option hlmNativeSelectOption [value]="value">
+              {{ copy(value).noun }}
+              </option>
+            }
+          </hlm-native-select>
+        </div>
+        <div hlmField>
+          <label hlmFieldLabel>Ear tag</label>
+          <input hlmInput formControlName="tag" autocomplete="off" />
+        </div>
+        <div hlmField>
+          <label hlmFieldLabel>Name (optional)</label>
+          <input hlmInput formControlName="name" />
+        </div>
+        <div hlmField>
+          <label hlmFieldLabel>{{ copy(currentSpecies()).location }}</label>
+          <hlm-native-select formControlName="kraalId">
+            <option hlmNativeSelectOption value="">Select {{ copy(currentSpecies()).location }}</option>
+            @for (kraal of matchingKraals(); track kraal.id) {
+              <option hlmNativeSelectOption [value]="kraal.id">{{ kraal.name }}</option>
+            }
+          </hlm-native-select>
+          @if (matchingKraals().length === 0) {
+            <p class="text-muted-foreground text-sm">
+              Add a {{ copy(currentSpecies()).location }} for
+              {{ copy(currentSpecies()).plural }} first.
+            </p>
+          }
+        </div>
+        <div hlmField>
+          <label hlmFieldLabel>Sex</label>
+          <hlm-native-select formControlName="sex">
+            @for (sex of sexes; track sex) {
+              <option hlmNativeSelectOption [value]="sex">{{ sexLabel(sex) }}</option>
+            }
+          </hlm-native-select>
+        </div>
+        <div hlmField>
+          <label hlmFieldLabel>Breed</label>
+          <input hlmInput list="breeds" formControlName="breed" />
+          <datalist id="breeds">
+            @for (breed of breeds(); track breed) {
+              <option [value]="breed"></option>
+            }
+          </datalist>
+        </div>
+        <div hlmField>
+          <label hlmFieldLabel>Date of birth</label>
+          <input hlmInput type="date" formControlName="dateOfBirth" />
+        </div>
+        <div hlmField orientation="horizontal">
+          <hlm-checkbox formControlName="birthDateEstimated" />
+          <label hlmFieldLabel>Birth date is estimated</label>
+        </div>
+        <div hlmField>
+          <label hlmFieldLabel>Notes</label>
+          <textarea hlmTextarea formControlName="notes"></textarea>
+        </div>
+      </div>
+      <hlm-card-footer class="justify-end">
+        <button type="submit" hlmBtn>Save {{ copy(currentSpecies()).noun }}</button>
+      </hlm-card-footer>
+    </form>
+  }
+</section>

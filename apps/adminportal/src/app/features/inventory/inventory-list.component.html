@@ -1,0 +1,140 @@
+<section class="flex flex-col gap-5">
+  <div class="flex items-start justify-between gap-3">
+    <div class="min-w-0">
+      <h1 class="text-2xl font-semibold tracking-tight">Medicine stock</h1>
+      <p class="text-muted-foreground text-sm">
+        Vaccines and treatments stay on this device. Receive stock, then vaccinate a kraal or pen.
+      </p>
+    </div>
+    <button type="button" hlmBtn (click)="showProductForm.set(true)">
+      <ng-icon name="lucidePlus" />
+      Add
+    </button>
+  </div>
+
+  @if (error()) {
+    <hlm-alert class="bg-warning/30 text-warning-foreground">
+      <ng-icon name="lucideTriangleAlert" />
+      <div hlmAlertDescription>{{ error() }}</div>
+    </hlm-alert>
+  }
+
+  <button type="button" hlmBtn variant="outline" (click)="addCommon()">
+    <ng-icon name="lucideSyringe" />
+    Add common vaccines
+  </button>
+
+  @if (showProductForm()) {
+    <form hlmCard [formGroup]="productForm" (ngSubmit)="addProduct()">
+      <div hlmCardContent class="flex flex-col gap-3">
+        <input hlmInput formControlName="name" placeholder="Product name" />
+        <hlm-native-select formControlName="kind">
+          @for (kind of kinds; track kind) {
+            <option hlmNativeSelectOption [value]="kind">{{ kindLabel(kind) }}</option>
+          }
+        </hlm-native-select>
+        <hlm-native-select formControlName="unit">
+          @for (unit of units; track unit) {
+            <option hlmNativeSelectOption [value]="unit">{{ unit }}</option>
+          }
+        </hlm-native-select>
+        <div hlmField>
+          <label hlmFieldLabel>Low-stock warning</label>
+          <input hlmInput type="number" min="0" formControlName="lowStockThreshold" />
+        </div>
+      </div>
+      <hlm-card-footer class="justify-end gap-2">
+        <button type="button" hlmBtn variant="ghost" (click)="showProductForm.set(false)">
+          Cancel
+        </button>
+        <button type="submit" hlmBtn>Save product</button>
+      </hlm-card-footer>
+    </form>
+  }
+
+  @if (rows().length === 0) {
+    <div
+      class="bg-card ring-foreground/10 flex flex-col items-center gap-3 rounded-xl px-6 py-12 text-center ring-1"
+    >
+      <span class="bg-muted flex size-14 items-center justify-center rounded-full">
+        <ng-icon name="lucidePackage" size="24" class="text-muted-foreground" />
+      </span>
+      <div class="space-y-1">
+        <p class="font-medium">No products yet</p>
+        <p class="text-muted-foreground text-sm">
+          Add pulpy kidney, PPR, or a dewormer to start.
+        </p>
+      </div>
+    </div>
+  }
+
+  <ul class="flex flex-col gap-2">
+    @for (row of rows(); track row.product.id) {
+      <li>
+        <hlm-card size="sm">
+          <div hlmCardContent class="flex flex-col gap-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <h2 class="font-semibold">{{ row.product.name }}</h2>
+                <p class="text-muted-foreground text-sm">
+                  {{ kindLabel(row.product.kind) }} · {{ row.onHand }} {{ row.product.unit }}s
+                </p>
+              </div>
+              <button
+                type="button"
+                hlmBtn
+                size="sm"
+                variant="secondary"
+                (click)="startReceive(row.product.id)"
+              >
+                Receive
+              </button>
+            </div>
+            @if (row.onHand <= row.product.lowStockThreshold || row.expiring || row.expired) {
+              <div class="flex flex-wrap gap-1.5">
+                @if (row.onHand <= row.product.lowStockThreshold) {
+                  <span hlmBadge class="bg-warning/40 text-warning-foreground">Low stock</span>
+                }
+                @if (row.expiring) {
+                  <span hlmBadge class="bg-info/40 text-info-foreground">Expiring soon</span>
+                }
+                @if (row.expired) {
+                  <span hlmBadge variant="destructive">Expired doses on hand</span>
+                }
+              </div>
+            }
+            @if (receiveProductId() === row.product.id) {
+              <form
+                class="flex flex-col gap-2 border-t border-border pt-3"
+                [formGroup]="receiveForm"
+                (ngSubmit)="receive()"
+              >
+                <input
+                  hlmInput
+                  type="number"
+                  min="1"
+                  formControlName="quantity"
+                  placeholder="Quantity"
+                />
+                <input hlmInput formControlName="batchNumber" placeholder="Batch number" />
+                <input hlmInput type="date" formControlName="expiryDate" />
+                <div class="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    hlmBtn
+                    variant="ghost"
+                    size="sm"
+                    (click)="receiveProductId.set('')"
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" hlmBtn size="sm">Save stock</button>
+                </div>
+              </form>
+            }
+          </div>
+        </hlm-card>
+      </li>
+    }
+  </ul>
+</section>

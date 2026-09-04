@@ -1,0 +1,118 @@
+<section class="flex flex-col gap-5">
+  <a [routerLink]="['/kraals', kraal()?.id]" hlmBtn variant="link" size="sm" class="h-auto px-0">
+    <ng-icon name="lucideArrowLeft" />
+    {{ kraal()?.name || 'Kraal' }}
+  </a>
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">Vaccinate {{ placeLabel() }}</h1>
+    <p class="text-muted-foreground text-sm">
+      Every animal here is included. Uncheck exceptions (too young, sick, already done).
+    </p>
+  </div>
+
+  @if (error()) {
+    <hlm-alert class="bg-warning/30 text-warning-foreground">
+      <ng-icon name="lucideTriangleAlert" />
+      <div hlmAlertDescription>{{ error() }}</div>
+    </hlm-alert>
+  }
+
+  <hlm-card>
+    <div hlmCardContent class="flex flex-col gap-3">
+      <div hlmField>
+        <label hlmFieldLabel>Product</label>
+        <hlm-native-select
+          [ngModel]="productId()"
+          (ngModelChange)="productId.set($event ?? ''); batchId.set('')"
+          name="product"
+        >
+          <option hlmNativeSelectOption value="">Select vaccine or treatment</option>
+          @for (product of inventoryStore.products(); track product.id) {
+            <option hlmNativeSelectOption [value]="product.id">{{ product.name }}</option>
+          }
+        </hlm-native-select>
+      </div>
+      <div hlmField>
+        <label hlmFieldLabel>Batch</label>
+        <hlm-native-select [ngModel]="batchId()" (ngModelChange)="batchId.set($event ?? '')" name="batch">
+          <option hlmNativeSelectOption value="">Select batch</option>
+          @for (batch of batches(); track batch.id) {
+            <option hlmNativeSelectOption [value]="batch.id">
+              {{ batch.batchNumber || 'No batch no.' }} · {{ batch.quantityOnHand }} left
+              @if (batch.expiryDate) {
+                · exp {{ batch.expiryDate }}
+              }
+            </option>
+          }
+        </hlm-native-select>
+      </div>
+      <div hlmField>
+        <label hlmFieldLabel>Date</label>
+        <input hlmInput type="date" [ngModel]="date()" (ngModelChange)="date.set($event)" name="date" />
+      </div>
+      <div hlmField>
+        <label hlmFieldLabel>Notes</label>
+        <textarea hlmTextarea [ngModel]="notes()" (ngModelChange)="notes.set($event)" name="notes"></textarea>
+      </div>
+    </div>
+  </hlm-card>
+
+  <div class="flex items-center justify-between">
+    <h2 class="font-semibold">{{ treatedCount() }} of {{ animals().length }} selected</h2>
+    <button type="button" hlmBtn variant="ghost" size="sm" (click)="selectAllDefault()">Select all</button>
+  </div>
+
+  @if (animals().length === 0) {
+    <div
+      class="bg-card ring-foreground/10 flex flex-col items-center gap-3 rounded-xl px-6 py-10 text-center ring-1"
+    >
+      <span class="bg-muted flex size-14 items-center justify-center rounded-full">
+        <ng-icon name="lucideInbox" size="24" class="text-muted-foreground" />
+      </span>
+      <p class="text-muted-foreground text-sm">
+        This {{ placeLabel() }} has no living animals.
+      </p>
+    </div>
+  } @else {
+    <ul class="flex flex-col gap-2">
+      @for (animal of animals(); track animal.id) {
+        <li>
+          <hlm-card size="sm">
+            <div hlmCardContent class="flex flex-col gap-2">
+              <div hlmField orientation="horizontal">
+                <hlm-checkbox
+                  [name]="'animal-' + animal.id"
+                  [ngModel]="isSelected(animal.id)"
+                  (ngModelChange)="toggle(animal.id, $event)"
+                />
+                <label hlmFieldLabel>{{ label(animal) }}</label>
+              </div>
+              @if (!isSelected(animal.id)) {
+                <hlm-native-select
+                  size="sm"
+                  [ngModel]="reasonFor(animal.id)"
+                  (ngModelChange)="setReason(animal.id, $event ?? '')"
+                  [name]="'reason-' + animal.id"
+                >
+                  <option hlmNativeSelectOption value="">Why skipped?</option>
+                  @for (reason of exclusionReasons; track reason) {
+                    <option hlmNativeSelectOption [value]="reason">{{ reason }}</option>
+                  }
+                </hlm-native-select>
+              }
+            </div>
+          </hlm-card>
+        </li>
+      }
+    </ul>
+  }
+
+  <hlm-alert>
+    <ng-icon name="lucideSyringe" />
+    <div hlmAlertDescription>This will use {{ treatedCount() }} dose(s) from the selected batch.</div>
+  </hlm-alert>
+  <button type="button" hlmBtn class="w-full" (click)="save()">
+    <ng-icon name="lucideSyringe" />
+    Save vaccination
+  </button>
+</section>

@@ -1,0 +1,129 @@
+<section class="flex flex-col gap-5">
+  <div class="flex items-start justify-between gap-3">
+    <div class="min-w-0">
+      <h1 class="text-2xl font-semibold tracking-tight">{{ heading() }}</h1>
+      <p class="text-muted-foreground text-sm">
+        {{ visibleKraals().length }}
+        {{ visibleKraals().length === 1 ? 'place' : 'places' }}
+      </p>
+    </div>
+    <button type="button" hlmBtn (click)="openForm()">
+      <ng-icon name="lucidePlus" />
+      {{ addLabel() }}
+    </button>
+  </div>
+
+  @if (error()) {
+    <hlm-alert class="bg-warning/30 text-warning-foreground">
+      <ng-icon name="lucideTriangleAlert" />
+      <div hlmAlertDescription>{{ error() }}</div>
+    </hlm-alert>
+  }
+
+  @if (showForm()) {
+    <form hlmCard (submit)="$event.preventDefault(); save()">
+      <div hlmCardContent class="flex flex-col gap-3">
+        <div hlmField>
+          <label hlmFieldLabel>Species</label>
+          <hlm-native-select [ngModel]="species()" (ngModelChange)="onSpecies($event)" name="species">
+            @for (value of speciesOptions; track value) {
+              <option hlmNativeSelectOption [value]="value">
+                {{ speciesName(value) }}
+              </option>
+            }
+          </hlm-native-select>
+        </div>
+        <div hlmField>
+          <label hlmFieldLabel>Name</label>
+          <input hlmInput [ngModel]="name()" (ngModelChange)="name.set($event)" name="name" />
+        </div>
+        <div hlmField>
+          <label hlmFieldLabel>Notes</label>
+          <textarea
+            hlmTextarea
+            [ngModel]="notes()"
+            (ngModelChange)="notes.set($event)"
+            name="notes"
+          ></textarea>
+        </div>
+      </div>
+      <hlm-card-footer class="justify-end gap-2">
+        <button type="button" hlmBtn variant="ghost" (click)="showForm.set(false)">Cancel</button>
+        <button type="submit" hlmBtn>Save {{ copy(species()).location }}</button>
+      </hlm-card-footer>
+    </form>
+  }
+
+  @if (visibleKraals().length === 0 && !showForm()) {
+    <div
+      class="bg-card ring-foreground/10 flex flex-col items-center gap-3 rounded-xl px-6 py-12 text-center ring-1"
+    >
+      <span class="bg-muted flex size-14 items-center justify-center rounded-full">
+        <ng-icon name="lucideFence" size="24" class="text-muted-foreground" />
+      </span>
+      <div class="space-y-1">
+        <p class="font-medium">No {{ heading().toLowerCase() }} yet</p>
+        <p class="text-muted-foreground text-sm">
+          Add home, lands, ram kraal, farrowing pen, or a sick pen — whatever you actually use.
+        </p>
+      </div>
+      <button type="button" hlmBtn size="sm" (click)="openForm()">
+        <ng-icon name="lucidePlus" />
+        {{ addLabel() }}
+      </button>
+    </div>
+  }
+
+  <ul class="flex flex-col gap-2">
+    @for (kraal of visibleKraals(); track kraal.id) {
+      <li>
+        <hlm-card size="sm">
+          <div hlmCardContent class="flex items-center gap-3">
+            <a [routerLink]="['/kraals', kraal.id]" class="flex min-w-0 grow items-center gap-3">
+              <span
+                class="flex size-11 shrink-0 items-center justify-center rounded-full"
+                [class]="avatarClass(kraal.species)"
+              >
+                <ng-icon
+                  [name]="copy(kraal.species).icon"
+                  [class]="iconClass(kraal.species)"
+                  size="20"
+                />
+              </span>
+              <div class="min-w-0 grow">
+                <div class="flex items-center gap-2">
+                  <h2 class="truncate font-semibold">{{ kraal.name }}</h2>
+                  <span hlmBadge [class]="badgeClass(kraal.species)">
+                    {{ copy(kraal.species).noun }}
+                  </span>
+                </div>
+                <p class="text-muted-foreground truncate text-sm">
+                  {{ animalCount(kraal.id) }}
+                  {{
+                    animalCount(kraal.id) === 1
+                      ? copy(kraal.species).noun
+                      : copy(kraal.species).plural
+                  }}
+                </p>
+                @if (kraal.notes) {
+                  <p class="text-muted-foreground mt-0.5 truncate text-sm">{{ kraal.notes }}</p>
+                }
+              </div>
+              <ng-icon name="lucideChevronRight" class="text-muted-foreground shrink-0" size="16" />
+            </a>
+            <button
+              type="button"
+              hlmBtn
+              variant="ghost"
+              size="icon-sm"
+              (click)="remove(kraal.id)"
+              [attr.aria-label]="'Remove ' + kraal.name"
+            >
+              <ng-icon name="lucideTrash2" />
+            </button>
+          </div>
+        </hlm-card>
+      </li>
+    }
+  </ul>
+</section>

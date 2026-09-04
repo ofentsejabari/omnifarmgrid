@@ -1,0 +1,81 @@
+<div class="min-h-dvh pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
+  <header class="bg-card/90 sticky top-0 z-20 border-b border-border shadow-sm backdrop-blur-md">
+    <div class="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
+      <div class="flex min-w-0 items-center gap-3">
+        <img
+          src="logo.png"
+          alt="AgroHerd"
+          class="ring-primary/20 size-10 shrink-0 rounded-full object-cover ring-2"
+        />
+        <div class="min-w-0">
+          <p class="leading-tight font-semibold tracking-tight">AgroHerd FMA</p>
+          <p class="text-muted-foreground truncate text-xs leading-tight">Goats · sheep · pigs</p>
+        </div>
+      </div>
+      @if (onlineStore.online()) {
+        <span hlmBadge variant="secondary" class="shrink-0 gap-1">
+          <ng-icon name="lucideWifi" />
+          Online
+        </span>
+      } @else {
+        <span hlmBadge class="bg-warning/40 text-warning-foreground shrink-0 gap-1">
+          <ng-icon name="lucideWifiOff" />
+          Offline
+        </span>
+      }
+    </div>
+    <div class="mx-auto max-w-3xl px-4 pb-3">
+      <div class="bg-muted/80 flex gap-1 rounded-full p-1 ring-1 ring-border/60">
+        <button
+          type="button"
+          class="flex-1 rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors"
+          [class]="chipClass('all')"
+          (click)="setFilter('all')"
+        >
+          All
+        </button>
+        @for (value of species; track value) {
+          <button
+            type="button"
+            class="inline-flex flex-1 items-center justify-center gap-1 rounded-full px-3 py-1.5
+              text-xs font-medium whitespace-nowrap transition-colors"
+            [class]="chipClass(value)"
+            (click)="setFilter(value)"
+          >
+            <ng-icon [name]="copy(value).icon" size="14" />
+            {{ speciesName(value) }}
+          </button>
+        }
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto w-full max-w-3xl px-4 py-5">
+    <router-outlet />
+  </main>
+
+  <nav
+    class="bg-card/95 fixed inset-x-0 bottom-0 z-20 border-t border-border backdrop-blur-md
+      pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_oklch(0.28_0.03_145/0.06)]"
+  >
+    <div class="mx-auto grid max-w-3xl grid-cols-5">
+      @for (item of navItems; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive
+          #navLink="routerLinkActive"
+          [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }"
+          class="relative flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium transition-colors"
+          [class.text-primary]="navLink.isActive"
+          [class.text-muted-foreground]="!navLink.isActive"
+        >
+          @if (navLink.isActive) {
+            <span class="bg-primary absolute inset-x-5 top-0 h-0.5 rounded-full"></span>
+          }
+          <ng-icon [name]="item.icon" size="20" />
+          {{ item.label }}
+        </a>
+      }
+    </div>
+  </nav>
+</div>

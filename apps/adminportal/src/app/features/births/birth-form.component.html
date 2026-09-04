@@ -1,0 +1,83 @@
+<section class="flex flex-col gap-5">
+  <a routerLink="/" hlmBtn variant="link" size="sm" class="h-auto px-0">
+    <ng-icon name="lucideArrowLeft" />
+    Home
+  </a>
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">{{ copy(birthSpecies()).birthVerb }}</h1>
+    <p class="text-muted-foreground text-sm">
+      Record the dam and each {{ copy(birthSpecies()).young }}.
+    </p>
+  </div>
+
+  @if (error()) {
+    <hlm-alert class="bg-warning/30 text-warning-foreground">
+      <ng-icon name="lucideTriangleAlert" />
+      <div hlmAlertDescription>{{ error() }}</div>
+    </hlm-alert>
+  }
+
+  <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="save()">
+    <hlm-card>
+      <div hlmCardContent class="flex flex-col gap-3">
+        <div hlmField>
+          <label hlmFieldLabel>Dam ({{ copy(birthSpecies()).dam }})</label>
+          <hlm-native-select formControlName="damId">
+            <option hlmNativeSelectOption value="">Select {{ copy(birthSpecies()).dam }}</option>
+            @for (dam of dams(); track dam.id) {
+              <option hlmNativeSelectOption [value]="dam.id">
+                {{ label(dam) }}
+              </option>
+            }
+          </hlm-native-select>
+        </div>
+        <div hlmField>
+          <label hlmFieldLabel>{{ copy(birthSpecies()).location }} for {{ copy(birthSpecies()).youngPlural }}</label>
+          <hlm-native-select formControlName="kraalId">
+            <option hlmNativeSelectOption value="">Select {{ copy(birthSpecies()).location }}</option>
+            @for (kraal of matchingKraals(); track kraal.id) {
+              <option hlmNativeSelectOption [value]="kraal.id">{{ kraal.name }}</option>
+            }
+          </hlm-native-select>
+        </div>
+        <div hlmField>
+          <label hlmFieldLabel>{{ copy(birthSpecies()).birth }} date</label>
+          <input hlmInput type="date" formControlName="date" />
+        </div>
+        <div hlmField>
+          <label hlmFieldLabel>Notes</label>
+          <textarea hlmTextarea formControlName="notes"></textarea>
+        </div>
+      </div>
+    </hlm-card>
+
+    <div class="flex items-center justify-between">
+      <h2 class="font-semibold">{{ copy(birthSpecies()).youngPlural }}</h2>
+      <button type="button" hlmBtn size="sm" variant="secondary" (click)="addKid()">
+        Add {{ copy(birthSpecies()).young }}
+      </button>
+    </div>
+
+    <div formArrayName="kids" class="flex flex-col gap-3">
+      @for (kid of kids.controls; track $index) {
+        <div hlmCard [formGroupName]="$index">
+          <div hlmCardContent class="flex flex-col gap-3">
+            <div class="flex justify-between">
+              <span class="font-medium">{{ copy(birthSpecies()).young }} {{ $index + 1 }}</span>
+              <button type="button" hlmBtn variant="ghost" size="xs" (click)="removeKid($index)">Remove</button>
+            </div>
+            <input hlmInput formControlName="tag" placeholder="Ear tag" />
+            <input hlmInput formControlName="name" placeholder="Name (optional)" />
+            <hlm-native-select formControlName="sex">
+              @for (sex of sexes; track sex) {
+                <option hlmNativeSelectOption [value]="sex">{{ sexLabel(sex) }}</option>
+              }
+            </hlm-native-select>
+          </div>
+        </div>
+      }
+    </div>
+
+    <button type="submit" hlmBtn class="w-full">Save {{ copy(birthSpecies()).birth }}</button>
+  </form>
+</section>

@@ -1,0 +1,66 @@
+import { inject, Injectable } from '@angular/core';
+import { InsufficientStockError } from '../errors';
+import { TreatmentEvent } from '../models/event';
+import { StockMovement } from '../models/inventory';
+import { BatchService as BatchDataService } from '../services/batch.service';
+import { EventService as EventDataService } from '../services/event.service';
+import { StockMovementService as StockMovementDataService } from '../services/stock-movement.service';
+import { nowIso, todayIsoDate } from '../utils/dates';
+import { createId } from '../utils/id';
+
+export interface VaccinateKraalDraft {
+  kraalId: string;
+  productId: string;
+  batchId: string;
+  date: string;
+  treatedAnimalIds: string[];
+  excludedAnimalIds: string[];
+  exclusionReasons: Record<string, string>;
+  notes: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class VaccinationStore {
+  private readonly batchService = inject(BatchDataService);
+  private readonly eventService = inject(EventDataService);
+  private readonly stockMovementService = inject(StockMovementDataService);
+
+  async vaccinateKraal(draft: VaccinateKraalDraft): Promise<TreatmentEvent> {
+    if (draft.treatedAnimalIds.length === 0) {
+      throw new Error('Select at least one animal to vaccinate.');
+    }
+    const dosesUsed = draft.treatedAnimalIds.length;
+    const event: TreatmentEvent = {
+      id: createId(),
+      type: 'treatment',
+      date: draft.date || todayIsoDate(),
+      kraalId: draft.kraalId,
+      productId: draft.productId,
+      batchId: draft.batchId,
+      treatedAnimalIds: [...draft.treatedAnimalIds],
+      excludedAnimalIds: [...draft.excludedAnimalIds],
+      exclusionReasons: { ...draft.exclusionReasons },
+      dosesUsed,
+      notes: draft.notes.trim(),
+      createdAt: nowIso(),
+    };
+    const batch = await this.batchService.get(draft.batchId);
+    if (!batch || batch.quantityOnHand < dosesUsed) {
+      throw new InsufficientStockError();
+    }
+    await this.batchService.update(draft.batchId, { quantityOnHand: batch.quantityOnHand - dosesUsed });
+    await this.eventService.create(event);
+    const movement: StockMovement = {
+      id: createId(),
+      batchId: draft.batchId,
+      productId: draft.productId,
+      type: 'out',
+      quantity: dosesUsed,
+      date: event.date,
+      treatmentEventId: event.id,
+      notes: draft.notes.trim(),
+    };
+    await this.stockMovementService.create(movement);
+    return event;
+  }
+}

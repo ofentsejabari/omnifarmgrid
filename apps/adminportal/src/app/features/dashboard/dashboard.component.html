@@ -1,0 +1,166 @@
+<section class="flex flex-col gap-5">
+  <div class="flex items-start justify-between gap-3">
+    <div class="min-w-0">
+      <h1 class="text-2xl font-semibold tracking-tight">Herd at a glance</h1>
+      <p class="text-muted-foreground text-sm">
+        {{ aliveAnimals().length }}
+        {{ aliveAnimals().length === 1 ? 'animal' : 'animals' }} on this device. Works without
+        signal.
+      </p>
+    </div>
+    <a routerLink="/flock/new" hlmBtn>
+      <ng-icon name="lucidePlus" />
+      Add
+    </a>
+  </div>
+
+  @if (kraalStore.kraals().length === 0) {
+    <hlm-alert>
+      <ng-icon name="lucideFence" />
+      <div hlmAlertDescription>Start by adding a kraal or pen, then record the animals in it.</div>
+      <div hlmAlertAction>
+        <a routerLink="/kraals" hlmBtn variant="outline" size="sm">
+          <ng-icon name="lucidePlus" />
+          Add kraal
+        </a>
+      </div>
+    </hlm-alert>
+  }
+
+  <div class="grid gap-3 sm:grid-cols-3">
+    @for (row of speciesRows(); track row.species) {
+      <button type="button" class="text-left" (click)="focusSpecies(row.species)">
+        <hlm-card size="sm" [class]="cardClass(row.species)">
+          <div hlmCardHeader>
+            <p class="text-muted-foreground flex items-center gap-1.5 text-sm">
+              <ng-icon [name]="row.copy.icon" [class]="iconClass(row.species)" size="16" />
+              {{ speciesName(row.species) }}
+            </p>
+            <p class="text-3xl font-semibold tracking-tight">{{ row.count }}</p>
+            <p hlmCardDescription>
+              {{ row.females }} {{ row.copy.dam }}s · {{ row.young }} {{ row.copy.youngPlural }}
+            </p>
+          </div>
+        </hlm-card>
+      </button>
+    }
+  </div>
+
+  <div class="grid grid-cols-2 gap-2">
+    <a routerLink="/births/new" hlmBtn variant="outline" class="h-11">
+      <ng-icon name="lucideBaby" />
+      {{ birthVerb() }}
+    </a>
+    <a routerLink="/deaths/new" hlmBtn variant="outline" class="h-11">
+      <ng-icon name="lucideHeartOff" />
+      Record death
+    </a>
+  </div>
+
+  <hlm-card>
+    <div hlmCardHeader>
+      <h2 hlmCardTitle>By kraal / pen</h2>
+    </div>
+    <div hlmCardContent>
+      @if (kraalCounts().length === 0) {
+        <div class="text-muted-foreground flex flex-col items-center gap-2 py-6 text-center text-sm">
+          <ng-icon name="lucideFence" size="20" />
+          <p>No kraals yet.</p>
+        </div>
+      } @else {
+        <ul class="divide-border flex flex-col divide-y">
+          @for (row of kraalCounts(); track row.kraal.id) {
+            <li>
+              <a
+                [routerLink]="['/kraals', row.kraal.id]"
+                class="hover:bg-muted/40 -mx-1 flex items-center justify-between gap-2 rounded-lg px-1 py-2.5
+                  transition-colors"
+              >
+                <span class="flex min-w-0 items-center gap-2">
+                  <span
+                    class="flex size-8 shrink-0 items-center justify-center rounded-full"
+                    [class]="avatarClass(row.kraal.species)"
+                  >
+                    <ng-icon
+                      [name]="row.copy.icon"
+                      [class]="iconClass(row.kraal.species)"
+                      size="16"
+                    />
+                  </span>
+                  <span class="truncate font-medium">{{ row.kraal.name }}</span>
+                </span>
+                <span class="flex shrink-0 items-center gap-1">
+                  <span hlmBadge variant="secondary">{{ row.count }}</span>
+                  <ng-icon name="lucideChevronRight" class="text-muted-foreground" size="16" />
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </hlm-card>
+
+  @if (lowStock().length || expiring().length) {
+    <hlm-card>
+      <div hlmCardHeader>
+        <h2 hlmCardTitle class="flex items-center gap-2">
+          <ng-icon name="lucidePackage" size="16" />
+          Medicine cupboard
+        </h2>
+      </div>
+      <div hlmCardContent class="flex flex-col gap-3">
+        @for (product of lowStock(); track product.id) {
+          <hlm-alert class="bg-warning/30 text-warning-foreground">
+            <ng-icon name="lucideTriangleAlert" />
+            <div hlmAlertDescription>
+              {{ product.name }} is at or below {{ product.lowStockThreshold }} {{ product.unit }}s.
+            </div>
+          </hlm-alert>
+        }
+        @for (batch of expiring(); track batch.id) {
+          <hlm-alert class="bg-info/30 text-info-foreground">
+            <ng-icon name="lucideClock" />
+            <div hlmAlertDescription>
+              A batch of {{ productName(batch.productId) }} expires {{ batch.expiryDate }}.
+            </div>
+          </hlm-alert>
+        }
+        <a routerLink="/stock" hlmBtn variant="ghost" size="sm">
+          <ng-icon name="lucideSyringe" />
+          Open stock
+        </a>
+      </div>
+    </hlm-card>
+  }
+
+  <hlm-card>
+    <div hlmCardHeader>
+      <h2 hlmCardTitle class="flex items-center gap-2">
+        <ng-icon name="lucideActivity" size="16" />
+        Recent activity
+      </h2>
+    </div>
+    <div hlmCardContent>
+      @if (recentEvents().length === 0) {
+        <p class="text-muted-foreground py-4 text-center text-sm">
+          Births, deaths, and vaccinations will show here.
+        </p>
+      } @else {
+        <ul class="divide-border flex flex-col divide-y">
+          @for (event of recentEvents(); track event.id) {
+            <li class="flex items-center justify-between gap-2 py-2.5 text-sm first:pt-0 last:pb-0">
+              <span class="flex min-w-0 items-center gap-2">
+                <span class="bg-muted flex size-8 shrink-0 items-center justify-center rounded-full">
+                  <ng-icon [name]="eventIcon(event.type)" class="text-muted-foreground" size="16" />
+                </span>
+                <span class="truncate font-medium">{{ eventLabel(event.type) }}</span>
+              </span>
+              <span class="text-muted-foreground shrink-0">{{ event.date }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </hlm-card>
+</section>
