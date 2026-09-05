@@ -1,0 +1,93 @@
+<section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+  <p class="text-primary text-sm font-medium">Livestock</p>
+  <h1 class="mt-2 max-w-2xl text-4xl font-semibold tracking-tight text-balance">
+    One farm. Three species. The right words for each.
+  </h1>
+  <p class="text-muted-foreground mt-4 max-w-2xl text-lg leading-relaxed">
+    AgroHerd does not treat a sow like a ewe. Goats and sheep live in kraals. Pigs live in pens.
+    Births are kidding, lambing, or farrowing.
+  </p>
+  <div class="mt-8 flex flex-wrap gap-2">
+    @for (item of species; track item.id) {
+      <a [routerLink]="[]" [fragment]="item.fragment" hlmBtn variant="outline">
+        {{ item.name }}
+      </a>
+    }
+  </div>
+</section>
+
+@for (item of species; track item.id) {
+  <section [id]="item.fragment" class="scroll-mt-24 border-t border-border/70">
+    <div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2">
+      <div>
+        <span
+          class="inline-flex size-14 items-center justify-center rounded-2xl {{ item.avatarClass }}"
+        >
+          <ng-icon name="lucidePawPrint" size="26" [class]="item.iconClass" />
+        </span>
+        <h2 class="mt-5 text-3xl font-semibold tracking-tight">{{ item.headline }}</h2>
+        <p class="text-muted-foreground mt-3 leading-relaxed">{{ item.summary }}</p>
+        <dl class="mt-8 grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <dt class="text-muted-foreground">Female / male</dt>
+            <dd class="mt-1 font-medium">{{ item.dam }} · {{ item.sire }}</dd>
+          </div>
+          <div>
+            <dt class="text-muted-foreground">Young</dt>
+            <dd class="mt-1 font-medium">{{ item.young }} / {{ item.youngPlural }}</dd>
+          </div>
+          <div>
+            <dt class="text-muted-foreground">Where they live</dt>
+            <dd class="mt-1 font-medium">{{ item.location }} / {{ item.locationPlural }}</dd>
+          </div>
+          <div>
+            <dt class="text-muted-foreground">Birth</dt>
+            <dd class="mt-1 font-medium">{{ item.birth }}</dd>
+          </div>
+        </dl>
+      </div>
+      <div class="flex flex-col gap-4">
+        <hlm-card [class]="item.accentClass">
+          <div hlmCardHeader>
+            <h3 hlmCardTitle>What you record</h3>
+          </div>
+          <div hlmCardContent>
+            <ul class="flex flex-col gap-3 text-sm">
+              @for (record of item.records; track record) {
+                <li class="flex gap-2">
+                  <ng-icon name="lucideCircleCheck" class="text-primary mt-0.5 shrink-0" size="16" />
+                  {{ record }}
+                </li>
+              }
+            </ul>
+          </div>
+        </hlm-card>
+        <hlm-card>
+          <div hlmCardHeader>
+            <h3 hlmCardTitle>Breeds on the list</h3>
+            <p hlmCardDescription>Common in Botswana, plus a cross option.</p>
+          </div>
+          <div hlmCardContent class="flex flex-wrap gap-2">
+            @for (breed of item.breeds; track breed) {
+              <span hlmBadge variant="secondary">{{ breed }}</span>
+            }
+          </div>
+        </hlm-card>
+      </div>
+    </div>
+  </section>
+}
+
+<section class="border-t border-border/70">
+  <div class="mx-auto flex max-w-6xl flex-col items-start gap-4 px-4 py-16 sm:px-6">
+    <h2 class="text-2xl font-semibold tracking-tight">Keep mixed farms in one app</h2>
+    <p class="text-muted-foreground max-w-xl leading-relaxed">
+      Filter Home by goat, sheep, pig, or all. Each kraal or pen belongs to one species so counts
+      stay honest.
+    </p>
+    <a routerLink="/contact" hlmBtn>
+      Request access
+      <ng-icon name="lucideArrowRight" />
+    </a>
+  </div>
+</section>

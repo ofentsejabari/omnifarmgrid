@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "prefix": "app",
-  "sourceRoot": "website/src",
+  "sourceRoot": "apps/website/src",
   "tags": [],
   "targets": {
     "build": {
@@ -11,16 +11,16 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/website",
-        "browser": "website/src/main.ts",
-        "tsConfig": "website/tsconfig.app.json",
+        "outputPath": "dist/apps/website",
+        "browser": "apps/website/src/main.ts",
+        "tsConfig": "apps/website/tsconfig.app.json",
         "assets": [
           {
             "glob": "**/*",
-            "input": "website/public"
+            "input": "apps/website/public"
           }
         ],
-        "styles": ["website/src/styles.css"]
+        "styles": ["apps/website/src/styles.css"]
       },
       "configurations": {
         "production": {
@@ -49,6 +49,9 @@
       "continuous": true,
       "executor": "@angular/build:dev-server",
       "defaultConfiguration": "development",
+      "options": {
+        "port": 4200
+      },
       "configurations": {
         "production": {
           "buildTarget": "website:build:production"
@@ -66,7 +69,7 @@
       "executor": "@nx/web:file-server",
       "options": {
         "buildTarget": "website:build",
-        "staticFilePath": "dist/website/browser",
+        "staticFilePath": "dist/apps/website/browser",
         "spa": true
       }
     }

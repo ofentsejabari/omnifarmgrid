@@ -1,0 +1,80 @@
+<section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+  <p class="text-primary text-sm font-medium">About</p>
+  <h1 class="mt-2 max-w-2xl text-4xl font-semibold tracking-tight text-balance">
+    AgroHerd is farm software from {{ location }}, for farms that keep goats, sheep, and pigs.
+  </h1>
+  <p class="text-muted-foreground mt-4 max-w-2xl text-lg leading-relaxed">
+    We built Farm Manager because the notebook next to the dip tank is how most herds are still
+    run — and because that notebook cannot tell you who was vaccinated last month.
+  </p>
+</section>
+
+<section class="border-t border-border/70">
+  <div class="mx-auto grid max-w-6xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-3">
+    <hlm-card>
+      <div hlmCardHeader>
+        <ng-icon name="lucideMapPin" class="text-primary" size="20" />
+        <h2 hlmCardTitle>Made for this place</h2>
+        <p hlmCardDescription>
+          Kraals, pens, ear tags, and breeds you actually keep. Not a dairy import with the labels
+          swapped.
+        </p>
+      </div>
+    </hlm-card>
+    <hlm-card>
+      <div hlmCardHeader>
+        <ng-icon name="lucideWifiOff" class="text-primary" size="20" />
+        <h2 hlmCardTitle>The farm is not always online</h2>
+        <p hlmCardDescription>
+          Record on the device. Sync when you have signal. The work does not wait for coverage.
+        </p>
+      </div>
+    </hlm-card>
+    <hlm-card>
+      <div hlmCardHeader>
+        <ng-icon name="lucidePawPrint" class="text-primary" size="20" />
+        <h2 hlmCardTitle>Three species, one herd view</h2>
+        <p hlmCardDescription>
+          Mixed farms are normal. AgroHerd keeps goats, sheep, and pigs in one app without mixing
+          their records.
+        </p>
+      </div>
+    </hlm-card>
+  </div>
+</section>
+
+<section class="border-t border-border/70 bg-card/40">
+  <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <h2 class="text-2xl font-semibold tracking-tight">What we refuse to get wrong</h2>
+    <ul class="mt-8 grid gap-4 md:grid-cols-3">
+      @for (item of species; track item.id) {
+        <li hlmCard [class]="item.accentClass">
+          <div hlmCardHeader>
+            <h3 hlmCardTitle class="capitalize">{{ item.plural }}</h3>
+            <p hlmCardDescription>
+              {{ item.dam }}s and {{ item.sire }}s, {{ item.youngPlural }} from {{ item.birth }},
+              living in {{ item.locationPlural }}.
+            </p>
+          </div>
+        </li>
+      }
+    </ul>
+    <a routerLink="/livestock" hlmBtn variant="link" class="mt-6 h-auto px-0">
+      Read the livestock pages
+      <ng-icon name="lucideArrowRight" />
+    </a>
+  </div>
+</section>
+
+<section class="border-t border-border/70">
+  <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <h2 class="text-2xl font-semibold tracking-tight">Talk to us</h2>
+    <p class="text-muted-foreground mt-3 max-w-xl leading-relaxed">
+      If you run a kraal, a piggery, or both, we want the product to fit how you already work.
+    </p>
+    <a routerLink="/contact" hlmBtn class="mt-6">
+      Contact AgroHerd
+      <ng-icon name="lucideArrowRight" />
+    </a>
+  </div>
+</section>

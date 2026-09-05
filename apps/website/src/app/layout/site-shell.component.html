@@ -1,0 +1,134 @@
+<div class="flex min-h-dvh flex-col">
+  <header class="bg-card/80 sticky top-0 z-30 border-b border-border/80 shadow-sm backdrop-blur-xl">
+    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+      <a routerLink="/" class="flex min-w-0 items-center gap-3">
+        <img
+          src="logo.svg"
+          alt=""
+          class="size-10 shrink-0 rounded-xl object-cover shadow-sm ring-1 ring-primary/25"
+        />
+        <span class="min-w-0">
+          <span class="block leading-tight font-semibold tracking-tight">{{ name }}</span>
+          <span class="text-muted-foreground hidden text-xs leading-tight sm:block">
+            Farm records · goats, sheep, pigs
+          </span>
+        </span>
+      </a>
+
+      <nav class="hidden items-center gap-1 lg:flex" aria-label="Primary">
+        @for (link of navLinks; track link.path) {
+          <a
+            [routerLink]="link.path"
+            routerLinkActive
+            #navLink="routerLinkActive"
+            [routerLinkActiveOptions]="{ exact: link.exact }"
+            class="rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+            [class.bg-primary/10]="navLink.isActive"
+            [class.text-primary]="navLink.isActive"
+            [class.text-muted-foreground]="!navLink.isActive"
+          >
+            {{ link.label }}
+          </a>
+        }
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <a routerLink="/contact" hlmBtn class="hidden sm:inline-flex">Request access</a>
+        <button
+          type="button"
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          class="lg:hidden"
+          (click)="toggleMenu()"
+          [attr.aria-expanded]="menuOpen()"
+          aria-controls="mobile-nav"
+          aria-label="Open menu"
+        >
+          <ng-icon [name]="menuOpen() ? 'lucideX' : 'lucideMenu'" size="20" />
+        </button>
+      </div>
+    </div>
+
+    @if (menuOpen()) {
+      <nav
+        id="mobile-nav"
+        class="border-t border-border/80 px-4 py-3 lg:hidden"
+        aria-label="Mobile"
+      >
+        <div class="mx-auto flex max-w-6xl flex-col gap-1">
+          @for (link of navLinks; track link.path) {
+            <a
+              [routerLink]="link.path"
+              routerLinkActive
+              #mobileLink="routerLinkActive"
+              [routerLinkActiveOptions]="{ exact: link.exact }"
+              class="rounded-lg px-3 py-2.5 text-sm font-medium"
+              [class.bg-primary/10]="mobileLink.isActive"
+              [class.text-primary]="mobileLink.isActive"
+              [class.text-muted-foreground]="!mobileLink.isActive"
+            >
+              {{ link.label }}
+            </a>
+          }
+          <a routerLink="/contact" hlmBtn class="mt-2">Request access</a>
+        </div>
+      </nav>
+    }
+  </header>
+
+  <main class="flex-1">
+    <router-outlet />
+  </main>
+
+  <footer class="border-t border-border/80 bg-card/60">
+    <div class="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-4">
+      <div class="md:col-span-2">
+        <div class="flex items-center gap-3">
+          <img src="logo.svg" alt="" class="size-10 rounded-xl ring-1 ring-primary/25" />
+          <p class="font-semibold tracking-tight">{{ name }}</p>
+        </div>
+        <p class="text-muted-foreground mt-3 max-w-md text-sm leading-relaxed">
+          Farm Manager for Botswana smallholders. Record goats, sheep, and pigs — kraals, births,
+          treatments, and stock — even when the signal drops.
+        </p>
+      </div>
+      <div>
+        <p class="text-sm font-semibold">Livestock</p>
+        <ul class="mt-3 flex flex-col gap-2 text-sm">
+          @for (item of species; track item.id) {
+            <li>
+              <a
+                routerLink="/livestock"
+                [fragment]="item.fragment"
+                class="text-muted-foreground hover:text-foreground"
+              >
+                {{ item.name }}
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+      <div>
+        <p class="text-sm font-semibold">Contact</p>
+        <ul class="text-muted-foreground mt-3 flex flex-col gap-2 text-sm">
+          <li class="flex items-center gap-2">
+            <ng-icon name="lucideMapPin" size="14" />
+            {{ location }}
+          </li>
+          <li>
+            <a class="hover:text-foreground inline-flex items-center gap-2" [href]="'mailto:' + email">
+              <ng-icon name="lucideMail" size="14" />
+              {{ email }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-border/60">
+      <p class="text-muted-foreground mx-auto max-w-6xl px-4 py-4 text-xs sm:px-6">
+        © {{ year }} {{ name }}. Farm records for goats, sheep, and pigs.
+      </p>
+    </div>
+  </footer>
+</div>

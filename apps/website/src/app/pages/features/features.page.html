@@ -1,0 +1,60 @@
+<section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+  <p class="text-primary text-sm font-medium">Features</p>
+  <h1 class="mt-2 max-w-2xl text-4xl font-semibold tracking-tight text-balance">
+    Farm records that follow the work, not the other way around.
+  </h1>
+  <p class="text-muted-foreground mt-4 max-w-2xl text-lg leading-relaxed">
+    AgroHerd Farm Manager covers the flock, the places they live, what you give them, and what
+    happens when the day does not go to plan.
+  </p>
+</section>
+
+<section class="border-t border-border/70">
+  <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <div class="grid gap-4 sm:grid-cols-2">
+      @for (feature of features; track feature.title) {
+        <hlm-card class="h-full">
+          <div hlmCardContent class="flex gap-4 py-6">
+            <span class="bg-primary/10 text-primary flex size-11 shrink-0 items-center justify-center rounded-full">
+              <ng-icon [name]="feature.icon" size="18" />
+            </span>
+            <div>
+              <h2 class="font-semibold tracking-tight">{{ feature.title }}</h2>
+              <p class="text-muted-foreground mt-1 text-sm leading-relaxed">{{ feature.body }}</p>
+            </div>
+          </div>
+        </hlm-card>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="border-t border-border/70 bg-card/40">
+  <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <h2 class="text-2xl font-semibold tracking-tight">Built into the same day</h2>
+    <div class="mt-8 grid gap-4 md:grid-cols-3">
+      @for (item of extras; track item.title) {
+        <hlm-card>
+          <div hlmCardHeader>
+            <ng-icon [name]="item.icon" class="text-primary" size="20" />
+            <h3 hlmCardTitle>{{ item.title }}</h3>
+            <p hlmCardDescription>{{ item.body }}</p>
+          </div>
+        </hlm-card>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="border-t border-border/70">
+  <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-16 sm:px-6">
+    <h2 class="text-2xl font-semibold tracking-tight">See it against your livestock</h2>
+    <p class="text-muted-foreground max-w-xl leading-relaxed">
+      Goats, sheep, and pigs each have their own kraals or pens, birth language, and breed list.
+    </p>
+    <div class="flex flex-wrap gap-3">
+      <a routerLink="/livestock" hlmBtn variant="outline">Livestock</a>
+      <a routerLink="/contact" hlmBtn>Request access</a>
+    </div>
+  </div>
+</section>

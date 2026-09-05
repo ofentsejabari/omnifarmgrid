@@ -1,0 +1,121 @@
+<section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+  <p class="text-primary text-sm font-medium">Contact</p>
+  <h1 class="mt-2 max-w-2xl text-4xl font-semibold tracking-tight text-balance">
+    Tell us about the farm.
+  </h1>
+  <p class="text-muted-foreground mt-4 max-w-2xl text-lg leading-relaxed">
+    Goats, sheep, pigs, or a mix. We will reply from {{ email }} and help you start Farm Manager.
+  </p>
+</section>
+
+<section class="border-t border-border/70">
+  <div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.2fr]">
+    <div class="flex flex-col gap-4">
+      <hlm-card>
+        <div hlmCardContent class="flex items-start gap-3 py-5">
+          <span class="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-full">
+            <ng-icon name="lucideMail" size="18" />
+          </span>
+          <div>
+            <p class="text-sm font-medium">Email</p>
+            <a class="text-muted-foreground text-sm hover:text-foreground" [href]="'mailto:' + email">
+              {{ email }}
+            </a>
+          </div>
+        </div>
+      </hlm-card>
+      <hlm-card>
+        <div hlmCardContent class="flex items-start gap-3 py-5">
+          <span class="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-full">
+            <ng-icon name="lucideMapPin" size="18" />
+          </span>
+          <div>
+            <p class="text-sm font-medium">Where we work</p>
+            <p class="text-muted-foreground text-sm">{{ location }} — kraals, pens, and mixed farms.</p>
+          </div>
+        </div>
+      </hlm-card>
+    </div>
+
+    <hlm-card>
+      <div hlmCardHeader>
+        <h2 hlmCardTitle>Request access</h2>
+        <p hlmCardDescription>Opens your email app with the details filled in.</p>
+      </div>
+      <div hlmCardContent>
+        @if (submitted()) {
+          <hlm-alert class="bg-success/20 text-success-foreground">
+            <ng-icon name="lucideCircleCheck" />
+            <div hlmAlertTitle>Message ready</div>
+            <div hlmAlertDescription>
+              If your email app did not open, write to {{ email }} and we will take it from there.
+            </div>
+          </hlm-alert>
+        } @else {
+          <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="submit()">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div hlmField>
+                <label hlmFieldLabel for="name">Your name</label>
+                <input hlmInput id="name" type="text" autocomplete="name" formControlName="name" />
+                @if (showError('name')) {
+                  <p class="text-destructive text-sm">Name is required.</p>
+                }
+              </div>
+              <div hlmField>
+                <label hlmFieldLabel for="email">Email</label>
+                <input hlmInput id="email" type="email" autocomplete="email" formControlName="email" />
+                @if (showError('email')) {
+                  <p class="text-destructive text-sm">A valid email is required.</p>
+                }
+              </div>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div hlmField>
+                <label hlmFieldLabel for="phone">Phone (optional)</label>
+                <input hlmInput id="phone" type="tel" autocomplete="tel" formControlName="phone" />
+              </div>
+              <div hlmField>
+                <label hlmFieldLabel for="farmName">Farm name (optional)</label>
+                <input hlmInput id="farmName" type="text" formControlName="farmName" />
+              </div>
+            </div>
+            <div hlmField>
+              <label hlmFieldLabel for="interest">What do you keep?</label>
+              <select
+                id="interest"
+                formControlName="interest"
+                class="border-input h-8 w-full rounded-lg border bg-transparent px-2.5 text-sm outline-none
+                  focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3"
+              >
+                <option value="" disabled>Select livestock</option>
+                @for (item of interests; track item.value) {
+                  <option [value]="item.value">{{ item.label }}</option>
+                }
+              </select>
+              @if (showError('interest')) {
+                <p class="text-destructive text-sm">Choose goats, sheep, pigs, or a mix.</p>
+              }
+            </div>
+            <div hlmField>
+              <label hlmFieldLabel for="message">Message</label>
+              <textarea
+                hlmTextarea
+                id="message"
+                rows="5"
+                formControlName="message"
+                placeholder="How many animals, and where is the farm?"
+              ></textarea>
+              @if (showError('message')) {
+                <p class="text-destructive text-sm">Tell us a little about the farm.</p>
+              }
+            </div>
+            <button type="submit" hlmBtn size="lg" class="h-11 w-fit px-5">
+              <ng-icon name="lucideSend" />
+              Send message
+            </button>
+          </form>
+        }
+      </div>
+    </hlm-card>
+  </div>
+</section>

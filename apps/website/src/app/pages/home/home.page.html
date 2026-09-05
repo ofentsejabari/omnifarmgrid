@@ -1,0 +1,157 @@
+<section class="relative overflow-hidden">
+  <div class="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:py-24">
+    <div>
+      <span
+        hlmBadge
+        variant="secondary"
+        class="gap-1.5 px-3 py-1 font-medium"
+      >
+        <ng-icon name="lucideSprout" size="14" />
+        Built for Botswana kraals and pens
+      </span>
+      <h1 class="mt-5 max-w-xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+        Know every goat, sheep, and pig on the farm.
+      </h1>
+      <p class="text-muted-foreground mt-4 max-w-xl text-lg leading-relaxed">
+        AgroHerd is Farm Manager for smallholders. Ear tags, kidding, lambing, farrowing, vaccines,
+        and stock — recorded in the language you already use.
+      </p>
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <a routerLink="/contact" hlmBtn size="lg" class="h-11 px-5 text-base">
+          Request access
+          <ng-icon name="lucideArrowRight" />
+        </a>
+        <a routerLink="/livestock" hlmBtn variant="outline" size="lg" class="h-11 px-5 text-base">
+          Meet the livestock
+        </a>
+      </div>
+      <dl class="mt-10 grid max-w-lg grid-cols-3 gap-4">
+        <div>
+          <dt class="text-muted-foreground text-xs font-medium tracking-wide uppercase">Species</dt>
+          <dd class="mt-1 text-2xl font-semibold">3</dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground text-xs font-medium tracking-wide uppercase">Places</dt>
+          <dd class="mt-1 text-2xl font-semibold">Kraals</dd>
+        </div>
+        <div>
+          <dt class="text-muted-foreground text-xs font-medium tracking-wide uppercase">Signal</dt>
+          <dd class="mt-1 text-2xl font-semibold">Optional</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="grid gap-3 sm:grid-cols-1">
+      @for (item of species; track item.id) {
+        <a
+          routerLink="/livestock"
+          [fragment]="item.fragment"
+          hlmCard
+          class="fma-list-card {{ item.accentClass }}"
+        >
+          <div hlmCardContent class="flex items-center gap-4 py-5">
+            <span
+              class="flex size-12 shrink-0 items-center justify-center rounded-full {{ item.avatarClass }}"
+            >
+              <ng-icon name="lucidePawPrint" size="22" [class]="item.iconClass" />
+            </span>
+            <span class="min-w-0">
+              <span class="block font-semibold tracking-tight capitalize">{{ item.plural }}</span>
+              <span class="text-muted-foreground mt-0.5 block text-sm leading-relaxed">
+                {{ item.dam }}s, {{ item.sire }}s, {{ item.youngPlural }} · {{ item.locationPlural }}
+              </span>
+            </span>
+            <ng-icon name="lucideArrowRight" class="text-muted-foreground ms-auto" size="18" />
+          </div>
+        </a>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="border-t border-border/70">
+  <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <div class="max-w-2xl">
+      <h2 class="text-3xl font-semibold tracking-tight">What Farm Manager records</h2>
+      <p class="text-muted-foreground mt-3 leading-relaxed">
+        The same work you already do on paper — animals, places, births, treatments, and medicine —
+        without losing the book in the bakkie.
+      </p>
+    </div>
+    <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      @for (feature of features; track feature.title) {
+        <hlm-card class="h-full">
+          <div hlmCardHeader>
+            <span class="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-full">
+              <ng-icon [name]="feature.icon" size="18" />
+            </span>
+            <h3 hlmCardTitle class="mt-2">{{ feature.title }}</h3>
+            <p hlmCardDescription>{{ feature.body }}</p>
+          </div>
+        </hlm-card>
+      }
+    </div>
+    <a routerLink="/features" hlmBtn variant="link" class="mt-6 h-auto px-0">
+      See every feature
+      <ng-icon name="lucideArrowRight" />
+    </a>
+  </div>
+</section>
+
+<section class="border-t border-border/70 bg-card/40">
+  <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <h2 class="text-3xl font-semibold tracking-tight">How it starts</h2>
+    <ol class="mt-10 grid gap-4 md:grid-cols-3">
+      @for (step of steps; track step.step) {
+        <li hlmCard>
+          <div hlmCardHeader>
+            <p class="text-primary text-sm font-semibold">Step {{ step.step }}</p>
+            <h3 hlmCardTitle>{{ step.title }}</h3>
+            <p hlmCardDescription>{{ step.body }}</p>
+          </div>
+        </li>
+      }
+    </ol>
+  </div>
+</section>
+
+<section class="border-t border-border/70">
+  <div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2">
+    <div>
+      <h2 class="text-3xl font-semibold tracking-tight">Questions farmers ask</h2>
+      <p class="text-muted-foreground mt-3 leading-relaxed">
+        Short answers. If yours is not here, write to us.
+      </p>
+    </div>
+    <div hlmAccordion type="single">
+      @for (item of faqs; track item.q) {
+        <div hlmAccordionItem>
+          <hlm-accordion-trigger>{{ item.q }}</hlm-accordion-trigger>
+          <hlm-accordion-content>{{ item.a }}</hlm-accordion-content>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="border-t border-border/70">
+  <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <hlm-card class="bg-primary text-primary-foreground overflow-hidden">
+      <div hlmCardContent class="flex flex-col gap-6 px-8 py-10 md:flex-row md:items-center md:justify-between">
+        <div class="max-w-xl">
+          <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">
+            Ready to put the flock on record?
+          </h2>
+          <p class="mt-2 text-sm leading-relaxed text-primary-foreground/80">
+            Tell us what you keep — goats, sheep, pigs, or all three — and we will get Farm Manager
+            onto your farm.
+          </p>
+        </div>
+        <a routerLink="/contact" hlmBtn variant="secondary" size="lg" class="h-11 px-5 text-base">
+          Talk to AgroHerd
+          <ng-icon name="lucideArrowRight" />
+        </a>
+      </div>
+    </hlm-card>
+  </div>
+</section>
