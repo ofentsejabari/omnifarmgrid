@@ -12,7 +12,7 @@ import {
   animalStatusLabel,
   speciesAvatarClass,
   speciesBadgeClass,
-  speciesCopy,
+  speciesVocabulary,
   speciesIconClass,
   Species,
 } from '../../core/models/species';
@@ -43,19 +43,19 @@ export class AnimalDetailComponent {
     },
   );
   protected readonly animal = computed(() =>
-    this.animalStore.animals().find((item) => item.id === this.animalId()),
+    this.animalStore.animals().find((item) => item.$id === this.animalId()),
   );
   protected readonly history = computed(() => this.eventStore.forAnimal(this.animalId() ?? ''));
   protected readonly dam = computed(() => {
     const damId = this.animal()?.damId;
-    return damId ? this.animalStore.animals().find((item) => item.id === damId) : undefined;
+    return damId ? this.animalStore.animals().find((item) => item.$id === damId) : undefined;
   });
   protected readonly offspring = computed(() =>
     this.animalStore.animals().filter((item) => item.damId === this.animalId()),
   );
   protected readonly moveKraalId = signal('');
   protected readonly moveError = signal('');
-  protected readonly copy = speciesCopy;
+  protected readonly vocabulary = speciesVocabulary;
   protected readonly badgeClass = speciesBadgeClass;
   protected readonly iconClass = speciesIconClass;
   protected readonly avatarClass = speciesAvatarClass;
@@ -82,11 +82,11 @@ export class AnimalDetailComponent {
   }
 
   protected kraalName(kraalId: string): string {
-    return this.kraalStore.kraals().find((kraal) => kraal.id === kraalId)?.name ?? 'Unknown kraal';
+    return this.kraalStore.kraals().find((kraal) => kraal.$id === kraalId)?.name ?? 'Unknown kraal';
   }
 
   protected productName(productId: string): string {
-    return this.inventoryStore.products().find((product) => product.id === productId)?.name ?? '';
+    return this.inventoryStore.products().find((product) => product.$id === productId)?.name ?? '';
   }
 
   protected async move(): Promise<void> {
@@ -96,13 +96,13 @@ export class AnimalDetailComponent {
     }
     this.moveError.set('');
     try {
-      await this.animalStore.moveToKraal(animal.id, this.moveKraalId(), todayIsoDate(), '');
+      await this.animalStore.moveToKraal(animal.$id, this.moveKraalId(), todayIsoDate(), '');
       this.moveKraalId.set('');
     } catch (error: unknown) {
       this.moveError.set(
         error instanceof Error
           ? error.message
-          : `Could not move this ${speciesCopy(animal.species).noun}.`,
+          : `Could not move this ${speciesVocabulary(animal.species).noun}.`,
       );
     }
   }

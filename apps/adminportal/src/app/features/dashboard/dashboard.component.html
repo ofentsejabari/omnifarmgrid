@@ -33,12 +33,12 @@
         <hlm-card size="sm" [class]="cardClass(row.species)">
           <div hlmCardHeader>
             <p class="text-muted-foreground flex items-center gap-1.5 text-sm">
-              <ng-icon [name]="row.copy.icon" [class]="iconClass(row.species)" size="16" />
+              <ng-icon [name]="row.vocabulary.icon" [class]="iconClass(row.species)" size="16" />
               {{ speciesName(row.species) }}
             </p>
             <p class="text-3xl font-semibold tracking-tight">{{ row.count }}</p>
             <p hlmCardDescription>
-              {{ row.females }} {{ row.copy.dam }}s · {{ row.young }} {{ row.copy.youngPlural }}
+              {{ row.females }} {{ row.vocabulary.dam }}s · {{ row.young }} {{ row.vocabulary.youngPlural }}
             </p>
           </div>
         </hlm-card>
@@ -79,10 +79,10 @@
         </div>
       } @else {
         <ul class="divide-border flex flex-col divide-y">
-          @for (row of kraalCounts(); track row.kraal.id) {
+          @for (row of kraalCounts(); track row.kraal.$id) {
             <li>
               <a
-                [routerLink]="['/kraals', row.kraal.id]"
+                [routerLink]="['/kraals', row.kraal.$id]"
                 class="hover:bg-muted/50 -mx-1 flex items-center justify-between gap-2 rounded-lg px-1.5 py-2.5
                   transition-colors"
               >
@@ -92,7 +92,7 @@
                     [class]="avatarClass(row.kraal.species)"
                   >
                     <ng-icon
-                      [name]="row.copy.icon"
+                      [name]="row.vocabulary.icon"
                       [class]="iconClass(row.kraal.species)"
                       size="16"
                     />
@@ -120,7 +120,7 @@
         </h2>
       </div>
       <div hlmCardContent class="flex flex-col gap-3">
-        @for (product of lowStock(); track product.id) {
+        @for (product of lowStock(); track product.$id) {
           <hlm-alert class="bg-warning/30 text-warning-foreground">
             <ng-icon name="lucideTriangleAlert" />
             <div hlmAlertDescription>
@@ -128,7 +128,7 @@
             </div>
           </hlm-alert>
         }
-        @for (batch of expiring(); track batch.id) {
+        @for (batch of expiring(); track batch.$id) {
           <hlm-alert class="bg-info/30 text-info-foreground">
             <ng-icon name="lucideClock" />
             <div hlmAlertDescription>
@@ -158,7 +158,7 @@
         </p>
       } @else {
         <ul class="divide-border flex flex-col divide-y">
-          @for (event of recentEvents(); track event.id) {
+          @for (event of recentEvents(); track event.$id) {
             <li class="flex items-center justify-between gap-2 py-2.5 text-sm first:pt-0 last:pb-0">
               <span class="flex min-w-0 items-center gap-2.5">
                 <span class="bg-muted flex size-8 shrink-0 items-center justify-center rounded-full">

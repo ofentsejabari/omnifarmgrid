@@ -12,7 +12,7 @@
           [class]="avatarClass(current.species)"
         >
           <ng-icon
-            [name]="copy(current.species).icon"
+            [name]="vocabulary(current.species).icon"
             [class]="iconClass(current.species)"
             size="24"
           />
@@ -24,14 +24,14 @@
           </p>
         </div>
       </div>
-      <a [routerLink]="['/flock', current.id, 'edit']" hlmBtn variant="ghost" size="sm">
+      <a [routerLink]="['/flock', current.$id, 'edit']" hlmBtn variant="ghost" size="sm">
         <ng-icon name="lucidePencil" />
         Edit
       </a>
     </div>
 
     <div class="flex flex-wrap gap-1.5">
-      <span hlmBadge [class]="badgeClass(current.species)">{{ copy(current.species).noun }}</span>
+      <span hlmBadge [class]="badgeClass(current.species)">{{ vocabulary(current.species).noun }}</span>
       <span hlmBadge [class]="statusClass(current.status)">{{ statusLabel(current.status) }}</span>
     </div>
 
@@ -61,7 +61,7 @@
               <dd class="text-right">
                 <a
                   class="text-primary font-medium underline-offset-4 hover:underline"
-                  [routerLink]="['/flock', dam.id]"
+                  [routerLink]="['/flock', dam.$id]"
                 >
                   {{ label(dam) }}
                 </a>
@@ -69,7 +69,7 @@
             </div>
           }
           <div class="flex items-baseline justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
-            <dt class="text-muted-foreground">{{ copy(current.species).location }}</dt>
+            <dt class="text-muted-foreground">{{ vocabulary(current.species).location }}</dt>
             <dd class="text-right font-medium">{{ kraalName(current.kraalId) }}</dd>
           </div>
           @if (current.notes) {
@@ -86,7 +86,7 @@
       <div class="grid gap-2" [class.grid-cols-2]="current.sex === 'female'">
         <a
           [routerLink]="['/deaths/new']"
-          [queryParams]="{ animalId: current.id }"
+          [queryParams]="{ animalId: current.$id }"
           hlmBtn
           variant="outline"
           size="sm"
@@ -97,20 +97,20 @@
         @if (current.sex === 'female') {
           <a
             [routerLink]="['/births/new']"
-            [queryParams]="{ damId: current.id }"
+            [queryParams]="{ damId: current.$id }"
             hlmBtn
             variant="outline"
             size="sm"
           >
             <ng-icon name="lucideBaby" />
-            {{ copy(current.species).birthVerb }}
+            {{ vocabulary(current.species).birthVerb }}
           </a>
         }
       </div>
 
       <hlm-card>
         <div hlmCardHeader>
-          <h2 hlmCardTitle>Move to another {{ copy(current.species).location }}</h2>
+          <h2 hlmCardTitle>Move to another {{ vocabulary(current.species).location }}</h2>
         </div>
         <div hlmCardContent class="flex flex-col gap-3">
           @if (moveError()) {
@@ -121,19 +121,19 @@
           }
           <hlm-select class="w-full" [ngModel]="moveKraalId()" (ngModelChange)="moveKraalId.set($event ?? '')" name="moveKraal">
             <hlm-select-trigger class="w-full">
-              <hlm-select-value placeholder="Choose {{ copy(current.species).location }}" />
+              <hlm-select-value placeholder="Choose {{ vocabulary(current.species).location }}" />
             </hlm-select-trigger>
             <hlm-select-content *hlmSelectPortal>
-              @for (kraal of matchingKraals(); track kraal.id) {
-                @if (kraal.id !== current.kraalId) {
-                  <hlm-select-item [value]="kraal.id">{{ kraal.name }}</hlm-select-item>
+              @for (kraal of matchingKraals(); track kraal.$id) {
+                @if (kraal.$id !== current.kraalId) {
+                  <hlm-select-item [value]="kraal.$id">{{ kraal.name }}</hlm-select-item>
                 }
               }
             </hlm-select-content>
           </hlm-select>
           <button type="button" hlmBtn (click)="move()">
             <ng-icon name="lucideMoveHorizontal" />
-            Move {{ copy(current.species).noun }}
+            Move {{ vocabulary(current.species).noun }}
           </button>
         </div>
       </hlm-card>
@@ -146,10 +146,10 @@
         </div>
         <div hlmCardContent>
           <ul class="divide-border flex flex-col divide-y">
-            @for (young of offspring(); track young.id) {
+            @for (young of offspring(); track young.$id) {
               <li>
                 <a
-                  [routerLink]="['/flock', young.id]"
+                  [routerLink]="['/flock', young.$id]"
                   class="hover:bg-muted/40 -mx-1 flex items-center justify-between gap-2 rounded-lg px-1 py-2
                     transition-colors"
                 >
@@ -172,7 +172,7 @@
           <p class="text-muted-foreground py-4 text-center text-sm">No events recorded yet.</p>
         } @else {
           <ul class="flex flex-col gap-0">
-            @for (event of history(); track event.id) {
+            @for (event of history(); track event.$id) {
               <li class="flex gap-3">
                 <div class="flex flex-col items-center">
                   <span
@@ -205,8 +205,8 @@
                       · {{ event.kidIds.length }}
                       {{
                         event.kidIds.length === 1
-                          ? copy(current.species).young
-                          : copy(current.species).youngPlural
+                          ? vocabulary(current.species).young
+                          : vocabulary(current.species).youngPlural
                       }}
                     }
                   </p>

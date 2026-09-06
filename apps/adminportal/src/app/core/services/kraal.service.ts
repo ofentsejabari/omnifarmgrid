@@ -1,38 +1,32 @@
 import { inject, Injectable } from '@angular/core';
-import { AppwriteRowStore } from '../data/appwrite-row-store';
-import { Kraal } from '../models/kraal';
-import { fromAppwriteKraal, KRAAL_TABLE, toAppwriteKraal, toAppwriteKraalPatch } from './kraal.mapper';
+import { Models, Query } from 'appwrite';
+import { AppwriteRowStore, ListPagination } from '../data/appwrite-row-store';
+import { KraalRow } from '../models/kraal';
+
+const KRAAL_TABLE = 'kraals';
 
 @Injectable({ providedIn: 'root' })
 export class KraalService {
   private readonly rows = inject(AppwriteRowStore);
 
-  async list(): Promise<Kraal[]> {
-    return (await this.rows.list(KRAAL_TABLE)).map(fromAppwriteKraal);
+  async list(pagination?: ListPagination): Promise<Models.RowList<KraalRow>> {
+    return this.rows.list<KraalRow>(KRAAL_TABLE, [Query.orderDesc('$createdAt')], pagination);
   }
 
-  async get(id: string): Promise<Kraal | undefined> {
-    const row = await this.rows.get(KRAAL_TABLE, id);
-    return row ? fromAppwriteKraal(row) : undefined;
+  async get(id: string): Promise<KraalRow | undefined> {
+    return this.rows.get<KraalRow>(KRAAL_TABLE, id);
   }
 
-  async create(kraal: Kraal): Promise<Kraal> {
-    const row = await this.rows.create(KRAAL_TABLE, kraal.id, toAppwriteKraal(kraal));
-    return fromAppwriteKraal(row);
+  async create(kraal: Pick<KraalRow, 'name' | 'notes' | 'species'>): Promise<KraalRow> {
+    return this.rows.create<KraalRow>(KRAAL_TABLE, kraal);
   }
 
-  async update(id: string, changes: Partial<Kraal>): Promise<void> {
-    await this.rows.update(KRAAL_TABLE, id, toAppwriteKraalPatch(changes));
+  async update(changes: Pick<KraalRow, '$id' | 'name' | 'notes' | 'species'>): Promise<void> {
+    await this.rows.update(KRAAL_TABLE, changes.$id, changes);
   }
 
   async delete(id: string): Promise<void> {
     await this.rows.delete(KRAAL_TABLE, id);
-  }
-
-  async clear(): Promise<void> {
-    for (const kraal of await this.list()) {
-      await this.delete(kraal.id);
-    }
   }
 
   watch(onChange: () => void): () => void {

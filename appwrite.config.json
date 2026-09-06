@@ -27,7 +27,7 @@
                 "jwt": true,
                 "phone": true,
                 "invites": true,
-                "anonymous": true,
+                "anonymous": false,
                 "email-otp": true,
                 "magic-url": true,
                 "email-password": true
@@ -94,22 +94,6 @@
                         "sheep",
                         "pig"
                     ]
-                },
-                {
-                    "key": "createdAt",
-                    "type": "datetime",
-                    "required": true,
-                    "array": false,
-                    "default": null,
-                    "format": ""
-                },
-                {
-                    "key": "updatedAt",
-                    "type": "datetime",
-                    "required": true,
-                    "array": false,
-                    "default": null,
-                    "format": ""
                 }
             ],
             "indexes": [
@@ -268,22 +252,6 @@
                     "array": false,
                     "default": null,
                     "encrypt": false
-                },
-                {
-                    "key": "createdAt",
-                    "type": "datetime",
-                    "required": true,
-                    "array": false,
-                    "default": null,
-                    "format": ""
-                },
-                {
-                    "key": "updatedAt",
-                    "type": "datetime",
-                    "required": true,
-                    "array": false,
-                    "default": null,
-                    "format": ""
                 }
             ],
             "indexes": [
@@ -445,14 +413,6 @@
                     "array": false,
                     "default": null,
                     "encrypt": false
-                },
-                {
-                    "key": "createdAt",
-                    "type": "datetime",
-                    "required": true,
-                    "array": false,
-                    "default": null,
-                    "format": ""
                 }
             ],
             "indexes": [

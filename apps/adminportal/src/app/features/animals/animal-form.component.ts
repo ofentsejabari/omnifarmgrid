@@ -10,10 +10,10 @@ import {
   SPECIES,
   animalSexLabel,
   isSpecies,
-  speciesCopy,
+  speciesVocabulary,
   Species,
 } from '../../core/models/species';
-import { DuplicateTagError } from '../../core/errors';
+import { DuplicateTagError } from '../../core/utils/errors';
 import { AnimalDraft, AnimalStore } from '../../core/stores/animal.store';
 import { KraalStore } from '../../core/stores/kraal.store';
 import { SpeciesFilterStore } from '../../core/stores/species-filter.store';
@@ -35,7 +35,7 @@ export class AnimalFormComponent {
 
   protected readonly speciesOptions = SPECIES;
   protected readonly sexes = ANIMAL_SEXES;
-  protected readonly copy = speciesCopy;
+  protected readonly vocabulary = speciesVocabulary;
   protected readonly error = signal('');
   protected readonly loaded = signal(false);
   private readonly animalId = toSignal(
@@ -77,7 +77,7 @@ export class AnimalFormComponent {
     );
     this.form.controls.species.valueChanges.pipe(takeUntilDestroyed()).subscribe((species) => {
       const kraalId = this.form.controls.kraalId.value;
-      const kraal = this.kraalStore.kraals().find((item) => item.id === kraalId);
+      const kraal = this.kraalStore.kraals().find((item) => item.$id === kraalId);
       if (kraal && kraal.species !== species) {
         this.form.controls.kraalId.setValue('');
       }
@@ -85,7 +85,7 @@ export class AnimalFormComponent {
     const kraalFromQuery = this.route.snapshot.queryParamMap.get('kraalId');
     if (kraalFromQuery) {
       this.form.controls.kraalId.setValue(kraalFromQuery);
-      const kraal = this.kraalStore.kraals().find((item) => item.id === kraalFromQuery);
+      const kraal = this.kraalStore.kraals().find((item) => item.$id === kraalFromQuery);
       if (kraal) {
         this.form.controls.species.setValue(kraal.species);
       }
@@ -126,7 +126,7 @@ export class AnimalFormComponent {
     this.error.set('');
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.error.set(`Ear tag and ${speciesCopy(this.currentSpecies()).location} are required.`);
+      this.error.set(`Ear tag and ${speciesVocabulary(this.currentSpecies()).location} are required.`);
       return;
     }
     const draft: AnimalDraft = this.form.getRawValue();
@@ -138,12 +138,12 @@ export class AnimalFormComponent {
         return;
       }
       const created = await this.animalStore.create(draft);
-      await this.router.navigate(['/flock', created.id]);
+      await this.router.navigate(['/flock', created.$id]);
     } catch (error: unknown) {
       this.error.set(
         error instanceof DuplicateTagError
           ? error.message
-          : `Could not save ${speciesCopy(draft.species).noun}.`,
+          : `Could not save ${speciesVocabulary(draft.species).noun}.`,
       );
     }
   }

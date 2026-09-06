@@ -6,7 +6,7 @@ import {
   Species,
   speciesAccentClass,
   speciesAvatarClass,
-  speciesCopy,
+  speciesVocabulary,
   speciesIconClass,
   speciesLabel,
 } from '../../core/models/species';
@@ -52,10 +52,10 @@ export class DashboardComponent {
       const animals = this.animalStore
         .animals()
         .filter((animal) => animal.status === 'alive' && animal.species === species);
-      const copy = speciesCopy(species);
+      const vocabulary = speciesVocabulary(species);
       return {
         species,
-        copy,
+        vocabulary,
         count: animals.length,
         females: animals.filter((animal) => animal.sex === 'female').length,
         young: animals.filter(
@@ -72,8 +72,8 @@ export class DashboardComponent {
       .filter((kraal) => this.speciesFilterStore.matches(kraal.species))
       .map((kraal) => ({
         kraal,
-        copy: speciesCopy(kraal.species),
-        count: animals.filter((animal) => animal.kraalId === kraal.id).length,
+        vocabulary: speciesVocabulary(kraal.species),
+        count: animals.filter((animal) => animal.kraalId === kraal.$id).length,
       }));
   });
 
@@ -82,7 +82,7 @@ export class DashboardComponent {
   protected readonly lowStock = computed(() => {
     const batches = this.inventoryStore.batches();
     return this.inventoryStore.products().filter((product) => {
-      const onHand = this.inventoryStore.onHandForProduct(product.id, batches);
+      const onHand = this.inventoryStore.onHandForProduct(product.$id, batches);
       return onHand <= product.lowStockThreshold;
     });
   });
@@ -111,12 +111,12 @@ export class DashboardComponent {
 
   protected birthVerb(): string {
     const selected = this.speciesFilterStore.selected();
-    return selected === 'all' ? 'Record birth' : speciesCopy(selected).birthVerb;
+    return selected === 'all' ? 'Record birth' : speciesVocabulary(selected).birthVerb;
   }
 
   protected productName(productId: string): string {
     return (
-      this.inventoryStore.products().find((product) => product.id === productId)?.name ?? 'Stock'
+      this.inventoryStore.products().find((product) => product.$id === productId)?.name ?? 'Stock'
     );
   }
 }

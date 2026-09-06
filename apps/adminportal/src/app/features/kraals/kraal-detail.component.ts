@@ -8,7 +8,7 @@ import {
   AnimalSex,
   animalSexLabel,
   speciesAvatarClass,
-  speciesCopy,
+  speciesVocabulary,
   speciesIconClass,
   Species,
 } from '../../core/models/species';
@@ -17,7 +17,7 @@ import { KraalStore } from '../../core/stores/kraal.store';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
 
 @Component({
-  selector: 'fma-kraal-detail',
+  selector: 'app-kraal-detail',
   imports: [FormsModule, RouterLink, ...SpartanUiImports],
   templateUrl: './kraal-detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,7 +35,7 @@ export class KraalDetailComponent {
   );
 
   protected readonly kraal = computed(() =>
-    this.kraalStore.kraals().find((item) => item.id === this.kraalId()),
+    this.kraalStore.kraals().find((item) => item.$id === this.kraalId()),
   );
 
   protected readonly animals = computed(() =>
@@ -48,7 +48,7 @@ export class KraalDetailComponent {
   protected readonly editing = signal(false);
   protected readonly name = signal('');
   protected readonly notes = signal('');
-  protected readonly copy = speciesCopy;
+  protected readonly vocabulary = speciesVocabulary;
   protected readonly iconClass = speciesIconClass;
   protected readonly avatarClass = speciesAvatarClass;
 
@@ -73,9 +73,10 @@ export class KraalDetailComponent {
     if (!kraal || !this.name().trim()) {
       return;
     }
-    await this.kraalStore.update(kraal.id, {
-      name: this.name(),
-      notes: this.notes(),
+    await this.kraalStore.update({
+      $id: kraal.$id,
+      name: this.name().trim(),
+      notes: this.notes().trim(),
       species: kraal.species,
     });
     this.editing.set(false);

@@ -1,8 +1,8 @@
-import { speciesCopy, Species } from './models/species';
+import { speciesVocabulary, Species } from '../models/species';
 
 export class DuplicateTagError extends Error {
   constructor(tag: string, species: Species) {
-    super(`Ear tag ${tag} is already on a living ${speciesCopy(species).noun}.`);
+    super(`Ear tag ${tag} is already on a living ${speciesVocabulary(species).noun}.`);
     this.name = 'DuplicateTagError';
   }
 }

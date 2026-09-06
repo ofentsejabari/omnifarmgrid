@@ -7,11 +7,11 @@ export type AnimalSex = (typeof ANIMAL_SEXES)[number];
 export const ANIMAL_STATUSES = ['alive', 'sold', 'dead', 'culled', 'missing'] as const;
 export type AnimalStatus = (typeof ANIMAL_STATUSES)[number];
 
-export interface SpeciesCopy {
+export interface SpeciesVocabulary {
   id: Species;
   noun: string;
   plural: string;
-  icon: 'lucidePawPrint';
+  icon: 'speciesGoat' | 'speciesSheep' | 'speciesPig';
   young: string;
   youngPlural: string;
   dam: string;
@@ -22,12 +22,12 @@ export interface SpeciesCopy {
   birthVerb: string;
 }
 
-export const SPECIES_COPY: Record<Species, SpeciesCopy> = {
+export const SPECIES_VOCABULARY: Record<Species, SpeciesVocabulary> = {
   goat: {
     id: 'goat',
     noun: 'goat',
     plural: 'goats',
-    icon: 'lucidePawPrint',
+    icon: 'speciesGoat',
     young: 'kid',
     youngPlural: 'kids',
     dam: 'doe',
@@ -41,7 +41,7 @@ export const SPECIES_COPY: Record<Species, SpeciesCopy> = {
     id: 'sheep',
     noun: 'sheep',
     plural: 'sheep',
-    icon: 'lucidePawPrint',
+    icon: 'speciesSheep',
     young: 'lamb',
     youngPlural: 'lambs',
     dam: 'ewe',
@@ -55,7 +55,7 @@ export const SPECIES_COPY: Record<Species, SpeciesCopy> = {
     id: 'pig',
     noun: 'pig',
     plural: 'pigs',
-    icon: 'lucidePawPrint',
+    icon: 'speciesPig',
     young: 'piglet',
     youngPlural: 'piglets',
     dam: 'sow',
@@ -67,7 +67,8 @@ export const SPECIES_COPY: Record<Species, SpeciesCopy> = {
   },
 };
 
-export const speciesCopy = (species: Species): SpeciesCopy => SPECIES_COPY[species];
+export const speciesVocabulary = (species: Species): SpeciesVocabulary =>
+  SPECIES_VOCABULARY[species];
 
 export const speciesLabel = (species: Species): string => {
   switch (species) {

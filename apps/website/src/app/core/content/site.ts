@@ -12,11 +12,14 @@ export const NAV_LINKS = [
 
 export type SpeciesId = 'goat' | 'sheep' | 'pig';
 
+export type SpeciesIcon = 'speciesGoat' | 'speciesSheep' | 'speciesPig';
+
 export interface SpeciesContent {
   id: SpeciesId;
   fragment: string;
   name: string;
   plural: string;
+  icon: SpeciesIcon;
   headline: string;
   summary: string;
   young: string;
@@ -39,6 +42,7 @@ export const SPECIES: readonly SpeciesContent[] = [
     fragment: 'goats',
     name: 'Goat',
     plural: 'goats',
+    icon: 'speciesGoat',
     headline: 'Goats — Tswana flocks, Boer meat, and every kid in between',
     summary:
       'Keep ear tags, dams, and kraals straight so kidding, treatments, and sales are never a guess.',
@@ -64,6 +68,7 @@ export const SPECIES: readonly SpeciesContent[] = [
     fragment: 'sheep',
     name: 'Sheep',
     plural: 'sheep',
+    icon: 'speciesSheep',
     headline: 'Sheep — Dorper, Damara, and the ewes that carry the flock',
     summary:
       'Lambing, kraals, and treatments in one place, with the language farmers actually use.',
@@ -89,6 +94,7 @@ export const SPECIES: readonly SpeciesContent[] = [
     fragment: 'pigs',
     name: 'Pig',
     plural: 'pigs',
+    icon: 'speciesPig',
     headline: 'Pigs — sows, boars, and piglets in pens that stay organised',
     summary:
       'Farrowing, pen moves, and vaccine stock for pig keepers who cannot afford lost records.',

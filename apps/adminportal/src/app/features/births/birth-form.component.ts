@@ -13,10 +13,10 @@ import {
   ANIMAL_SEXES,
   AnimalSex,
   animalSexLabel,
-  speciesCopy,
+  speciesVocabulary,
   Species,
 } from '../../core/models/species';
-import { DuplicateTagError } from '../../core/errors';
+import { DuplicateTagError } from '../../core/utils/errors';
 import { AnimalStore, KidDraft } from '../../core/stores/animal.store';
 import { KraalStore } from '../../core/stores/kraal.store';
 import { SpeciesFilterStore } from '../../core/stores/species-filter.store';
@@ -45,7 +45,7 @@ export class BirthFormComponent {
 
   protected readonly sexes = ANIMAL_SEXES;
   protected readonly label = animalLabel;
-  protected readonly copy = speciesCopy;
+  protected readonly vocabulary = speciesVocabulary;
   protected readonly error = signal('');
   protected readonly form;
   protected readonly damId;
@@ -77,7 +77,7 @@ export class BirthFormComponent {
         .sort((left, right) => left.tag.localeCompare(right.tag)),
     );
     this.selectedDam = computed(() =>
-      this.animalStore.animals().find((animal) => animal.id === this.damId()),
+      this.animalStore.animals().find((animal) => animal.$id === this.damId()),
     );
     this.birthSpecies = computed<Species>(
       () => this.selectedDam()?.species ?? this.speciesFilterStore.preferredSpecies(),
@@ -119,7 +119,7 @@ export class BirthFormComponent {
     if (!dam) {
       return;
     }
-    const kraal = this.kraalStore.kraals().find((item) => item.id === this.form.controls.kraalId.value);
+    const kraal = this.kraalStore.kraals().find((item) => item.$id === this.form.controls.kraalId.value);
     if (!this.form.controls.kraalId.value || kraal?.species !== dam.species) {
       this.form.controls.kraalId.setValue(dam.kraalId);
     }
@@ -135,11 +135,11 @@ export class BirthFormComponent {
 
   protected async save(): Promise<void> {
     this.error.set('');
-    const young = speciesCopy(this.birthSpecies()).young;
+    const young = speciesVocabulary(this.birthSpecies()).young;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.error.set(
-        `Dam, ${speciesCopy(this.birthSpecies()).location}, date, and ${young} ear tags are required.`,
+        `Dam, ${speciesVocabulary(this.birthSpecies()).location}, date, and ${young} ear tags are required.`,
       );
       return;
     }
@@ -156,7 +156,7 @@ export class BirthFormComponent {
       this.error.set(
         error instanceof DuplicateTagError
           ? error.message
-          : `Could not record ${speciesCopy(this.birthSpecies()).birth}.`,
+          : `Could not record ${speciesVocabulary(this.birthSpecies()).birth}.`,
       );
     }
   }

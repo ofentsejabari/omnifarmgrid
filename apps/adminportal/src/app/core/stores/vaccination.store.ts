@@ -1,12 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { InsufficientStockError } from '../errors';
-import { TreatmentEvent } from '../models/event';
-import { StockMovement } from '../models/inventory';
+import { InsufficientStockError } from '../utils/errors';
+import { TreatmentEventRow } from '../models/event';
 import { BatchService as BatchDataService } from '../services/batch.service';
 import { EventService as EventDataService } from '../services/event.service';
 import { StockMovementService as StockMovementDataService } from '../services/stock-movement.service';
 import { nowIso, todayIsoDate } from '../utils/dates';
-import { createId } from '../utils/id';
 
 export interface VaccinateKraalDraft {
   kraalId: string;
@@ -25,13 +23,20 @@ export class VaccinationStore {
   private readonly eventService = inject(EventDataService);
   private readonly stockMovementService = inject(StockMovementDataService);
 
-  async vaccinateKraal(draft: VaccinateKraalDraft): Promise<TreatmentEvent> {
+  async vaccinateKraal(draft: VaccinateKraalDraft): Promise<TreatmentEventRow> {
     if (draft.treatedAnimalIds.length === 0) {
       throw new Error('Select at least one animal to vaccinate.');
     }
     const dosesUsed = draft.treatedAnimalIds.length;
-    const event: TreatmentEvent = {
-      id: createId(),
+    const batch = await this.batchService.get(draft.batchId);
+    if (!batch || batch.quantityOnHand < dosesUsed) {
+      throw new InsufficientStockError();
+    }
+    await this.batchService.update({
+      $id: draft.batchId,
+      quantityOnHand: batch.quantityOnHand - dosesUsed,
+    });
+    const event = await this.eventService.create({
       type: 'treatment',
       date: draft.date || todayIsoDate(),
       kraalId: draft.kraalId,
@@ -39,28 +44,20 @@ export class VaccinationStore {
       batchId: draft.batchId,
       treatedAnimalIds: [...draft.treatedAnimalIds],
       excludedAnimalIds: [...draft.excludedAnimalIds],
-      exclusionReasons: { ...draft.exclusionReasons },
+      exclusionReasons: JSON.stringify({ ...draft.exclusionReasons }),
       dosesUsed,
       notes: draft.notes.trim(),
       createdAt: nowIso(),
-    };
-    const batch = await this.batchService.get(draft.batchId);
-    if (!batch || batch.quantityOnHand < dosesUsed) {
-      throw new InsufficientStockError();
-    }
-    await this.batchService.update(draft.batchId, { quantityOnHand: batch.quantityOnHand - dosesUsed });
-    await this.eventService.create(event);
-    const movement: StockMovement = {
-      id: createId(),
+    });
+    await this.stockMovementService.create({
       batchId: draft.batchId,
       productId: draft.productId,
       type: 'out',
       quantity: dosesUsed,
       date: event.date,
-      treatmentEventId: event.id,
+      treatmentEventId: event.$id,
       notes: draft.notes.trim(),
-    };
-    await this.stockMovementService.create(movement);
-    return event;
+    });
+    return event as TreatmentEventRow;
   }
 }

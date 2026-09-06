@@ -20,7 +20,7 @@ import {
   animalStatusLabel,
   speciesAvatarClass,
   speciesBadgeClass,
-  speciesCopy,
+  speciesVocabulary,
   speciesIconClass,
   Species,
 } from '../../core/models/species';
@@ -44,7 +44,7 @@ export class AnimalListComponent {
   protected readonly kraalFilter = signal('');
   protected readonly sexes = ANIMAL_SEXES;
   protected readonly skeletonSlots = [1, 2, 3, 4];
-  protected readonly copy = speciesCopy;
+  protected readonly vocabulary = speciesVocabulary;
   protected readonly badgeClass = speciesBadgeClass;
   protected readonly iconClass = speciesIconClass;
   protected readonly avatarClass = speciesAvatarClass;
@@ -93,7 +93,7 @@ export class AnimalListComponent {
     if (selected === 'all') {
       return 'Animals';
     }
-    return speciesCopy(selected).plural.replace(/^./, (char) => char.toUpperCase());
+    return speciesVocabulary(selected).plural.replace(/^./, (char) => char.toUpperCase());
   }
 
   protected addLabel(): string {
@@ -101,7 +101,7 @@ export class AnimalListComponent {
     if (selected === 'all') {
       return 'Add animal';
     }
-    return `Add ${speciesCopy(selected).noun}`;
+    return `Add ${speciesVocabulary(selected).noun}`;
   }
 
   protected onNameChange(value: string): void {
@@ -122,11 +122,11 @@ export class AnimalListComponent {
     if (selected === 'all') {
       return 'All kraals';
     }
-    return `All ${speciesCopy(selected).locationPlural}`;
+    return `All ${speciesVocabulary(selected).locationPlural}`;
   }
 
   protected kraalName(kraalId: string): string {
-    return this.kraalStore.kraals().find((kraal) => kraal.id === kraalId)?.name ?? 'No kraal';
+    return this.kraalStore.kraals().find((kraal) => kraal.$id === kraalId)?.name ?? 'No kraal';
   }
 
   protected emptyTitle(): string {

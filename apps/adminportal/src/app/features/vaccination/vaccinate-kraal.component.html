@@ -1,5 +1,5 @@
 <section class="flex flex-col gap-6">
-  <a [routerLink]="['/kraals', kraal()?.id]" hlmBtn variant="link" size="sm" class="text-muted-foreground h-auto px-0">
+  <a [routerLink]="['/kraals', kraal()?.$id]" hlmBtn variant="link" size="sm" class="text-muted-foreground h-auto px-0">
     <ng-icon name="lucideArrowLeft" />
     {{ kraal()?.name || 'Kraal' }}
   </a>
@@ -31,8 +31,8 @@
             <hlm-select-value placeholder="Select vaccine or treatment" />
           </hlm-select-trigger>
           <hlm-select-content *hlmSelectPortal>
-            @for (product of inventoryStore.products(); track product.id) {
-              <hlm-select-item [value]="product.id">{{ product.name }}</hlm-select-item>
+            @for (product of inventoryStore.products(); track product.$id) {
+              <hlm-select-item [value]="product.$id">{{ product.name }}</hlm-select-item>
             }
           </hlm-select-content>
         </hlm-select>
@@ -44,8 +44,8 @@
             <hlm-select-value placeholder="Select batch" />
           </hlm-select-trigger>
           <hlm-select-content *hlmSelectPortal>
-            @for (batch of batches(); track batch.id) {
-              <hlm-select-item [value]="batch.id">
+            @for (batch of batches(); track batch.$id) {
+              <hlm-select-item [value]="batch.$id">
                 {{ batch.batchNumber || 'No batch no.' }} · {{ batch.quantityOnHand }} left
                 @if (batch.expiryDate) {
                   · exp {{ batch.expiryDate }}
@@ -84,24 +84,24 @@
     </div>
   } @else {
     <ul class="flex flex-col gap-2">
-      @for (animal of animals(); track animal.id) {
+      @for (animal of animals(); track animal.$id) {
         <li>
           <hlm-card size="sm">
             <div hlmCardContent class="flex flex-col gap-2">
               <div hlmField orientation="horizontal">
                 <hlm-checkbox
-                  [name]="'animal-' + animal.id"
-                  [ngModel]="isSelected(animal.id)"
-                  (ngModelChange)="toggle(animal.id, $event)"
+                  [name]="'animal-' + animal.$id"
+                  [ngModel]="isSelected(animal.$id)"
+                  (ngModelChange)="toggle(animal.$id, $event)"
                 />
                 <label hlmFieldLabel>{{ label(animal) }}</label>
               </div>
-              @if (!isSelected(animal.id)) {
+              @if (!isSelected(animal.$id)) {
                 <hlm-select
                   class="w-full"
-                  [ngModel]="reasonFor(animal.id)"
-                  (ngModelChange)="setReason(animal.id, $event ?? '')"
-                  [name]="'reason-' + animal.id"
+                  [ngModel]="reasonFor(animal.$id)"
+                  (ngModelChange)="setReason(animal.$id, $event ?? '')"
+                  [name]="'reason-' + animal.$id"
                 >
                   <hlm-select-trigger class="w-full" size="sm">
                     <hlm-select-value placeholder="Why skipped?" />

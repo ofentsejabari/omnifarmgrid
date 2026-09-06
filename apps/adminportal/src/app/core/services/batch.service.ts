@@ -1,38 +1,28 @@
 import { inject, Injectable } from '@angular/core';
-import { AppwriteRowStore } from '../data/appwrite-row-store';
-import { Batch } from '../models/inventory';
-import { BATCH_TABLE, fromAppwriteBatch, toAppwriteBatch, toAppwriteBatchPatch } from './batch.mapper';
+import { Models, Query } from 'appwrite';
+import { AppwriteRowStore, ListPagination } from '../data/appwrite-row-store';
+import { BatchRow, BatchWrite } from '../models/inventory';
+
+const BATCH_TABLE = 'batches';
 
 @Injectable({ providedIn: 'root' })
 export class BatchService {
   private readonly rows = inject(AppwriteRowStore);
 
-  async list(): Promise<Batch[]> {
-    return (await this.rows.list(BATCH_TABLE)).map(fromAppwriteBatch);
+  async list(pagination?: ListPagination): Promise<Models.RowList<BatchRow>> {
+    return this.rows.list<BatchRow>(BATCH_TABLE, [Query.orderDesc('$createdAt')], pagination);
   }
 
-  async get(id: string): Promise<Batch | undefined> {
-    const row = await this.rows.get(BATCH_TABLE, id);
-    return row ? fromAppwriteBatch(row) : undefined;
+  async get(id: string): Promise<BatchRow | undefined> {
+    return this.rows.get<BatchRow>(BATCH_TABLE, id);
   }
 
-  async create(batch: Batch): Promise<Batch> {
-    const row = await this.rows.create(BATCH_TABLE, batch.id, toAppwriteBatch(batch));
-    return fromAppwriteBatch(row);
+  async create(batch: BatchWrite): Promise<BatchRow> {
+    return this.rows.create<BatchRow>(BATCH_TABLE, batch);
   }
 
-  async update(id: string, changes: Partial<Batch>): Promise<void> {
-    await this.rows.update(BATCH_TABLE, id, toAppwriteBatchPatch(changes));
-  }
-
-  async delete(id: string): Promise<void> {
-    await this.rows.delete(BATCH_TABLE, id);
-  }
-
-  async clear(): Promise<void> {
-    for (const batch of await this.list()) {
-      await this.delete(batch.id);
-    }
+  async update(changes: Partial<BatchWrite> & Pick<BatchRow, '$id'>): Promise<void> {
+    await this.rows.update(BATCH_TABLE, changes.$id, changes);
   }
 
   watch(onChange: () => void): () => void {

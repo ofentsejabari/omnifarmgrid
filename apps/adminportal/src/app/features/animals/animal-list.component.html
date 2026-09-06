@@ -40,8 +40,8 @@
         </hlm-select-trigger>
         <hlm-select-content *hlmSelectPortal>
           <hlm-select-item value="">{{ locationFilterLabel() }}</hlm-select-item>
-          @for (kraal of visibleKraals(); track kraal.id) {
-            <hlm-select-item [value]="kraal.id">{{ kraal.name }}</hlm-select-item>
+          @for (kraal of visibleKraals(); track kraal.$id) {
+            <hlm-select-item [value]="kraal.$id">{{ kraal.name }}</hlm-select-item>
           }
         </hlm-select-content>
       </hlm-select>
@@ -99,10 +99,10 @@
     </div>
   } @else {
     <ul class="flex flex-col gap-2">
-      @for (animal of animals(); track animal.id) {
+      @for (animal of animals(); track animal.$id) {
         <li>
           <a
-            [routerLink]="['/flock', animal.id]"
+            [routerLink]="['/flock', animal.$id]"
             hlmCard
             size="sm"
             class="fma-list-card block"
@@ -113,7 +113,7 @@
                 [class]="avatarClass(animal.species)"
               >
                 <ng-icon
-                  [name]="copy(animal.species).icon"
+                  [name]="vocabulary(animal.species).icon"
                   [class]="iconClass(animal.species)"
                   size="22"
                 />
@@ -134,7 +134,7 @@
                 </p>
               </div>
               <span hlmBadge [class]="badgeClass(animal.species)">
-                {{ copy(animal.species).noun }}
+                {{ vocabulary(animal.species).noun }}
               </span>
               <ng-icon name="lucideChevronRight" class="text-muted-foreground shrink-0" size="16" />
             </div>

@@ -5,11 +5,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { animalLabel } from '../../core/models/animal';
 import { EXCLUSION_REASONS } from '../../core/models/event';
-import { speciesCopy } from '../../core/models/species';
+import { speciesVocabulary } from '../../core/models/species';
 import { AnimalStore } from '../../core/stores/animal.store';
 import { InventoryStore } from '../../core/stores/inventory.store';
 import { KraalStore } from '../../core/stores/kraal.store';
-import { InsufficientStockError } from '../../core/errors';
+import { InsufficientStockError } from '../../core/utils/errors';
 import { VaccinationStore } from '../../core/stores/vaccination.store';
 import { todayIsoDate } from '../../core/utils/dates';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
@@ -36,7 +36,7 @@ export class VaccinateKraalComponent {
   );
   protected readonly exclusionReasons = EXCLUSION_REASONS;
   protected readonly label = animalLabel;
-  protected readonly copy = speciesCopy;
+  protected readonly vocabulary = speciesVocabulary;
   protected readonly error = signal('');
   protected readonly productId = signal('');
   protected readonly batchId = signal('');
@@ -46,7 +46,7 @@ export class VaccinateKraalComponent {
   protected readonly reasons = signal<Record<string, string>>({});
   protected readonly selectionReady = signal(false);
   protected readonly kraal = computed(() =>
-    this.kraalStore.kraals().find((item) => item.id === this.kraalId()),
+    this.kraalStore.kraals().find((item) => item.$id === this.kraalId()),
   );
   protected readonly animals = computed(() =>
     this.animalStore
@@ -61,7 +61,7 @@ export class VaccinateKraalComponent {
     effect(() => {
       const animals = this.animals();
       if (!this.selectionReady() && animals.length > 0) {
-        this.selectedIds.set(new Set(animals.map((animal) => animal.id)));
+        this.selectedIds.set(new Set(animals.map((animal) => animal.$id)));
         this.selectionReady.set(true);
       }
     });
@@ -69,7 +69,7 @@ export class VaccinateKraalComponent {
 
   protected placeLabel(): string {
     const kraal = this.kraal();
-    return kraal ? speciesCopy(kraal.species).location : 'kraal';
+    return kraal ? speciesVocabulary(kraal.species).location : 'kraal';
   }
 
   protected isSelected(animalId: string): boolean {
@@ -99,12 +99,12 @@ export class VaccinateKraalComponent {
     if (this.selectionReady()) {
       return;
     }
-    this.selectedIds.set(new Set(this.animals().map((animal) => animal.id)));
+    this.selectedIds.set(new Set(this.animals().map((animal) => animal.$id)));
     this.selectionReady.set(true);
   }
 
   protected selectAllDefault(): void {
-    this.selectedIds.set(new Set(this.animals().map((animal) => animal.id)));
+    this.selectedIds.set(new Set(this.animals().map((animal) => animal.$id)));
     this.selectionReady.set(true);
   }
 
@@ -118,7 +118,7 @@ export class VaccinateKraalComponent {
     }
     const treatedAnimalIds = [...this.selectedIds()];
     const excludedAnimalIds = this.animals()
-      .map((animal) => animal.id)
+      .map((animal) => animal.$id)
       .filter((id) => !this.selectedIds().has(id));
     try {
       await this.vaccinationStore.vaccinateKraal({

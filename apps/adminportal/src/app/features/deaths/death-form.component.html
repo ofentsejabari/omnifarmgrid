@@ -26,8 +26,8 @@
             <hlm-select-value placeholder="Select animal" />
           </hlm-select-trigger>
           <hlm-select-content *hlmSelectPortal>
-            @for (animal of animals(); track animal.id) {
-              <hlm-select-item [value]="animal.id">{{ label(animal) }}</hlm-select-item>
+            @for (animal of animals(); track animal.$id) {
+              <hlm-select-item [value]="animal.$id">{{ label(animal) }}</hlm-select-item>
             }
           </hlm-select-content>
         </hlm-select>

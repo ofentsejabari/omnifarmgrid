@@ -1,14 +1,13 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
-import { DuplicateTagError } from '../errors';
-import { Animal } from '../models/animal';
-import { DeathReason, MoveEvent } from '../models/event';
-import { AnimalSex, AnimalStatus, speciesCopy, Species } from '../models/species';
+import { DuplicateTagError } from '../utils/errors';
+import { AnimalRow } from '../models/animal';
+import { DeathReason } from '../models/event';
+import { AnimalSex, AnimalStatus, speciesVocabulary, Species } from '../models/species';
 import { AnimalService as AnimalDataService } from '../services/animal.service';
 import { EventService as EventDataService } from '../services/event.service';
 import { KraalService as KraalDataService } from '../services/kraal.service';
 import { nowIso } from '../utils/dates';
-import { createId } from '../utils/id';
 
 export interface AnimalDraft {
   species: Species;
@@ -38,13 +37,12 @@ export interface AnimalFilters {
 }
 
 interface AnimalState {
-  animals: Animal[];
+  animals: AnimalRow[];
   filters: AnimalFilters;
   isLoading: boolean;
-  error: string | undefined;
 }
 
-export const initialAnimalFilters: AnimalFilters = {
+const initialAnimalFilters: AnimalFilters = {
   name: '',
   species: null,
   sex: null,
@@ -55,7 +53,6 @@ const initialAnimalState: AnimalState = {
   animals: [],
   filters: initialAnimalFilters,
   isLoading: false,
-  error: undefined,
 };
 
 export const AnimalStore = signalStore(
@@ -67,26 +64,30 @@ export const AnimalStore = signalStore(
     const kraalService = inject(KraalDataService);
 
     const refresh = async (): Promise<void> => {
-      patchState(store, { isLoading: true, error: undefined });
+      patchState(store, { isLoading: true });
       try {
         const { name, species, sex, status } = store.filters();
-        const animals = await animalService.list(name, species ?? undefined, sex ?? undefined, status ?? undefined);
-        patchState(store, { animals, isLoading: false });
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Could not load animals.';
-        patchState(store, { animals: [], isLoading: false, error: message });
+        const result = await animalService.list(
+          name,
+          species ?? undefined,
+          sex ?? undefined,
+          status ?? undefined,
+        );
+        patchState(store, { animals: result.rows, isLoading: false });
+      } catch {
+        patchState(store, { animals: [], isLoading: false });
       }
     };
 
     const assertKraalSpecies = async (kraalId: string, species: Species): Promise<void> => {
       const kraal = await kraalService.get(kraalId);
       if (!kraal) {
-        throw new Error(`${speciesCopy(species).location} not found.`);
+        throw new Error(`${speciesVocabulary(species).location} not found.`);
       }
       if (kraal.species !== species) {
         throw new Error(
-          `That ${speciesCopy(kraal.species).location} is for ${speciesCopy(kraal.species).plural}, ` +
-            `not ${speciesCopy(species).plural}.`,
+          `That ${speciesVocabulary(kraal.species).location} is for ${speciesVocabulary(kraal.species).plural}, ` +
+            `not ${speciesVocabulary(species).plural}.`,
         );
       }
     };
@@ -99,7 +100,7 @@ export const AnimalStore = signalStore(
     };
 
     return {
-      getById: (id: string): Promise<Animal | undefined> => animalService.get(id),
+      getById: (id: string): Promise<AnimalRow | undefined> => animalService.get(id),
 
       async setFilters(filters: Partial<AnimalFilters>): Promise<void> {
         const current = store.filters();
@@ -116,17 +117,10 @@ export const AnimalStore = signalStore(
         await refresh();
       },
 
-      async clearFilters(): Promise<void> {
-        patchState(store, { filters: { ...initialAnimalFilters } });
-        await refresh();
-      },
-
-      async create(draft: AnimalDraft): Promise<Animal> {
+      async create(draft: AnimalDraft): Promise<AnimalRow> {
         await assertKraalSpecies(draft.kraalId, draft.species);
         await assertUniqueTag(draft.tag, draft.species);
-        const timestamp = nowIso();
-        const animal: Animal = {
-          id: createId(),
+        return animalService.create({
           species: draft.species,
           tag: draft.tag.trim(),
           name: draft.name.trim(),
@@ -139,17 +133,14 @@ export const AnimalStore = signalStore(
           kraalId: draft.kraalId,
           status: 'alive',
           notes: draft.notes.trim(),
-          createdAt: timestamp,
-          updatedAt: timestamp,
-        };
-        await animalService.create(animal);
-        return animal;
+        });
       },
 
       async update(id: string, draft: AnimalDraft): Promise<void> {
         await assertKraalSpecies(draft.kraalId, draft.species);
         await assertUniqueTag(draft.tag, draft.species, id);
-        await animalService.update(id, {
+        await animalService.update({
+          $id: id,
           species: draft.species,
           tag: draft.tag.trim(),
           name: draft.name.trim(),
@@ -161,11 +152,16 @@ export const AnimalStore = signalStore(
           sireId: draft.sireId,
           kraalId: draft.kraalId,
           notes: draft.notes.trim(),
-          updatedAt: nowIso(),
         });
       },
 
-      async recordBirth(damId: string, kraalId: string, date: string, kids: KidDraft[], notes: string): Promise<Animal[]> {
+      async recordBirth(
+        damId: string,
+        kraalId: string,
+        date: string,
+        kids: KidDraft[],
+        notes: string,
+      ): Promise<AnimalRow[]> {
         const dam = await animalService.get(damId);
         if (!dam) {
           throw new Error('Dam not found.');
@@ -180,12 +176,10 @@ export const AnimalStore = signalStore(
           seenTags.add(trimmed);
           await assertUniqueTag(trimmed, dam.species);
         }
-        const timestamp = nowIso();
-        const created: Animal[] = [];
+        const created: AnimalRow[] = [];
         const kidIds: string[] = [];
         for (const kid of kids) {
-          const animal: Animal = {
-            id: createId(),
+          const animal = await animalService.create({
             species: dam.species,
             tag: kid.tag.trim(),
             name: kid.name.trim(),
@@ -198,22 +192,18 @@ export const AnimalStore = signalStore(
             kraalId,
             status: 'alive',
             notes: '',
-            createdAt: timestamp,
-            updatedAt: timestamp,
-          };
+          });
           created.push(animal);
-          kidIds.push(animal.id);
-          await animalService.create(animal);
+          kidIds.push(animal.$id);
         }
         await eventService.create({
-          id: createId(),
           type: 'birth',
           date,
           damId,
           kraalId,
           kidIds,
           notes: notes.trim(),
-          createdAt: timestamp,
+          createdAt: nowIso(),
         });
         return created;
       },
@@ -224,9 +214,8 @@ export const AnimalStore = signalStore(
           throw new Error('Animal not found.');
         }
         const status = reason === 'slaughter' ? 'culled' : 'dead';
-        await animalService.update(animalId, { status, updatedAt: nowIso() });
+        await animalService.update({ $id: animalId, status });
         await eventService.create({
-          id: createId(),
           type: 'death',
           date,
           animalId,
@@ -246,8 +235,8 @@ export const AnimalStore = signalStore(
           return;
         }
         await assertKraalSpecies(toKraalId, animal.species);
-        const event: MoveEvent = {
-          id: createId(),
+        await animalService.update({ $id: animalId, kraalId: toKraalId });
+        await eventService.create({
           type: 'move',
           date,
           animalId,
@@ -255,9 +244,7 @@ export const AnimalStore = signalStore(
           toKraalId,
           notes: notes.trim(),
           createdAt: nowIso(),
-        };
-        await animalService.update(animalId, { kraalId: toKraalId, updatedAt: nowIso() });
-        await eventService.create(event);
+        });
       },
 
       _refresh: refresh,
@@ -272,5 +259,4 @@ export const AnimalStore = signalStore(
   }),
 );
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 export type AnimalStore = InstanceType<typeof AnimalStore>;

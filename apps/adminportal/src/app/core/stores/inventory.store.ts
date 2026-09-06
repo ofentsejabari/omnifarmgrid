@@ -1,11 +1,10 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
-import { Batch, COMMON_VACCINES, Product, ProductKind, ProductUnit, StockMovement } from '../models/inventory';
+import { BatchRow, COMMON_VACCINES, ProductKind, ProductRow, ProductUnit } from '../models/inventory';
 import { BatchService as BatchDataService } from '../services/batch.service';
 import { ProductService as ProductDataService } from '../services/product.service';
 import { StockMovementService as StockMovementDataService } from '../services/stock-movement.service';
 import { nowIso, todayIsoDate } from '../utils/dates';
-import { createId } from '../utils/id';
 
 export interface ProductDraft {
   name: string;
@@ -25,8 +24,8 @@ export interface ReceiveStockDraft {
 }
 
 interface InventoryState {
-  products: Product[];
-  batches: Batch[];
+  products: ProductRow[];
+  batches: BatchRow[];
 }
 
 export const InventoryStore = signalStore(
@@ -39,8 +38,10 @@ export const InventoryStore = signalStore(
 
     const refreshProducts = async (): Promise<void> => {
       try {
-        const rows = await productService.list();
-        patchState(store, { products: [...rows].sort((left, right) => left.name.localeCompare(right.name)) });
+        const result = await productService.list();
+        patchState(store, {
+          products: [...result.rows].sort((left, right) => left.name.localeCompare(right.name)),
+        });
       } catch {
         patchState(store, { products: [] });
       }
@@ -48,7 +49,7 @@ export const InventoryStore = signalStore(
 
     const refreshBatches = async (): Promise<void> => {
       try {
-        patchState(store, { batches: await batchService.list() });
+        patchState(store, { batches: (await batchService.list()).rows });
       } catch {
         patchState(store, { batches: [] });
       }
@@ -61,7 +62,7 @@ export const InventoryStore = signalStore(
           .reduce((total, batch) => total + batch.quantityOnHand, 0);
       },
 
-      usableBatches(productId: string, batches = store.batches(), onDate = todayIsoDate()): Batch[] {
+      usableBatches(productId: string, batches = store.batches(), onDate = todayIsoDate()): BatchRow[] {
         return batches.filter(
           (batch) =>
             batch.productId === productId &&
@@ -70,56 +71,52 @@ export const InventoryStore = signalStore(
         );
       },
 
-      async addProduct(draft: ProductDraft): Promise<Product> {
-        const product: Product = {
-          id: createId(),
+      async addProduct(draft: ProductDraft): Promise<ProductRow> {
+        return productService.create({
           name: draft.name.trim(),
           kind: draft.kind,
           unit: draft.unit,
           lowStockThreshold: draft.lowStockThreshold,
           notes: draft.notes.trim(),
-          createdAt: nowIso(),
-        };
-        await productService.create(product);
-        return product;
+        });
       },
 
       async addCommonVaccines(): Promise<void> {
-        const existing = new Set((await productService.list()).map((product) => product.name));
+        const existing = new Set((await productService.list()).rows.map((product) => product.name));
         for (const name of Object.values(COMMON_VACCINES).flat()) {
           if (existing.has(name)) {
             continue;
           }
           existing.add(name);
-          await this.addProduct({ name, kind: 'vaccine', unit: 'dose', lowStockThreshold: 10, notes: '' });
+          await this.addProduct({
+            name,
+            kind: 'vaccine',
+            unit: 'dose',
+            lowStockThreshold: 10,
+            notes: '',
+          });
         }
       },
 
-      async receiveStock(draft: ReceiveStockDraft): Promise<Batch> {
+      async receiveStock(draft: ReceiveStockDraft): Promise<BatchRow> {
         if (draft.quantity <= 0) {
           throw new Error('Quantity must be greater than zero.');
         }
-        const timestamp = nowIso();
-        const batch: Batch = {
-          id: createId(),
+        const batch = await batchService.create({
           productId: draft.productId,
           batchNumber: draft.batchNumber.trim(),
           expiryDate: draft.expiryDate,
           quantityOnHand: draft.quantity,
-          receivedAt: timestamp,
-        };
-        const movement: StockMovement = {
-          id: createId(),
-          batchId: batch.id,
+          receivedAt: nowIso(),
+        });
+        await stockMovementService.create({
+          batchId: batch.$id,
           productId: draft.productId,
           type: 'in',
           quantity: draft.quantity,
           date: draft.date || todayIsoDate(),
-          treatmentEventId: '',
           notes: draft.notes.trim(),
-        };
-        await batchService.create(batch);
-        await stockMovementService.create(movement);
+        });
         return batch;
       },
 
@@ -140,5 +137,4 @@ export const InventoryStore = signalStore(
   }),
 );
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 export type InventoryStore = InstanceType<typeof InventoryStore>;

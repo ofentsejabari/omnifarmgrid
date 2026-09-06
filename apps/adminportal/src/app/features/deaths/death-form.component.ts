@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { animalLabel } from '../../core/models/animal';
 import { DEATH_REASONS, DeathReason, deathReasonLabel } from '../../core/models/event';
-import { speciesCopy } from '../../core/models/species';
+import { speciesVocabulary } from '../../core/models/species';
 import { AnimalStore } from '../../core/stores/animal.store';
 import { SpeciesFilterStore } from '../../core/stores/species-filter.store';
 import { todayIsoDate } from '../../core/utils/dates';
@@ -25,7 +25,7 @@ export class DeathFormComponent {
 
   protected readonly reasons = DEATH_REASONS;
   protected readonly label = animalLabel;
-  protected readonly copy = speciesCopy;
+  protected readonly vocabulary = speciesVocabulary;
   protected readonly error = signal('');
   protected readonly form;
   protected readonly animalId;
@@ -55,7 +55,7 @@ export class DeathFormComponent {
         .sort((left, right) => left.tag.localeCompare(right.tag)),
     );
     this.selectedAnimal = computed(() =>
-      this.animalStore.animals().find((animal) => animal.id === this.animalId()),
+      this.animalStore.animals().find((animal) => animal.$id === this.animalId()),
     );
   }
 

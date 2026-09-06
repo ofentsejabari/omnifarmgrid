@@ -1,38 +1,20 @@
 import { inject, Injectable } from '@angular/core';
-import { AppwriteRowStore } from '../data/appwrite-row-store';
-import { FlockEvent } from '../models/event';
-import { EVENT_TABLE, fromAppwriteEvent, toAppwriteEvent, toAppwriteEventPatch } from './event.mapper';
+import { Models, Query } from 'appwrite';
+import { AppwriteRowStore, ListPagination } from '../data/appwrite-row-store';
+import { EventWrite, FlockEventRow } from '../models/event';
+
+const EVENT_TABLE = 'events';
 
 @Injectable({ providedIn: 'root' })
 export class EventService {
   private readonly rows = inject(AppwriteRowStore);
 
-  async list(): Promise<FlockEvent[]> {
-    return (await this.rows.list(EVENT_TABLE)).map(fromAppwriteEvent);
+  async list(pagination?: ListPagination): Promise<Models.RowList<FlockEventRow>> {
+    return this.rows.list<FlockEventRow>(EVENT_TABLE, [Query.orderDesc('date')], pagination);
   }
 
-  async get(id: string): Promise<FlockEvent | undefined> {
-    const row = await this.rows.get(EVENT_TABLE, id);
-    return row ? fromAppwriteEvent(row) : undefined;
-  }
-
-  async create(event: FlockEvent): Promise<FlockEvent> {
-    const row = await this.rows.create(EVENT_TABLE, event.id, toAppwriteEvent(event));
-    return fromAppwriteEvent(row);
-  }
-
-  async update(id: string, changes: Partial<FlockEvent>): Promise<void> {
-    await this.rows.update(EVENT_TABLE, id, toAppwriteEventPatch(changes));
-  }
-
-  async delete(id: string): Promise<void> {
-    await this.rows.delete(EVENT_TABLE, id);
-  }
-
-  async clear(): Promise<void> {
-    for (const event of await this.list()) {
-      await this.delete(event.id);
-    }
+  async create(event: EventWrite): Promise<FlockEventRow> {
+    return this.rows.create<FlockEventRow>(EVENT_TABLE, { ...event });
   }
 
   watch(onChange: () => void): () => void {

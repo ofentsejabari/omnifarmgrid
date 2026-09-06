@@ -24,6 +24,7 @@ import {
   lucideWifiOff,
   lucideX,
 } from '@ng-icons/lucide';
+import { speciesGoat, speciesPig, speciesSheep } from './species-icons';
 
 export const LUCIDE_ICONS = {
   lucideArrowRight,
@@ -48,6 +49,9 @@ export const LUCIDE_ICONS = {
   lucideSyringe,
   lucideWifiOff,
   lucideX,
+  speciesGoat,
+  speciesPig,
+  speciesSheep,
 };
 
 export const provideLucideIcons = (): EnvironmentProviders =>

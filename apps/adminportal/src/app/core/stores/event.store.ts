@@ -1,10 +1,10 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
-import { FlockEvent } from '../models/event';
+import { FlockEventRow } from '../models/event';
 import { EventService as EventDataService } from '../services/event.service';
 
 interface EventState {
-  events: FlockEvent[];
+  events: FlockEventRow[];
 }
 
 export const EventStore = signalStore(
@@ -15,15 +15,17 @@ export const EventStore = signalStore(
 
     const refresh = async (): Promise<void> => {
       try {
-        const rows = await eventService.list();
-        patchState(store, { events: [...rows].sort((left, right) => right.date.localeCompare(left.date)) });
+        const result = await eventService.list();
+        patchState(store, {
+          events: [...result.rows].sort((left, right) => right.date.localeCompare(left.date)),
+        });
       } catch {
         patchState(store, { events: [] });
       }
     };
 
     return {
-      forAnimal(animalId: string, events = store.events()): FlockEvent[] {
+      forAnimal(animalId: string, events = store.events()): FlockEventRow[] {
         return events.filter((event) => {
           if (event.type === 'birth') {
             return event.damId === animalId || event.kidIds.includes(animalId);
@@ -49,5 +51,4 @@ export const EventStore = signalStore(
   }),
 );
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 export type EventStore = InstanceType<typeof EventStore>;

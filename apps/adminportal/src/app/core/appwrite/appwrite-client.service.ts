@@ -1,17 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Account, Client, Realtime, TablesDB } from 'appwrite';
+import { Account, Client, Models, Realtime, TablesDB } from 'appwrite';
 import { APPWRITE_ENDPOINT, APPWRITE_PROJECT_ID } from './appwrite.constants';
 
-export const ensureGuestSession = async (account: {
-  get: () => Promise<unknown>;
-  createAnonymousSession: () => Promise<unknown>;
-}): Promise<void> => {
-  try {
-    await account.get();
-  } catch {
-    await account.createAnonymousSession();
-  }
-};
+export const isRegisteredUser = (user: Models.User): boolean => user.email.trim().length > 0;
 
 @Injectable({ providedIn: 'root' })
 export class AppwriteClient {
@@ -29,7 +20,23 @@ export class AppwriteClient {
   }
 
   get ready(): Promise<void> {
-    this.sessionReady ??= ensureGuestSession(this.account);
+    this.sessionReady ??= this.requireRegisteredSession();
     return this.sessionReady;
+  }
+
+  markAuthenticated(): void {
+    this.sessionReady = Promise.resolve();
+  }
+
+  clearSession(): void {
+    this.sessionReady = undefined;
+  }
+
+  private async requireRegisteredSession(): Promise<void> {
+    const user = await this.account.get();
+    if (!isRegisteredUser(user)) {
+      await this.account.deleteSession({ sessionId: 'current' });
+      throw new Error('Sign in required.');
+    }
   }
 }

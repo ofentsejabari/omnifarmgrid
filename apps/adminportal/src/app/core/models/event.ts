@@ -1,3 +1,4 @@
+import { Models } from 'appwrite';
 import { Species } from './species';
 
 export const DEATH_REASONS = [
@@ -18,46 +19,51 @@ export const EXCLUSION_REASONS = [
   'other',
 ] as const;
 
-interface EventBase {
-  id: string;
+type EventBaseRow = Models.Row & {
   date: string;
   notes: string;
   createdAt: string;
-}
+};
 
-export interface BirthEvent extends EventBase {
+export type BirthEventRow = EventBaseRow & {
   type: 'birth';
   damId: string;
   kraalId: string;
   kidIds: string[];
-}
+};
 
-export interface DeathEvent extends EventBase {
+export type DeathEventRow = EventBaseRow & {
   type: 'death';
   animalId: string;
   kraalId: string;
   reason: DeathReason;
-}
+};
 
-export interface TreatmentEvent extends EventBase {
+export type TreatmentEventRow = EventBaseRow & {
   type: 'treatment';
   kraalId: string;
   productId: string;
   batchId: string;
   treatedAnimalIds: string[];
   excludedAnimalIds: string[];
-  exclusionReasons: Record<string, string>;
+  exclusionReasons: string;
   dosesUsed: number;
-}
+};
 
-export interface MoveEvent extends EventBase {
+export type MoveEventRow = EventBaseRow & {
   type: 'move';
   animalId: string;
   fromKraalId: string;
   toKraalId: string;
-}
+};
 
-export type FlockEvent = BirthEvent | DeathEvent | TreatmentEvent | MoveEvent;
+export type FlockEventRow = BirthEventRow | DeathEventRow | TreatmentEventRow | MoveEventRow;
+
+export type EventWrite =
+  | Omit<BirthEventRow, keyof Models.Row>
+  | Omit<DeathEventRow, keyof Models.Row>
+  | Omit<TreatmentEventRow, keyof Models.Row>
+  | Omit<MoveEventRow, keyof Models.Row>;
 
 export const deathReasonLabel = (reason: DeathReason, species?: Species): string => {
   switch (reason) {
@@ -82,7 +88,7 @@ export const deathReasonLabel = (reason: DeathReason, species?: Species): string
   }
 };
 
-export const eventTypeLabel = (type: FlockEvent['type']): string => {
+export const eventTypeLabel = (type: FlockEventRow['type']): string => {
   switch (type) {
     case 'birth':
       return 'Birth';
@@ -95,7 +101,7 @@ export const eventTypeLabel = (type: FlockEvent['type']): string => {
   }
 };
 
-export const eventTypeIcon = (type: FlockEvent['type']): string => {
+export const eventTypeIcon = (type: FlockEventRow['type']): string => {
   switch (type) {
     case 'birth':
       return 'lucideBaby';

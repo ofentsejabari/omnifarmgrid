@@ -1,10 +1,15 @@
+import { Models } from 'appwrite';
 import { Species } from './species';
 
-export interface Kraal {
-  id: string;
+export type KraalRow = Models.Row & {
   name: string;
   notes: string;
   species: Species;
-  createdAt: string;
-  updatedAt: string;
+};
+
+export interface KraalPage {
+  page: number;
+  limit: number;
+  offset: number;
+  total: number;
 }

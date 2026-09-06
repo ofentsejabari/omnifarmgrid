@@ -1,39 +1,40 @@
 import { inject, Injectable } from '@angular/core';
-import { Query } from 'appwrite';
-import { AppwriteRowStore } from '../data/appwrite-row-store';
-import { Animal } from '../models/animal';
+import { Models, Query } from 'appwrite';
+import { AppwriteRowStore, ListPagination } from '../data/appwrite-row-store';
+import { AnimalRow, AnimalWrite } from '../models/animal';
 import { AnimalSex, AnimalStatus, Species } from '../models/species';
-import { ANIMAL_TABLE, fromAppwriteAnimal, toAppwriteAnimal, toAppwriteAnimalPatch } from './animal.mapper';
+
+const ANIMAL_TABLE = 'animals';
 
 @Injectable({ providedIn: 'root' })
 export class AnimalService {
-  private readonly appwriteRowStore = inject(AppwriteRowStore);
+  private readonly rows = inject(AppwriteRowStore);
 
-  async list(name?: string, species?: Species, sex?: AnimalSex, status?: AnimalStatus): Promise<Animal[]> {
+  async list(
+    name?: string,
+    species?: Species,
+    sex?: AnimalSex,
+    status?: AnimalStatus,
+    pagination?: ListPagination,
+  ): Promise<Models.RowList<AnimalRow>> {
     const queries = [Query.orderDesc('$createdAt')];
-
     if (name?.trim()) {
       queries.push(Query.contains('name', name.trim()));
     }
-
     if (species) {
       queries.push(Query.equal('species', species));
     }
-
     if (sex) {
       queries.push(Query.equal('sex', sex));
     }
-
     if (status) {
       queries.push(Query.equal('status', status));
     }
-
-    return (await this.appwriteRowStore.list(ANIMAL_TABLE, queries)).map(fromAppwriteAnimal);
+    return this.rows.list<AnimalRow>(ANIMAL_TABLE, queries, pagination);
   }
 
-  async get(id: string): Promise<Animal | undefined> {
-    const row = await this.appwriteRowStore.get(ANIMAL_TABLE, id);
-    return row ? fromAppwriteAnimal(row) : undefined;
+  async get(id: string): Promise<AnimalRow | undefined> {
+    return this.rows.get<AnimalRow>(ANIMAL_TABLE, id);
   }
 
   async existsAliveWithTag(tag: string, species: Species, ignoreId?: string): Promise<boolean> {
@@ -47,30 +48,19 @@ export class AnimalService {
     if (ignoreId) {
       queries.push(Query.notEqual('$id', ignoreId));
     }
-    const rows = await this.appwriteRowStore.query(ANIMAL_TABLE, queries);
+    const rows = await this.rows.query<AnimalRow>(ANIMAL_TABLE, queries);
     return rows.length > 0;
   }
 
-  async create(animal: Animal): Promise<Animal> {
-    const row = await this.appwriteRowStore.create(ANIMAL_TABLE, animal.id, toAppwriteAnimal(animal));
-    return fromAppwriteAnimal(row);
+  async create(animal: AnimalWrite): Promise<AnimalRow> {
+    return this.rows.create<AnimalRow>(ANIMAL_TABLE, animal);
   }
 
-  async update(id: string, changes: Partial<Animal>): Promise<void> {
-    await this.appwriteRowStore.update(ANIMAL_TABLE, id, toAppwriteAnimalPatch(changes));
-  }
-
-  async delete(id: string): Promise<void> {
-    await this.appwriteRowStore.delete(ANIMAL_TABLE, id);
-  }
-
-  async clear(): Promise<void> {
-    for (const animal of await this.list()) {
-      await this.delete(animal.id);
-    }
+  async update(changes: Partial<AnimalWrite> & Pick<AnimalRow, '$id'>): Promise<void> {
+    await this.rows.update(ANIMAL_TABLE, changes.$id, changes);
   }
 
   watch(onChange: () => void): () => void {
-    return this.appwriteRowStore.watch(ANIMAL_TABLE, onChange);
+    return this.rows.watch(ANIMAL_TABLE, onChange);
   }
 }

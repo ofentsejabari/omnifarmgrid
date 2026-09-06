@@ -4,9 +4,9 @@
     Home
   </a>
   <div>
-    <h1 class="text-2xl font-semibold tracking-tight">{{ copy(birthSpecies()).birthVerb }}</h1>
+    <h1 class="text-2xl font-semibold tracking-tight">{{ vocabulary(birthSpecies()).birthVerb }}</h1>
     <p class="text-muted-foreground mt-1 text-sm leading-relaxed">
-      Record the dam and each {{ copy(birthSpecies()).young }}.
+      Record the dam and each {{ vocabulary(birthSpecies()).young }}.
     </p>
   </div>
 
@@ -21,33 +21,33 @@
     <hlm-card>
       <div hlmCardContent class="flex flex-col gap-3">
         <div hlmField>
-          <label hlmFieldLabel>Dam ({{ copy(birthSpecies()).dam }})</label>
+          <label hlmFieldLabel>Dam ({{ vocabulary(birthSpecies()).dam }})</label>
           <hlm-select class="w-full" formControlName="damId">
             <hlm-select-trigger class="w-full">
-              <hlm-select-value placeholder="Select {{ copy(birthSpecies()).dam }}" />
+              <hlm-select-value placeholder="Select {{ vocabulary(birthSpecies()).dam }}" />
             </hlm-select-trigger>
             <hlm-select-content *hlmSelectPortal>
-              @for (dam of dams(); track dam.id) {
-                <hlm-select-item [value]="dam.id">{{ label(dam) }}</hlm-select-item>
+              @for (dam of dams(); track dam.$id) {
+                <hlm-select-item [value]="dam.$id">{{ label(dam) }}</hlm-select-item>
               }
             </hlm-select-content>
           </hlm-select>
         </div>
         <div hlmField>
-          <label hlmFieldLabel>{{ copy(birthSpecies()).location }} for {{ copy(birthSpecies()).youngPlural }}</label>
+          <label hlmFieldLabel>{{ vocabulary(birthSpecies()).location }} for {{ vocabulary(birthSpecies()).youngPlural }}</label>
           <hlm-select class="w-full" formControlName="kraalId">
             <hlm-select-trigger class="w-full">
-              <hlm-select-value placeholder="Select {{ copy(birthSpecies()).location }}" />
+              <hlm-select-value placeholder="Select {{ vocabulary(birthSpecies()).location }}" />
             </hlm-select-trigger>
             <hlm-select-content *hlmSelectPortal>
-              @for (kraal of matchingKraals(); track kraal.id) {
-                <hlm-select-item [value]="kraal.id">{{ kraal.name }}</hlm-select-item>
+              @for (kraal of matchingKraals(); track kraal.$id) {
+                <hlm-select-item [value]="kraal.$id">{{ kraal.name }}</hlm-select-item>
               }
             </hlm-select-content>
           </hlm-select>
         </div>
         <div hlmField>
-          <label hlmFieldLabel>{{ copy(birthSpecies()).birth }} date</label>
+          <label hlmFieldLabel>{{ vocabulary(birthSpecies()).birth }} date</label>
           <fma-iso-date-picker formControlName="date" placeholder="Pick a date" />
         </div>
         <div hlmField>
@@ -58,9 +58,9 @@
     </hlm-card>
 
     <div class="flex items-center justify-between">
-      <h2 class="font-semibold">{{ copy(birthSpecies()).youngPlural }}</h2>
+      <h2 class="font-semibold">{{ vocabulary(birthSpecies()).youngPlural }}</h2>
       <button type="button" hlmBtn size="sm" variant="secondary" (click)="addKid()">
-        Add {{ copy(birthSpecies()).young }}
+        Add {{ vocabulary(birthSpecies()).young }}
       </button>
     </div>
 
@@ -69,7 +69,7 @@
         <div hlmCard [formGroupName]="$index">
           <div hlmCardContent class="flex flex-col gap-3">
             <div class="flex justify-between">
-              <span class="font-medium">{{ copy(birthSpecies()).young }} {{ $index + 1 }}</span>
+              <span class="font-medium">{{ vocabulary(birthSpecies()).young }} {{ $index + 1 }}</span>
               <button type="button" hlmBtn variant="ghost" size="xs" (click)="removeKid($index)">Remove</button>
             </div>
             <input hlmInput formControlName="tag" placeholder="Ear tag" />
@@ -89,6 +89,6 @@
       }
     </div>
 
-    <button type="submit" hlmBtn class="w-full">Save {{ copy(birthSpecies()).birth }}</button>
+    <button type="submit" hlmBtn class="w-full">Save {{ vocabulary(birthSpecies()).birth }}</button>
   </form>
 </section>

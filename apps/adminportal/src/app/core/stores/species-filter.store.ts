@@ -1,11 +1,7 @@
-import { computed } from '@angular/core';
-import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
-import { isSpecies, SPECIES, Species } from '../models/species';
+import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
+import { isSpecies, Species } from '../models/species';
 
 export type SpeciesFilter = Species | 'all';
-
-/** Re-exported for convenience so callers don't need to import from models. */
-export { SPECIES as SPECIES_OPTIONS };
 
 const STORAGE_KEY = 'fma-species-filter';
 
@@ -28,9 +24,6 @@ interface SpeciesFilterState {
 export const SpeciesFilterStore = signalStore(
   { providedIn: 'root' },
   withState<SpeciesFilterState>({ selected: readStoredFilter() }),
-  withComputed((store) => ({
-    isAll: computed(() => store.selected() === 'all'),
-  })),
   withMethods((store) => ({
     set(filter: SpeciesFilter): void {
       patchState(store, { selected: filter });

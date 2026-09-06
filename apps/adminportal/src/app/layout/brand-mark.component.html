@@ -1,0 +1,12 @@
+<div [class]="wrapClass()">
+  <span [class]="iconWrapClass()" aria-hidden="true">
+    <ng-icon name="lucideTractor" [size]="iconSize()" strokeWidth="1"/>
+  </span>
+  <div class="min-w-0">
+    <p class="leading-none tracking-tight" [class]="titleSizeClass()" aria-label="OmniHerdGrid">
+      <span [class]="omniClass()">Omni</span><span [class]="herdClass()">Herd</span>
+      <sup [class]="gridClass()">Grid</sup>
+    </p>
+    <p [class]="taglineClass()">{{ tagline() }}</p>
+  </div>
+</div>

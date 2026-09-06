@@ -3,8 +3,8 @@
     <div class="min-w-0">
       <h1 class="text-2xl font-semibold tracking-tight">{{ heading() }}</h1>
       <p class="text-muted-foreground mt-1 text-sm leading-relaxed">
-        {{ visibleKraals().length }}
-        {{ visibleKraals().length === 1 ? 'place' : 'places' }}
+        {{ kraalStore.page().total }}
+        {{ kraalStore.page().total === 1 ? 'place' : 'places' }}
       </p>
     </div>
     <button type="button" hlmBtn (click)="openForm()">
@@ -21,43 +21,96 @@
   }
 
   @if (showForm()) {
-    <form hlmCard (submit)="$event.preventDefault(); save()">
-      <div hlmCardContent class="flex flex-col gap-4">
+    <form hlmCard class="overflow-hidden shadow-sm" (submit)="onSubmit($event)">
+      <div hlmCardHeader class="border-b">
+        <h2 hlmCardTitle class="capitalize">Add {{ formCopy().location }}</h2>
+        <p hlmCardDescription>
+          Name the place you keep {{ formCopy().plural }} — home, lands, or a sick pen.
+        </p>
+      </div>
+      <div hlmCardContent class="flex flex-col gap-5">
         <div hlmField>
-          <label hlmFieldLabel>Species</label>
-          <hlm-select class="w-full" [ngModel]="species()" (ngModelChange)="onSpecies($event)" name="species">
-            <hlm-select-trigger class="w-full">
-              <hlm-select-value placeholder="Select species" />
-            </hlm-select-trigger>
-            <hlm-select-content *hlmSelectPortal>
-              @for (value of speciesOptions; track value) {
-                <hlm-select-item [value]="value">{{ speciesName(value) }}</hlm-select-item>
-              }
-            </hlm-select-content>
-          </hlm-select>
+          <p hlmFieldLabel id="kraal-species-label">Species</p>
+          <hlm-radio-group
+            class="grid grid-cols-3 gap-2"
+            name="kraal-species"
+            [value]="kraalForm.species().value()"
+            (valueChange)="selectSpecies($event)"
+            aria-labelledby="kraal-species-label"
+          >
+            @for (value of speciesOptions; track value) {
+              <label hlmLabel [for]="'kraal-species-' + value" [class]="speciesChoiceClass(value)">
+                <hlm-radio
+                  [value]="value"
+                  [inputId]="'kraal-species-' + value"
+                  class="w-full flex-col gap-2 [&_[data-slot=indicator]]:absolute
+                    [&_[data-slot=indicator]]:end-2 [&_[data-slot=indicator]]:top-2"
+                >
+                  <!-- <hlm-radio-indicator indicator /> -->
+                  <span
+                    class="flex size-11 items-center justify-center rounded-full"
+                    [class]="avatarClass(value)"
+                  >
+                    <ng-icon
+                      [name]="vocabulary(value).icon"
+                      [class]="iconClass(value)"
+                      size="20"
+                    />
+                  </span>
+                  <span class="flex flex-col items-center gap-0.5">
+                    <span class="text-sm leading-none font-semibold">{{ speciesName(value) }}</span>
+                    <span class="text-muted-foreground text-[11px] font-normal capitalize">
+                      {{ vocabulary(value).location }}
+                    </span>
+                  </span>
+                </hlm-radio>
+              </label>
+            }
+          </hlm-radio-group>
         </div>
         <div hlmField>
-          <label hlmFieldLabel>Name</label>
-          <input hlmInput [ngModel]="name()" (ngModelChange)="name.set($event)" name="name" />
+          <label hlmFieldLabel for="kraal-name">Name</label>
+          <input
+            id="kraal-name"
+            hlmInput
+            class="h-11"
+            type="text"
+            [formField]="kraalForm.name"
+            [attr.placeholder]="'e.g. Home ' + formCopy().location"
+            autocomplete="off"
+          />
+          <p hlmFieldDescription>Use the name you already say on the farm.</p>
+          @if (kraalForm.name().touched() && kraalForm.name().invalid()) {
+            @for (fieldError of kraalForm.name().errors(); track fieldError.kind) {
+              <p class="text-destructive text-sm">{{ fieldError.message }}</p>
+            }
+          }
         </div>
         <div hlmField>
-          <label hlmFieldLabel>Notes</label>
+          <label hlmFieldLabel for="kraal-notes">Notes</label>
           <textarea
+            id="kraal-notes"
             hlmTextarea
-            [ngModel]="notes()"
-            (ngModelChange)="notes.set($event)"
-            name="notes"
+            class="min-h-24"
+            [formField]="kraalForm.notes"
+            placeholder="Water, shade, ram only — whatever you need to remember"
           ></textarea>
         </div>
       </div>
       <hlm-card-footer class="justify-end gap-2">
-        <button type="button" hlmBtn variant="ghost" (click)="showForm.set(false)">Cancel</button>
-        <button type="submit" hlmBtn>Save {{ copy(species()).location }}</button>
+        <button type="button" hlmBtn variant="ghost" (click)="closeForm()">Cancel</button>
+        <button type="submit" hlmBtn [disabled]="kraalForm().submitting()">
+          @if (kraalForm().submitting()) {
+            Saving…
+          } @else {
+            Save {{ formCopy().location }}
+          }
+        </button>
       </hlm-card-footer>
     </form>
   }
 
-  @if (visibleKraals().length === 0 && !showForm()) {
+  @if (kraalRows().length === 0 && !showForm()) {
     <div class="fma-empty">
       <span class="fma-empty-icon">
         <ng-icon name="lucideFence" size="24" />
@@ -73,58 +126,63 @@
         {{ addLabel() }}
       </button>
     </div>
+  } @else if (kraalRows().length > 0) {
+    <ul class="bg-card/90 ring-foreground/10 divide-border flex flex-col divide-y overflow-hidden rounded-2xl
+        shadow-sm ring-1" [attr.aria-label]="heading()">
+
+      @for (row of kraalRows(); track row.kraal.$id) {
+        <li class="flex items-stretch" [class]="accentClass(row.kraal.species)">
+          <a [routerLink]="['/kraals', row.kraal.$id]"
+            class="hover:bg-muted/40 flex min-w-0 grow items-center gap-3 px-3 py-3 transition-colors">
+
+            <span class="flex size-11 shrink-0 items-center justify-center rounded-full"
+              [class]="avatarClass(row.kraal.species)">
+              <ng-icon
+                [name]="row.vocabulary.icon"
+                [class]="iconClass(row.kraal.species)"
+                size="20"
+              />
+            </span>
+            <div class="min-w-0 grow">
+              <h2 class="truncate font-semibold">{{ row.kraal.name }}</h2>
+              <p class="text-muted-foreground truncate text-sm">
+                {{ row.count }}
+                {{ row.count === 1 ? row.vocabulary.noun : row.vocabulary.plural }}
+                @if (row.kraal.notes) {
+                  <span> · {{ row.kraal.notes }}</span>
+                }
+              </p>
+            </div>
+            @if (speciesFilterStore.selected() === 'all') {
+              <span hlmBadge [class]="badgeClass(row.kraal.species)">
+                {{ row.vocabulary.noun }}
+              </span>
+            }
+            <ng-icon name="lucideChevronRight" class="text-muted-foreground shrink-0" size="16" />
+          </a>
+          <button
+            type="button"
+            hlmBtn
+            variant="ghost"
+            size="icon-sm"
+            class="text-muted-foreground hover:text-destructive mx-1.5 self-center"
+            (click)="remove(row.kraal.$id)"
+            [attr.aria-label]="'Remove ' + row.kraal.name"
+          >
+            <ng-icon name="lucideTrash2" />
+          </button>
+        </li>
+      }
+    </ul>
   }
 
-  <ul class="flex flex-col gap-2">
-    @for (kraal of visibleKraals(); track kraal.id) {
-      <li>
-        <hlm-card size="sm" class="fma-list-card">
-          <div hlmCardContent class="flex items-center gap-3">
-            <a [routerLink]="['/kraals', kraal.id]" class="flex min-w-0 grow items-center gap-3">
-              <span
-                class="flex size-11 shrink-0 items-center justify-center rounded-full"
-                [class]="avatarClass(kraal.species)"
-              >
-                <ng-icon
-                  [name]="copy(kraal.species).icon"
-                  [class]="iconClass(kraal.species)"
-                  size="20"
-                />
-              </span>
-              <div class="min-w-0 grow">
-                <div class="flex items-center gap-2">
-                  <h2 class="truncate font-semibold">{{ kraal.name }}</h2>
-                  <span hlmBadge [class]="badgeClass(kraal.species)">
-                    {{ copy(kraal.species).noun }}
-                  </span>
-                </div>
-                <p class="text-muted-foreground truncate text-sm">
-                  {{ animalCount(kraal.id) }}
-                  {{
-                    animalCount(kraal.id) === 1
-                      ? copy(kraal.species).noun
-                      : copy(kraal.species).plural
-                  }}
-                </p>
-                @if (kraal.notes) {
-                  <p class="text-muted-foreground mt-0.5 truncate text-sm">{{ kraal.notes }}</p>
-                }
-              </div>
-              <ng-icon name="lucideChevronRight" class="text-muted-foreground shrink-0" size="16" />
-            </a>
-            <button
-              type="button"
-              hlmBtn
-              variant="ghost"
-              size="icon-sm"
-              (click)="remove(kraal.id)"
-              [attr.aria-label]="'Remove ' + kraal.name"
-            >
-              <ng-icon name="lucideTrash2" />
-            </button>
-          </div>
-        </hlm-card>
-      </li>
-    }
-  </ul>
+  @if (kraalStore.page().total > kraalStore.page().limit) {
+    <hlm-numbered-pagination
+      [currentPage]="kraalStore.page().page"
+      (currentPageChange)="onPageChange($event)"
+      [itemsPerPage]="kraalStore.page().limit"
+      (itemsPerPageChange)="onLimitChange($event)"
+      [totalItems]="kraalStore.page().total"
+    />
+  }
 </section>

@@ -1,12 +1,15 @@
 import { inject, Injectable } from '@angular/core';
-import { Query } from 'appwrite';
+import { Models, Query } from 'appwrite';
 import { AppwriteClient } from '../appwrite/appwrite-client.service';
 import { APPWRITE_DATABASE_ID } from '../appwrite/appwrite.constants';
-import { AppwriteRowRecord } from './appwrite-record';
+import { createId } from '../utils/id';
 
-interface RowPage {
-  rows?: AppwriteRowRecord[];
-  documents?: AppwriteRowRecord[];
+export const LIST_PAGE_SIZE = 10;
+const LIST_MAX_PAGE_SIZE = 100;
+
+export interface ListPagination {
+  limit: number;
+  offset?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -14,65 +17,58 @@ export class AppwriteRowStore {
   private readonly appwrite = inject(AppwriteClient);
   private readonly listeners = new Map<string, Set<() => void>>();
 
-  async list(table: string, queries: string[] = []): Promise<AppwriteRowRecord[]> {
+  async list<Row extends Models.Row = Models.DefaultRow>(
+    table: string,
+    queries: string[] = [],
+    pagination?: ListPagination,
+  ): Promise<Models.RowList<Row>> {
     await this.appwrite.ready;
-    const collected: AppwriteRowRecord[] = [];
-    let cursor: string | undefined;
-    for (;;) {
-      const pageQueries = [...queries, Query.limit(100)];
-      if (cursor) {
-        pageQueries.push(Query.cursorAfter(cursor));
-      }
-      const page = (await this.appwrite.tables.listRows({
-        databaseId: APPWRITE_DATABASE_ID,
-        tableId: table,
-        queries: pageQueries,
-      })) as RowPage;
-      const rows = page.rows ?? page.documents ?? [];
-      collected.push(...rows);
-      if (rows.length < 100) {
-        break;
-      }
-      cursor = rows[rows.length - 1].$id;
+    if (pagination) {
+      return this.listPage<Row>(table, queries, pagination);
     }
-    return collected;
+    return this.listAll<Row>(table, queries);
   }
 
-  async query(table: string, queries: string[]): Promise<AppwriteRowRecord[]> {
+  async query<Row extends Models.Row = Models.DefaultRow>(
+    table: string,
+    queries: string[],
+  ): Promise<Row[]> {
     await this.appwrite.ready;
-    const page = (await this.appwrite.tables.listRows({
+    const page = await this.appwrite.tables.listRows<Row>({
       databaseId: APPWRITE_DATABASE_ID,
       tableId: table,
       queries,
-    })) as RowPage;
-    return page.rows ?? page.documents ?? [];
+    });
+    return page.rows;
   }
 
-  async get(table: string, id: string): Promise<AppwriteRowRecord | undefined> {
+  async get<Row extends Models.Row = Models.DefaultRow>(
+    table: string,
+    id: string,
+  ): Promise<Row | undefined> {
     await this.appwrite.ready;
     try {
-      return (await this.appwrite.tables.getRow({
+      return await this.appwrite.tables.getRow<Row>({
         databaseId: APPWRITE_DATABASE_ID,
         tableId: table,
         rowId: id,
-      })) as AppwriteRowRecord;
+      });
     } catch {
       return undefined;
     }
   }
 
-  async create(
+  async create<Row extends Models.Row = Models.DefaultRow>(
     table: string,
-    id: string,
     data: Record<string, unknown>,
-  ): Promise<AppwriteRowRecord> {
+  ): Promise<Row> {
     await this.appwrite.ready;
-    const created = (await this.appwrite.tables.createRow({
+    const created = await this.appwrite.tables.createRow<Row>({
       databaseId: APPWRITE_DATABASE_ID,
       tableId: table,
-      rowId: id,
-      data,
-    })) as AppwriteRowRecord;
+      rowId: createId(),
+      data: data as never,
+    });
     this.notify(table);
     return created;
   }
@@ -133,6 +129,50 @@ export class AppwriteRowStore {
       listeners.delete(onChange);
       closeRealtime?.();
     };
+  }
+
+  private async listPage<Row extends Models.Row = Models.DefaultRow>(
+    table: string,
+    queries: string[],
+    pagination: ListPagination,
+  ): Promise<Models.RowList<Row>> {
+    const limit = Math.min(Math.max(Math.trunc(pagination.limit), 1), LIST_MAX_PAGE_SIZE);
+    const offset = Math.max(Math.trunc(pagination.offset ?? 0), 0);
+    return this.appwrite.tables.listRows<Row>({
+      databaseId: APPWRITE_DATABASE_ID,
+      tableId: table,
+      queries: [...queries, Query.limit(limit), Query.offset(offset)],
+    });
+  }
+
+  private async listAll<Row extends Models.Row = Models.DefaultRow>(
+    table: string,
+    queries: string[],
+  ): Promise<Models.RowList<Row>> {
+    const rows: Row[] = [];
+    let cursor: string | undefined;
+    let total = 0;
+    for (;;) {
+      const pageQueries = [...queries, Query.limit(LIST_MAX_PAGE_SIZE)];
+      if (cursor) {
+        pageQueries.push(Query.cursorAfter(cursor));
+      }
+      const page = await this.appwrite.tables.listRows<Row>({
+        databaseId: APPWRITE_DATABASE_ID,
+        tableId: table,
+        queries: pageQueries,
+      });
+      if (!cursor) {
+        total = page.total;
+      }
+      const pageRows = page.rows;
+      rows.push(...pageRows);
+      if (pageRows.length < LIST_MAX_PAGE_SIZE) {
+        break;
+      }
+      cursor = pageRows[pageRows.length - 1].$id;
+    }
+    return { total, rows };
   }
 
   private notify(table: string): void {

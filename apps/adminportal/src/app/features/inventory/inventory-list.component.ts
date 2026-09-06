@@ -28,13 +28,13 @@ export class InventoryListComponent {
     const batches = this.inventoryStore.batches();
     return this.inventoryStore.products().map((product) => ({
       product,
-      onHand: this.inventoryStore.onHandForProduct(product.id, batches),
+      onHand: this.inventoryStore.onHandForProduct(product.$id, batches),
       expiring: batches.some(
-        (batch) => batch.productId === product.id && expiresWithinDays(batch.expiryDate, 30),
+        (batch) => batch.productId === product.$id && expiresWithinDays(batch.expiryDate, 30),
       ),
       expired: batches.some(
         (batch) =>
-          batch.productId === product.id &&
+          batch.productId === product.$id &&
           batch.quantityOnHand > 0 &&
           isExpired(batch.expiryDate),
       ),

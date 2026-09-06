@@ -1,7 +1,7 @@
+import { Models } from 'appwrite';
 import { AnimalSex, AnimalStatus, Species } from './species';
 
-export interface Animal {
-  id: string;
+export type AnimalRow = Models.Row & {
   species: Species;
   tag: string;
   name: string;
@@ -14,11 +14,11 @@ export interface Animal {
   kraalId: string;
   status: AnimalStatus;
   notes: string;
-  createdAt: string;
-  updatedAt: string;
-}
+};
 
-export const animalLabel = (animal: Pick<Animal, 'tag' | 'name'>): string => {
+export type AnimalWrite = Omit<AnimalRow, keyof Models.Row>;
+
+export const animalLabel = (animal: Pick<AnimalRow, 'tag' | 'name'>): string => {
   const tag = animal.tag.trim();
   const name = animal.name.trim();
   if (tag && name) {
