@@ -15,6 +15,7 @@ export class AnimalService {
     species?: Species,
     sex?: AnimalSex,
     status?: AnimalStatus,
+    kraalId?: string,
     pagination?: ListPagination,
   ): Promise<Models.RowList<AnimalRow>> {
     const queries = [Query.orderDesc('$createdAt')];
@@ -29,6 +30,9 @@ export class AnimalService {
     }
     if (status) {
       queries.push(Query.equal('status', status));
+    }
+    if (kraalId) {
+      queries.push(Query.equal('kraalId', kraalId));
     }
     return this.rows.list<AnimalRow>(ANIMAL_TABLE, queries, pagination);
   }

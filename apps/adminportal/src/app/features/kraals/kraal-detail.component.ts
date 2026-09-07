@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -34,9 +42,7 @@ export class KraalDetailComponent {
     },
   );
 
-  protected readonly kraal = computed(() =>
-    this.kraalStore.kraals().find((item) => item.$id === this.kraalId()),
-  );
+  protected readonly kraal = this.kraalStore.kraal;
 
   protected readonly animals = computed(() =>
     this.animalStore
@@ -54,6 +60,15 @@ export class KraalDetailComponent {
 
   protected label = animalLabel;
 
+  constructor() {
+    effect(() => {
+      const id = this.kraalId();
+      untracked(() => {
+        void this.kraalStore.getById(id);
+      });
+    });
+  }
+
   protected sexLabel(species: Species, sex: AnimalSex): string {
     return animalSexLabel(species, sex);
   }
@@ -65,6 +80,7 @@ export class KraalDetailComponent {
     }
     this.name.set(kraal.name);
     this.notes.set(kraal.notes);
+    this.kraalStore.clearError();
     this.editing.set(true);
   }
 
@@ -79,6 +95,8 @@ export class KraalDetailComponent {
       notes: this.notes().trim(),
       species: kraal.species,
     });
-    this.editing.set(false);
+    if (!this.kraalStore.error()) {
+      this.editing.set(false);
+    }
   }
 }

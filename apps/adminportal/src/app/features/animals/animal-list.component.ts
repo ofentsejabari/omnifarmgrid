@@ -4,7 +4,6 @@ import {
   computed,
   effect,
   inject,
-  signal,
   untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -30,7 +29,7 @@ import { SpeciesFilterStore } from '../../core/stores/species-filter.store';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
 
 @Component({
-  selector: 'fma-animal-list',
+  selector: 'app-animal-list',
   imports: [FormsModule, RouterLink, ...SpartanUiImports],
   templateUrl: './animal-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,7 +40,6 @@ export class AnimalListComponent {
   protected readonly speciesFilterStore = inject(SpeciesFilterStore);
   private readonly nameChanges = new Subject<string>();
 
-  protected readonly kraalFilter = signal('');
   protected readonly sexes = ANIMAL_SEXES;
   protected readonly skeletonSlots = [1, 2, 3, 4];
   protected readonly vocabulary = speciesVocabulary;
@@ -52,13 +50,9 @@ export class AnimalListComponent {
   protected readonly statusLabel = animalStatusLabel;
   protected readonly label = animalLabel;
 
-  protected readonly animals = computed(() => {
-    const kraalId = this.kraalFilter();
-    return this.animalStore
-      .animals()
-      .filter((animal) => !kraalId || animal.kraalId === kraalId)
-      .sort((left, right) => left.tag.localeCompare(right.tag));
-  });
+  protected readonly animals = computed(() =>
+    this.animalStore.animals().sort((left, right) => left.tag.localeCompare(right.tag)),
+  );
 
   protected readonly visibleKraals = computed(() =>
     this.kraalStore.kraals().filter((kraal) => this.speciesFilterStore.matches(kraal.species)),
@@ -66,7 +60,7 @@ export class AnimalListComponent {
 
   protected readonly hasFilters = computed(() => {
     const filters = this.animalStore.filters();
-    return Boolean(filters.name.trim() || filters.sex || this.kraalFilter());
+    return Boolean(filters.name.trim() || filters.sex || filters.kraalId);
   });
 
   constructor() {
@@ -77,8 +71,11 @@ export class AnimalListComponent {
     effect(() => {
       const selected = this.speciesFilterStore.selected();
       untracked(() => {
+        const current = this.animalStore.filters();
+        const species = selected === 'all' ? null : selected;
         void this.animalStore.setFilters({
-          species: selected === 'all' ? null : selected,
+          species,
+          kraalId: species === current.species ? current.kraalId : null,
         });
       });
     });
@@ -106,6 +103,10 @@ export class AnimalListComponent {
 
   protected onNameChange(value: string): void {
     this.nameChanges.next(value);
+  }
+
+  protected onKraalFilter(value: string | undefined | null): void {
+    void this.animalStore.setFilters({ kraalId: value?.trim() ? value : null });
   }
 
   protected onSexFilter(value: string | undefined | null): void {

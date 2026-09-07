@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { form, FormField, required, submit } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { HlmLabelImports } from '@spartan-ng/helm/label';
@@ -17,7 +17,6 @@ import {
   speciesVocabulary,
 } from '../../core/models/species';
 import { LIST_PAGE_SIZE } from '../../core/data/appwrite-row-store';
-import { KraalInUseError } from '../../core/utils/errors';
 import { KraalStore } from '../../core/stores/kraal.store';
 import { AnimalStore } from '../../core/stores/animal.store';
 import { SpeciesFilterStore } from '../../core/stores/species-filter.store';
@@ -43,7 +42,7 @@ export class KraalListComponent {
   private readonly animalStore = inject(AnimalStore);
 
   protected readonly speciesOptions = SPECIES;
-  protected readonly error = signal('');
+  protected readonly skeletonSlots = [1, 2, 3, 4];
   protected readonly showForm = signal(false);
   protected readonly vocabulary = speciesVocabulary;
   protected readonly accentClass = speciesAccentClass;
@@ -65,20 +64,25 @@ export class KraalListComponent {
 
   protected readonly kraalRows = computed(() => {
     const animals = this.animalStore.animals();
-    return this.kraalStore
-      .kraals()
-      .filter((kraal) => this.speciesFilterStore.matches(kraal.species))
-      .map((kraal) => ({
-        kraal,
-        vocabulary: speciesVocabulary(kraal.species),
-        count: animals.filter(
-          (animal) => animal.kraalId === kraal.$id && animal.status === 'alive',
-        ).length,
-      }));
+    return this.kraalStore.kraals().map((kraal) => ({
+      kraal,
+      vocabulary: speciesVocabulary(kraal.species),
+      count: animals.filter(
+        (animal) => animal.kraalId === kraal.$id && animal.status === 'alive',
+      ).length,
+    }));
   });
 
   constructor() {
     void this.kraalStore.setPage({ page: 1, limit: LIST_PAGE_SIZE });
+    effect(() => {
+      const selected = this.speciesFilterStore.selected();
+      untracked(() => {
+        void this.kraalStore.setFilters({
+          species: selected === 'all' ? null : selected,
+        });
+      });
+    });
   }
 
   protected heading(): string {
@@ -127,7 +131,7 @@ export class KraalListComponent {
   }
 
   protected openForm(): void {
-    this.error.set('');
+    this.kraalStore.clearError();
     this.resetForm();
     this.showForm.set(true);
   }
@@ -147,15 +151,12 @@ export class KraalListComponent {
 
   protected async onSubmit(event: Event): Promise<void> {
     event.preventDefault();
-    this.error.set('');
     await submit(this.kraalForm, {
       action: async () => {
         const { name, notes, species } = this.kraalModel();
-        try {
-          await this.kraalStore.create(name.trim(), notes.trim(), species);
+        const created = await this.kraalStore.create(name.trim(), notes.trim(), species);
+        if (created) {
           this.closeForm();
-        } catch {
-          this.error.set(`Could not save ${speciesVocabulary(species).location}.`);
         }
         return undefined;
       },
@@ -163,12 +164,7 @@ export class KraalListComponent {
   }
 
   protected async remove(id: string): Promise<void> {
-    this.error.set('');
-    try {
-      await this.kraalStore.remove(id);
-    } catch (error: unknown) {
-      this.error.set(error instanceof KraalInUseError ? error.message : 'Could not remove kraal.');
-    }
+    await this.kraalStore.remove(id);
   }
 
   private resetForm(): void {

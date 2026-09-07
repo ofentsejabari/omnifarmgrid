@@ -34,7 +34,12 @@
     </div>
 
     <div class="grid grid-cols-2 gap-2">
-      <hlm-select class="w-full" [ngModel]="kraalFilter()" (ngModelChange)="kraalFilter.set($event ?? '')" name="kraal">
+      <hlm-select
+        class="w-full"
+        [ngModel]="animalStore.filters.kraalId() ?? ''"
+        (ngModelChange)="onKraalFilter($event)"
+        name="kraal"
+      >
         <hlm-select-trigger class="w-full">
           <hlm-select-value [placeholder]="locationFilterLabel()" />
         </hlm-select-trigger>

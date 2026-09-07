@@ -34,6 +34,7 @@ export interface AnimalFilters {
   species: Species | null;
   sex: AnimalSex | null;
   status: AnimalStatus | null;
+  kraalId: string | null;
 }
 
 interface AnimalState {
@@ -47,6 +48,7 @@ const initialAnimalFilters: AnimalFilters = {
   species: null,
   sex: null,
   status: 'alive',
+  kraalId: null,
 };
 
 const initialAnimalState: AnimalState = {
@@ -66,12 +68,13 @@ export const AnimalStore = signalStore(
     const refresh = async (): Promise<void> => {
       patchState(store, { isLoading: true });
       try {
-        const { name, species, sex, status } = store.filters();
+        const { name, species, sex, status, kraalId } = store.filters();
         const result = await animalService.list(
           name,
           species ?? undefined,
           sex ?? undefined,
           status ?? undefined,
+          kraalId ?? undefined,
         );
         patchState(store, { animals: result.rows, isLoading: false });
       } catch {
@@ -109,7 +112,8 @@ export const AnimalStore = signalStore(
           next.name === current.name &&
           next.species === current.species &&
           next.sex === current.sex &&
-          next.status === current.status
+          next.status === current.status &&
+          next.kraalId === current.kraalId
         ) {
           return;
         }

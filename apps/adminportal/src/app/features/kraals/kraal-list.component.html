@@ -13,10 +13,10 @@
     </button>
   </div>
 
-  @if (error()) {
+  @if (kraalStore.error()) {
     <hlm-alert class="bg-warning/30 text-warning-foreground">
       <ng-icon name="lucideTriangleAlert" />
-      <div hlmAlertDescription>{{ error() }}</div>
+      <div hlmAlertDescription>{{ kraalStore.error() }}</div>
     </hlm-alert>
   }
 
@@ -110,7 +110,13 @@
     </form>
   }
 
-  @if (kraalRows().length === 0 && !showForm()) {
+  @if (kraalStore.isLoading() && kraalRows().length === 0 && !showForm()) {
+    <div class="flex flex-col gap-2">
+      @for (slot of skeletonSlots; track slot) {
+        <div class="bg-muted/80 h-16 animate-pulse rounded-xl"></div>
+      }
+    </div>
+  } @else if (kraalRows().length === 0 && !showForm()) {
     <div class="fma-empty">
       <span class="fma-empty-icon">
         <ng-icon name="lucideFence" size="24" />

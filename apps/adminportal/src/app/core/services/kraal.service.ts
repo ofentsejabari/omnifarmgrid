@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Models, Query } from 'appwrite';
 import { AppwriteRowStore, ListPagination } from '../data/appwrite-row-store';
 import { KraalRow } from '../models/kraal';
+import { Species } from '../models/species';
 
 const KRAAL_TABLE = 'kraals';
 
@@ -9,8 +10,12 @@ const KRAAL_TABLE = 'kraals';
 export class KraalService {
   private readonly rows = inject(AppwriteRowStore);
 
-  async list(pagination?: ListPagination): Promise<Models.RowList<KraalRow>> {
-    return this.rows.list<KraalRow>(KRAAL_TABLE, [Query.orderDesc('$createdAt')], pagination);
+  async list(species?: Species, pagination?: ListPagination): Promise<Models.RowList<KraalRow>> {
+    const queries = [Query.orderDesc('$createdAt')];
+    if (species) {
+      queries.push(Query.equal('species', species));
+    }
+    return this.rows.list<KraalRow>(KRAAL_TABLE, queries, pagination);
   }
 
   async get(id: string): Promise<KraalRow | undefined> {
