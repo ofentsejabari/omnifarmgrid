@@ -1,13 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { Models, Query } from 'appwrite';
-import { AppwriteRowStore, ListPagination } from '../data/appwrite-row-store';
+import { AppwriteClientService, ListPagination } from '../data/appwrite-client.service';
 import { BatchRow, BatchWrite } from '../models/inventory';
 
 const BATCH_TABLE = 'batches';
 
 @Injectable({ providedIn: 'root' })
 export class BatchService {
-  private readonly rows = inject(AppwriteRowStore);
+  private readonly rows = inject(AppwriteClientService);
 
   async list(pagination?: ListPagination): Promise<Models.RowList<BatchRow>> {
     return this.rows.list<BatchRow>(BATCH_TABLE, [Query.orderDesc('$createdAt')], pagination);

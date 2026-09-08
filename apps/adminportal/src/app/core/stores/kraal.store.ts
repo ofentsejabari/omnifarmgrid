@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
-import { LIST_PAGE_SIZE } from '../data/appwrite-row-store';
+import { LIST_PAGE_SIZE } from '../data/appwrite-client.service';
 import { KraalPage, KraalRow } from '../models/kraal';
 import { Species, speciesVocabulary } from '../models/species';
 import { AnimalService as AnimalDataService } from '../services/animal.service';

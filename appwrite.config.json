@@ -92,7 +92,8 @@
                     "elements": [
                         "goat",
                         "sheep",
-                        "pig"
+                        "pig",
+                        "cow"
                     ]
                 }
             ],
@@ -144,7 +145,8 @@
                     "elements": [
                         "goat",
                         "sheep",
-                        "pig"
+                        "pig",
+                        "cow"
                     ]
                 },
                 {
@@ -189,12 +191,11 @@
                 },
                 {
                     "key": "dateOfBirth",
-                    "type": "varchar",
+                    "type": "datetime", 
                     "required": false,
                     "array": false,
-                    "size": 10,
                     "default": null,
-                    "encrypt": false
+                    "format": ""
                 },
                 {
                     "key": "birthDateEstimated",

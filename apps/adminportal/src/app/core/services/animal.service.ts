@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Models, Query } from 'appwrite';
-import { AppwriteRowStore, ListPagination } from '../data/appwrite-row-store';
+import { AppwriteClientService, ListPagination } from '../data/appwrite-client.service';
 import { AnimalRow, AnimalWrite } from '../models/animal';
 import { AnimalSex, AnimalStatus, Species } from '../models/species';
 
@@ -8,7 +8,7 @@ const ANIMAL_TABLE = 'animals';
 
 @Injectable({ providedIn: 'root' })
 export class AnimalService {
-  private readonly rows = inject(AppwriteRowStore);
+  private readonly rows = inject(AppwriteClientService);
 
   async list(
     name?: string,

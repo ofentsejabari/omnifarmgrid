@@ -1,5 +1,5 @@
 import { Models } from 'appwrite';
-import { Species } from './species';
+import { Species, speciesVocabulary } from './species';
 
 export const DEATH_REASONS = [
   'disease',
@@ -71,14 +71,13 @@ export const deathReasonLabel = (reason: DeathReason, species?: Species): string
       return 'Disease';
     case 'predator':
       return 'Predator';
-    case 'dystocia':
-      if (species === 'sheep') {
-        return 'Lambing trouble';
+    case 'dystocia': {
+      if (!species) {
+        return 'Birth trouble';
       }
-      if (species === 'pig') {
-        return 'Farrowing trouble';
-      }
-      return 'Kidding trouble';
+      const birth = speciesVocabulary(species).birth;
+      return `${birth.charAt(0).toUpperCase()}${birth.slice(1)} trouble`;
+    }
     case 'slaughter':
       return 'Slaughter';
     case 'unknown':

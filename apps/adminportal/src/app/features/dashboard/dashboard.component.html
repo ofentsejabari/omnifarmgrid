@@ -27,7 +27,7 @@
     </hlm-alert>
   }
 
-  <div class="grid gap-3 sm:grid-cols-3">
+  <div class="grid grid-cols-2 gap-3">
     @for (row of speciesRows(); track row.species) {
       <button type="button" class="text-left" (click)="focusSpecies(row.species)">
         <hlm-card size="sm" [class]="cardClass(row.species)">

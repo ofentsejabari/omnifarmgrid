@@ -10,7 +10,7 @@ import { NgIcon } from '@ng-icons/core';
 export class BrandMarkComponent {
   readonly variant = input<'default' | 'onPrimary'>('default');
   readonly layout = input<'row' | 'stack'>('row');
-  readonly tagline = input('Farm records · goats, sheep, pigs');
+  readonly tagline = input('Farm records · goats, sheep, pigs, cattle');
 
   protected readonly wrapClass = computed(() =>
     this.layout() === 'stack'

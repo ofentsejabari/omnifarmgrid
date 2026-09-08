@@ -20,32 +20,37 @@
   }
 
   @if (loaded()) {
-    <form hlmCard [formGroup]="form" (ngSubmit)="save()">
+    <form hlmCard [formRoot]="animalForm">
       <div hlmCardContent class="flex flex-col gap-4">
         <div hlmField>
           <label hlmFieldLabel>Species</label>
-          <hlm-select class="w-full" formControlName="species">
+          <hlm-select class="w-full" [formField]="animalForm.species">
             <hlm-select-trigger class="w-full">
               <hlm-select-value placeholder="Select species" />
             </hlm-select-trigger>
             <hlm-select-content *hlmSelectPortal>
               @for (value of speciesOptions; track value) {
-                <hlm-select-item [value]="value">{{ vocabulary(value).noun }}</hlm-select-item>
+                <hlm-select-item [value]="value">{{ speciesName(value) }}</hlm-select-item>
               }
             </hlm-select-content>
           </hlm-select>
         </div>
         <div hlmField>
-          <label hlmFieldLabel>Ear tag</label>
-          <input hlmInput formControlName="tag" autocomplete="off" />
+          <label hlmFieldLabel for="animal-tag">Ear tag</label>
+          <input id="animal-tag" hlmInput [formField]="animalForm.tag" autocomplete="off" />
+          @if (animalForm.tag().touched() && animalForm.tag().invalid()) {
+            @for (fieldError of animalForm.tag().errors(); track fieldError.kind) {
+              <p class="text-destructive text-sm">{{ fieldError.message }}</p>
+            }
+          }
         </div>
         <div hlmField>
-          <label hlmFieldLabel>Name (optional)</label>
-          <input hlmInput formControlName="name" />
+          <label hlmFieldLabel for="animal-name">Name (optional)</label>
+          <input id="animal-name" hlmInput [formField]="animalForm.name" />
         </div>
         <div hlmField>
           <label hlmFieldLabel>{{ vocabulary(currentSpecies()).location }}</label>
-          <hlm-select class="w-full" formControlName="kraalId">
+          <hlm-select class="w-full" [formField]="animalForm.kraalId">
             <hlm-select-trigger class="w-full">
               <hlm-select-value placeholder="Select {{ vocabulary(currentSpecies()).location }}" />
             </hlm-select-trigger>
@@ -55,6 +60,11 @@
               }
             </hlm-select-content>
           </hlm-select>
+          @if (animalForm.kraalId().touched() && animalForm.kraalId().invalid()) {
+            @for (fieldError of animalForm.kraalId().errors(); track fieldError.kind) {
+              <p class="text-destructive text-sm">{{ fieldError.message }}</p>
+            }
+          }
           @if (matchingKraals().length === 0) {
             <p class="text-muted-foreground text-sm">
               Add a {{ vocabulary(currentSpecies()).location }} for
@@ -64,7 +74,7 @@
         </div>
         <div hlmField>
           <label hlmFieldLabel>Sex</label>
-          <hlm-select class="w-full" formControlName="sex">
+          <hlm-select class="w-full" [formField]="animalForm.sex">
             <hlm-select-trigger class="w-full">
               <hlm-select-value placeholder="Select sex" />
             </hlm-select-trigger>
@@ -76,8 +86,8 @@
           </hlm-select>
         </div>
         <div hlmField>
-          <label hlmFieldLabel>Breed</label>
-          <input hlmInput list="breeds" formControlName="breed" />
+          <label hlmFieldLabel for="animal-breed">Breed</label>
+          <input id="animal-breed" hlmInput list="breeds" [formField]="animalForm.breed" />
           <datalist id="breeds">
             @for (breed of breeds(); track breed) {
               <option [value]="breed"></option>
@@ -85,20 +95,26 @@
           </datalist>
         </div>
         <div hlmField>
-          <label hlmFieldLabel>Date of birth</label>
-          <fma-iso-date-picker formControlName="dateOfBirth" placeholder="Pick a date" />
+          <label hlmFieldLabel for="animal-dob">Date of birth</label>
+          <input id="animal-dob" hlmInput type="date" [formField]="animalForm.dateOfBirth" />
         </div>
         <div hlmField orientation="horizontal">
-          <hlm-checkbox formControlName="birthDateEstimated" />
+          <hlm-checkbox [formField]="animalForm.birthDateEstimated" />
           <label hlmFieldLabel>Birth date is estimated</label>
         </div>
         <div hlmField>
-          <label hlmFieldLabel>Notes</label>
-          <textarea hlmTextarea formControlName="notes"></textarea>
+          <label hlmFieldLabel for="animal-notes">Notes</label>
+          <textarea id="animal-notes" hlmTextarea [formField]="animalForm.notes"></textarea>
         </div>
       </div>
       <hlm-card-footer class="justify-end">
-        <button type="submit" hlmBtn>Save {{ vocabulary(currentSpecies()).noun }}</button>
+        <button type="submit" hlmBtn [disabled]="animalForm().submitting()">
+          @if (animalForm().submitting()) {
+            Saving…
+          } @else {
+            Save {{ vocabulary(currentSpecies()).noun }}
+          }
+        </button>
       </hlm-card-footer>
     </form>
   }

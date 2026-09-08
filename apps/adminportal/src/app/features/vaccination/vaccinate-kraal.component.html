@@ -57,7 +57,13 @@
       </div>
       <div hlmField>
         <label hlmFieldLabel>Date</label>
-        <fma-iso-date-picker [ngModel]="date()" (ngModelChange)="date.set($event ?? '')" name="date" />
+        <input
+          hlmInput
+          type="date"
+          name="date"
+          [ngModel]="date()"
+          (ngModelChange)="date.set($event ?? '')"
+        />
       </div>
       <div hlmField>
         <label hlmFieldLabel>Notes</label>

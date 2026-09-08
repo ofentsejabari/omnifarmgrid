@@ -27,7 +27,7 @@ import {
   lucideTrash2,
   lucideTriangleAlert,
 } from '@ng-icons/lucide';
-import { speciesGoat, speciesPig, speciesSheep } from './species-icons';
+import { speciesCow, speciesGoat, speciesPig, speciesSheep } from './species-icons';
 
 export const LUCIDE_ICONS = {
   lucideActivity,
@@ -55,6 +55,7 @@ export const LUCIDE_ICONS = {
   lucideTractor,
   lucideTrash2,
   lucideTriangleAlert,
+  speciesCow,
   speciesGoat,
   speciesPig,
   speciesSheep,

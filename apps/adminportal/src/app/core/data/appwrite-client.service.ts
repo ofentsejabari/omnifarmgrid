@@ -13,7 +13,7 @@ export interface ListPagination {
 }
 
 @Injectable({ providedIn: 'root' })
-export class AppwriteRowStore {
+export class AppwriteClientService {
   private readonly appwrite = inject(AppwriteClient);
   private readonly listeners = new Map<string, Set<() => void>>();
 

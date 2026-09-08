@@ -1,13 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { Models, Query } from 'appwrite';
-import { AppwriteRowStore, ListPagination } from '../data/appwrite-row-store';
+import { AppwriteClientService, ListPagination } from '../data/appwrite-client.service';
 import { EventWrite, FlockEventRow } from '../models/event';
 
 const EVENT_TABLE = 'events';
 
 @Injectable({ providedIn: 'root' })
 export class EventService {
-  private readonly rows = inject(AppwriteRowStore);
+  private readonly rows = inject(AppwriteClientService);
 
   async list(pagination?: ListPagination): Promise<Models.RowList<FlockEventRow>> {
     return this.rows.list<FlockEventRow>(EVENT_TABLE, [Query.orderDesc('date')], pagination);

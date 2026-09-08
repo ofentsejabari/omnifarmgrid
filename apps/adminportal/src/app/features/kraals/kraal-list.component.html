@@ -32,7 +32,7 @@
         <div hlmField>
           <p hlmFieldLabel id="kraal-species-label">Species</p>
           <hlm-radio-group
-            class="grid grid-cols-3 gap-2"
+            class="grid grid-cols-2 gap-2 sm:grid-cols-4"
             name="kraal-species"
             [value]="kraalForm.species().value()"
             (valueChange)="selectSpecies($event)"

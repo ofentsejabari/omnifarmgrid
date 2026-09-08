@@ -9,12 +9,12 @@ export const appRoutes: Route[] = [
       {
         path: '',
         loadComponent: () => import('./pages/home/home.page').then((m) => m.HomePage),
-        title: 'AgroHerd — Farm records for goats, sheep and pigs',
+        title: 'AgroHerd — Farm records for goats, sheep, pigs and cattle',
       },
       {
         path: 'livestock',
         loadComponent: () => import('./pages/livestock/livestock.page').then((m) => m.LivestockPage),
-        title: 'Livestock — goats, sheep and pigs | AgroHerd',
+        title: 'Livestock — goats, sheep, pigs and cattle | AgroHerd',
       },
       {
         path: 'features',

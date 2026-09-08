@@ -10,9 +10,9 @@ export const NAV_LINKS = [
   { path: '/contact', label: 'Contact', exact: false },
 ] as const;
 
-export type SpeciesId = 'goat' | 'sheep' | 'pig';
+export type SpeciesId = 'goat' | 'sheep' | 'pig' | 'cow';
 
-export type SpeciesIcon = 'speciesGoat' | 'speciesSheep' | 'speciesPig';
+export type SpeciesIcon = 'speciesGoat' | 'speciesSheep' | 'speciesPig' | 'speciesCow';
 
 export interface SpeciesContent {
   id: SpeciesId;
@@ -115,6 +115,32 @@ export const SPECIES: readonly SpeciesContent[] = [
       'Vaccinate a pen, then note exceptions on the same screen',
     ],
   },
+  {
+    id: 'cow',
+    fragment: 'cattle',
+    name: 'Cow',
+    plural: 'cattle',
+    icon: 'speciesCow',
+    headline: 'Cattle — Tswana herds, Brahman, and every calf in the kraal',
+    summary:
+      'Keep ear tags, dams, and kraals straight so calving, treatments, and sales are never a guess.',
+    young: 'calf',
+    youngPlural: 'calves',
+    dam: 'cow',
+    sire: 'bull',
+    location: 'kraal',
+    locationPlural: 'kraals',
+    birth: 'calving',
+    accentClass: 'border-l-[3px] border-l-sky-500',
+    avatarClass: 'bg-sky-100 text-sky-800 ring-1 ring-sky-200/80',
+    iconClass: 'text-sky-700',
+    breeds: ['Tswana', 'Brahman', 'Bonsmara', 'Simmental', 'Afrikaner', 'Nguni', 'Angus', 'Cross'],
+    records: [
+      'Cows, bulls, and steers with ear tags and optional names',
+      'Calving linked to the cow and the kraal the calves go into',
+      'Treat a whole kraal, then uncheck the few you skip',
+    ],
+  },
 ];
 
 export type FeatureIcon =
@@ -137,17 +163,17 @@ export const FEATURES: readonly FeatureContent[] = [
   {
     icon: 'lucidePawPrint',
     title: 'Animal records',
-    body: 'Ear tags, sex, breed, parents, and notes for every goat, sheep, and pig on the farm.',
+    body: 'Ear tags, sex, breed, parents, and notes for every goat, sheep, pig, and cow on the farm.',
   },
   {
     icon: 'lucideFence',
     title: 'Kraals and pens',
-    body: 'Group animals by place. Goats and sheep live in kraals; pigs live in pens.',
+    body: 'Group animals by place. Goats, sheep, and cattle live in kraals; pigs live in pens.',
   },
   {
     icon: 'lucideBaby',
     title: 'Births that match the species',
-    body: 'Kidding, lambing, and farrowing — record the dam and each young animal in one step.',
+    body: 'Kidding, lambing, farrowing, and calving — record the dam and each young animal in one step.',
   },
   {
     icon: 'lucideSyringe',
@@ -197,11 +223,15 @@ export const STEPS = [
 export const FAQS = [
   {
     q: 'Which animals does AgroHerd cover?',
-    a: 'Goats, sheep, and pigs. The app uses the right words for each: kids and kraals for goats, lambs for sheep, piglets and pens for pigs.',
+    a:
+      'Goats, sheep, pigs, and cattle. The app uses the right words for each: kids and kraals for goats, ' +
+      'lambs for sheep, piglets and pens for pigs, calves and kraals for cattle.',
   },
   {
     q: 'Is this built for Botswana farms?',
-    a: 'Yes. Breed lists include Tswana and Boer goats, Dorper and Damara sheep, and Large White and Kolbroek pigs. The workflow is kraals, pens, and ear tags — not imported dairy software.',
+    a:
+      'Yes. Breed lists include Tswana and Boer goats, Dorper and Damara sheep, Large White and Kolbroek pigs, ' +
+      'and Tswana and Brahman cattle. The workflow is kraals, pens, and ear tags — not imported dairy software.',
   },
   {
     q: 'Does it work without internet?',
@@ -209,7 +239,7 @@ export const FAQS = [
   },
   {
     q: 'Can I keep more than one species?',
-    a: 'Yes. Filter the home screen by goat, sheep, pig, or all three. Each kraal or pen belongs to one species.',
+    a: 'Yes. Filter the home screen by goat, sheep, pig, cow, or all. Each kraal or pen belongs to one species.',
   },
   {
     q: 'How do I get access?',
@@ -217,11 +247,12 @@ export const FAQS = [
   },
 ] as const;
 
-export type ContactInterest = 'goats' | 'sheep' | 'pigs' | 'mixed';
+export type ContactInterest = 'goats' | 'sheep' | 'pigs' | 'cattle' | 'mixed';
 
 export const CONTACT_INTERESTS: readonly { value: ContactInterest; label: string }[] = [
   { value: 'goats', label: 'Goats' },
   { value: 'sheep', label: 'Sheep' },
   { value: 'pigs', label: 'Pigs' },
-  { value: 'mixed', label: 'Goats, sheep and pigs' },
+  { value: 'cattle', label: 'Cattle' },
+  { value: 'mixed', label: 'Mixed livestock' },
 ];

@@ -17,6 +17,7 @@ export type AnimalRow = Models.Row & {
 };
 
 export type AnimalWrite = Omit<AnimalRow, keyof Models.Row>;
+export type AnimalDraft = Omit<AnimalWrite, 'status'>;
 
 export const animalLabel = (animal: Pick<AnimalRow, 'tag' | 'name'>): string => {
   const tag = animal.tag.trim();

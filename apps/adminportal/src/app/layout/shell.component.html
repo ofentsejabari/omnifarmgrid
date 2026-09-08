@@ -61,8 +61,8 @@
         @for (value of species; track value) {
           <button
             type="button"
-            class="inline-flex flex-1 items-center justify-center gap-1 rounded-full px-3 py-1.5
-              text-xs font-medium whitespace-nowrap transition-all"
+            class="inline-flex flex-1 items-center justify-center gap-1 rounded-full px-1.5 py-1.5
+              text-xs font-medium whitespace-nowrap transition-all sm:px-3"
             [class]="chipClass(value)"
             (click)="setFilter(value)"
           >

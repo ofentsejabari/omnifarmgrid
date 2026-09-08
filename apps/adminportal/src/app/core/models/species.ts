@@ -1,4 +1,4 @@
-export const SPECIES = ['goat', 'sheep', 'pig'] as const;
+export const SPECIES = ['goat', 'sheep', 'pig', 'cow'] as const;
 export type Species = (typeof SPECIES)[number];
 
 export const ANIMAL_SEXES = ['female', 'male', 'wether'] as const;
@@ -11,7 +11,7 @@ export interface SpeciesVocabulary {
   id: Species;
   noun: string;
   plural: string;
-  icon: 'speciesGoat' | 'speciesSheep' | 'speciesPig';
+  icon: 'speciesGoat' | 'speciesSheep' | 'speciesPig' | 'speciesCow';
   young: string;
   youngPlural: string;
   dam: string;
@@ -40,7 +40,7 @@ export const SPECIES_VOCABULARY: Record<Species, SpeciesVocabulary> = {
   sheep: {
     id: 'sheep',
     noun: 'sheep',
-    plural: 'sheep',
+    plural: 'sheeps',
     icon: 'speciesSheep',
     young: 'lamb',
     youngPlural: 'lambs',
@@ -65,6 +65,20 @@ export const SPECIES_VOCABULARY: Record<Species, SpeciesVocabulary> = {
     birth: 'farrowing',
     birthVerb: 'Record farrowing',
   },
+  cow: {
+    id: 'cow',
+    noun: 'cow',
+    plural: 'cattle',
+    icon: 'speciesCow',
+    young: 'calf',
+    youngPlural: 'calves',
+    dam: 'cow',
+    sire: 'bull',
+    location: 'kraal',
+    locationPlural: 'kraals',
+    birth: 'calving',
+    birthVerb: 'Record calving',
+  },
 };
 
 export const speciesVocabulary = (species: Species): SpeciesVocabulary =>
@@ -78,23 +92,51 @@ export const speciesLabel = (species: Species): string => {
       return 'Sheep';
     case 'pig':
       return 'Pig';
+    case 'cow':
+      return 'Cow';
   }
 };
 
 export const animalSexLabel = (species: Species, sex: AnimalSex): string => {
   if (sex === 'female') {
-    return species === 'goat' ? 'Doe' : species === 'sheep' ? 'Ewe' : 'Sow';
+    switch (species) {
+      case 'goat':
+        return 'Doe';
+      case 'sheep':
+        return 'Ewe';
+      case 'pig':
+        return 'Sow';
+      case 'cow':
+        return 'Cow';
+    }
   }
   if (sex === 'male') {
-    return species === 'goat' ? 'Buck' : species === 'sheep' ? 'Ram' : 'Boar';
+    switch (species) {
+      case 'goat':
+        return 'Buck';
+      case 'sheep':
+        return 'Ram';
+      case 'pig':
+        return 'Boar';
+      case 'cow':
+        return 'Bull';
+    }
   }
-  return species === 'pig' ? 'Barrow' : 'Wether';
+  switch (species) {
+    case 'pig':
+      return 'Barrow';
+    case 'cow':
+      return 'Steer';
+    default:
+      return 'Wether';
+  }
 };
 
 export const BREEDS: Record<Species, readonly string[]> = {
   goat: ['Tswana', 'Boer', 'Kalahari Red', 'Savannah', 'Saanen', 'Toggenburg', 'Alpine', 'Cross'],
   sheep: ['Dorper', 'Damara', 'Meatmaster', 'Merino', 'Blackhead Persian', 'Cross'],
   pig: ['Large White', 'Landrace', 'Duroc', 'Kolbroek', 'Pietrain', 'Cross'],
+  cow: ['Tswana', 'Brahman', 'Bonsmara', 'Simmental', 'Afrikaner', 'Nguni', 'Angus', 'Cross'],
 };
 
 export const speciesBadgeClass = (species: Species): string => {
@@ -105,6 +147,8 @@ export const speciesBadgeClass = (species: Species): string => {
       return 'bg-amber-50 text-amber-900 ring-1 ring-amber-200/80 dark:bg-amber-900/40 dark:text-amber-200 dark:ring-amber-800/60';
     case 'pig':
       return 'bg-rose-50 text-rose-800 ring-1 ring-rose-200/80 dark:bg-rose-900/40 dark:text-rose-200 dark:ring-rose-800/60';
+    case 'cow':
+      return 'bg-sky-50 text-sky-800 ring-1 ring-sky-200/80 dark:bg-sky-900/50 dark:text-sky-200 dark:ring-sky-800/60';
   }
 };
 
@@ -116,6 +160,8 @@ export const speciesIconClass = (species: Species): string => {
       return 'text-amber-700 dark:text-amber-300';
     case 'pig':
       return 'text-rose-600 dark:text-rose-300';
+    case 'cow':
+      return 'text-sky-700 dark:text-sky-300';
   }
 };
 
@@ -127,6 +173,8 @@ export const speciesAccentClass = (species: Species): string => {
       return 'border-l-[3px] border-l-amber-500';
     case 'pig':
       return 'border-l-[3px] border-l-rose-400';
+    case 'cow':
+      return 'border-l-[3px] border-l-sky-500';
   }
 };
 
@@ -138,6 +186,8 @@ export const speciesAvatarClass = (species: Species): string => {
       return 'bg-amber-100 ring-1 ring-amber-200/70 dark:bg-amber-900/40 dark:ring-amber-800/50';
     case 'pig':
       return 'bg-rose-100 ring-1 ring-rose-200/70 dark:bg-rose-900/40 dark:ring-rose-800/50';
+    case 'cow':
+      return 'bg-sky-100 ring-1 ring-sky-200/70 dark:bg-sky-900/50 dark:ring-sky-800/50';
   }
 };
 
@@ -172,4 +222,4 @@ export const animalStatusClass = (status: AnimalStatus): string => {
 };
 
 export const isSpecies = (value: string | undefined | null): value is Species =>
-  value === 'goat' || value === 'sheep' || value === 'pig';
+  value === 'goat' || value === 'sheep' || value === 'pig' || value === 'cow';

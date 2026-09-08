@@ -46,6 +46,7 @@ export const COMMON_VACCINES: Record<Species, readonly string[]> = {
   goat: ['Pulpy kidney', 'Pasteurella', 'Anthrax', 'PPR', 'Clostridial 7-in-1', 'Orf'],
   sheep: ['Pulpy kidney', 'Pasteurella', 'Anthrax', 'Clostridial 7-in-1', 'Bluetongue', 'Orf'],
   pig: ['Parvo', 'Erysipelas', 'Mycoplasma', 'Circovirus', 'E. coli', 'Clostridial'],
+  cow: ['Anthrax', 'Botulism', 'Blackleg', 'Lumpy skin', 'Brucella', 'Heartwater'],
 };
 
 export const productKindLabel = (kind: ProductKind): string => {

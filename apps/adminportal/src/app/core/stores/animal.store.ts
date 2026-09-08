@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { DuplicateTagError } from '../utils/errors';
-import { AnimalRow } from '../models/animal';
+import { AnimalDraft, AnimalRow } from '../models/animal';
 import { DeathReason } from '../models/event';
 import { AnimalSex, AnimalStatus, speciesVocabulary, Species } from '../models/species';
 import { AnimalService as AnimalDataService } from '../services/animal.service';
@@ -9,19 +9,7 @@ import { EventService as EventDataService } from '../services/event.service';
 import { KraalService as KraalDataService } from '../services/kraal.service';
 import { nowIso } from '../utils/dates';
 
-export interface AnimalDraft {
-  species: Species;
-  tag: string;
-  name: string;
-  sex: AnimalSex;
-  breed: string;
-  dateOfBirth: string;
-  birthDateEstimated: boolean;
-  damId: string;
-  sireId: string;
-  kraalId: string;
-  notes: string;
-}
+export type { AnimalDraft } from '../models/animal';
 
 export interface KidDraft {
   tag: string;
@@ -39,6 +27,7 @@ export interface AnimalFilters {
 
 interface AnimalState {
   animals: AnimalRow[];
+  animal: AnimalRow | undefined;
   filters: AnimalFilters;
   isLoading: boolean;
 }
@@ -53,6 +42,7 @@ const initialAnimalFilters: AnimalFilters = {
 
 const initialAnimalState: AnimalState = {
   animals: [],
+  animal: undefined,
   filters: initialAnimalFilters,
   isLoading: false,
 };
@@ -121,42 +111,16 @@ export const AnimalStore = signalStore(
         await refresh();
       },
 
-      async create(draft: AnimalDraft): Promise<AnimalRow> {
-        await assertKraalSpecies(draft.kraalId, draft.species);
-        await assertUniqueTag(draft.tag, draft.species);
-        return animalService.create({
-          species: draft.species,
-          tag: draft.tag.trim(),
-          name: draft.name.trim(),
-          sex: draft.sex,
-          breed: draft.breed.trim(),
-          dateOfBirth: draft.dateOfBirth,
-          birthDateEstimated: draft.birthDateEstimated,
-          damId: draft.damId,
-          sireId: draft.sireId,
-          kraalId: draft.kraalId,
-          status: 'alive',
-          notes: draft.notes.trim(),
-        });
+      async create(animal: AnimalDraft): Promise<AnimalRow> {
+        await assertKraalSpecies(animal.kraalId, animal.species);
+        await assertUniqueTag(animal.tag, animal.species);
+        return animalService.create({ ...animal, status: 'alive' });
       },
 
-      async update(id: string, draft: AnimalDraft): Promise<void> {
-        await assertKraalSpecies(draft.kraalId, draft.species);
-        await assertUniqueTag(draft.tag, draft.species, id);
-        await animalService.update({
-          $id: id,
-          species: draft.species,
-          tag: draft.tag.trim(),
-          name: draft.name.trim(),
-          sex: draft.sex,
-          breed: draft.breed.trim(),
-          dateOfBirth: draft.dateOfBirth,
-          birthDateEstimated: draft.birthDateEstimated,
-          damId: draft.damId,
-          sireId: draft.sireId,
-          kraalId: draft.kraalId,
-          notes: draft.notes.trim(),
-        });
+      async update(id: string, animal: AnimalDraft): Promise<void> {
+        await assertKraalSpecies(animal.kraalId, animal.species);
+        await assertUniqueTag(animal.tag, animal.species, id);
+        await animalService.update({ $id: id, ...animal });
       },
 
       async recordBirth(

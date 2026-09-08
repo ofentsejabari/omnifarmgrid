@@ -1,11 +1,11 @@
 <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
   <p class="text-primary text-sm font-medium">Livestock</p>
   <h1 class="mt-2 max-w-2xl text-4xl font-semibold tracking-tight text-balance">
-    One farm. Three species. The right words for each.
+    One farm. {{ species.length }} species. The right words for each.
   </h1>
   <p class="text-muted-foreground mt-4 max-w-2xl text-lg leading-relaxed">
-    AgroHerd does not treat a sow like a ewe. Goats and sheep live in kraals. Pigs live in pens.
-    Births are kidding, lambing, or farrowing.
+    AgroHerd does not treat a sow like a ewe. Goats, sheep, and cattle live in kraals. Pigs live in pens.
+    Births are kidding, lambing, farrowing, or calving.
   </p>
   <div class="mt-8 flex flex-wrap gap-2">
     @for (item of species; track item.id) {
@@ -82,7 +82,7 @@
   <div class="mx-auto flex max-w-6xl flex-col items-start gap-4 px-4 py-16 sm:px-6">
     <h2 class="text-2xl font-semibold tracking-tight">Keep mixed farms in one app</h2>
     <p class="text-muted-foreground max-w-xl leading-relaxed">
-      Filter Home by goat, sheep, pig, or all. Each kraal or pen belongs to one species so counts
+      Filter Home by goat, sheep, pig, cow, or all. Each kraal or pen belongs to one species so counts
       stay honest.
     </p>
     <a routerLink="/contact" hlmBtn>

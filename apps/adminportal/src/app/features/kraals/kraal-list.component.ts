@@ -16,7 +16,7 @@ import {
   speciesLabel,
   speciesVocabulary,
 } from '../../core/models/species';
-import { LIST_PAGE_SIZE } from '../../core/data/appwrite-row-store';
+import { LIST_PAGE_SIZE } from '../../core/data/appwrite-client.service';
 import { KraalStore } from '../../core/stores/kraal.store';
 import { AnimalStore } from '../../core/stores/animal.store';
 import { SpeciesFilterStore } from '../../core/stores/species-filter.store';
@@ -111,6 +111,9 @@ export class KraalListComponent {
       pig:
         '[&:has([data-checked=true])]:border-rose-400 [&:has([data-checked=true])]:bg-rose-50/90 ' +
         'dark:[&:has([data-checked=true])]:bg-rose-950/40',
+      cow:
+        '[&:has([data-checked=true])]:border-sky-500 [&:has([data-checked=true])]:bg-sky-50/90 ' +
+        'dark:[&:has([data-checked=true])]:bg-sky-950/40',
     }[species];
 
     return hlm(
