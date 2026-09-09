@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Models, Query } from 'appwrite';
 import { AppwriteClientService, ListPagination } from '../data/appwrite-client.service';
-import { AnimalRow, AnimalWrite } from '../models/animal';
+import { AnimalCreatePayload, AnimalRow, AnimalUpdatePayload } from '../models/animal';
 import { AnimalSex, AnimalStatus, Species } from '../models/species';
 
 const ANIMAL_TABLE = 'animals';
@@ -56,11 +56,11 @@ export class AnimalService {
     return rows.length > 0;
   }
 
-  async create(animal: AnimalWrite): Promise<AnimalRow> {
-    return this.rows.create<AnimalRow>(ANIMAL_TABLE, animal);
+  async create(animal: AnimalCreatePayload): Promise<AnimalRow> {
+    return this.rows.create<AnimalRow>(ANIMAL_TABLE, { ...animal, status: 'alive' });
   }
 
-  async update(changes: Partial<AnimalWrite> & Pick<AnimalRow, '$id'>): Promise<void> {
+  async update(changes: Partial<AnimalUpdatePayload> & Pick<AnimalRow, '$id'>): Promise<void> {
     await this.rows.update(ANIMAL_TABLE, changes.$id, changes);
   }
 

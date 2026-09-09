@@ -6,6 +6,7 @@ import { Species, speciesVocabulary } from '../models/species';
 import { AnimalService as AnimalDataService } from '../services/animal.service';
 import { KraalService as KraalDataService } from '../services/kraal.service';
 import { KraalInUseError } from '../utils/errors';
+import { withRequestStateFeature } from './fetures/with-request-state-feature';
 
 const initialKraalPage: KraalPage = {
   page: 1,
@@ -27,19 +28,16 @@ interface KraalState {
   kraals: Array<KraalRow>;
   page: KraalPage;
   filters: KraalFilters;
-  isLoading: boolean;
-  error: string;
 }
 
 export const KraalStore = signalStore(
   { providedIn: 'root' },
+  withRequestStateFeature(),
   withState<KraalState>({
     kraal: undefined,
     kraals: [],
     page: initialKraalPage,
     filters: initialKraalFilters,
-    isLoading: false,
-    error: '',
   }),
   withMethods((store) => {
     const kraalService = inject(KraalDataService);
@@ -48,7 +46,7 @@ export const KraalStore = signalStore(
     const refresh = async (): Promise<void> => {
       const { page, limit, offset } = store.page();
       const { species } = store.filters();
-      patchState(store, { isLoading: true, error: '' });
+      store.setLoading(true);
       try {
         const result = await kraalService.list(species ?? undefined, { limit, offset });
         const lastPage = Math.max(Math.ceil(result.total / limit), 1);
@@ -62,45 +60,37 @@ export const KraalStore = signalStore(
         patchState(store, {
           kraals: result.rows,
           page: { ...store.page(), total: result.total },
-          isLoading: false,
         });
+        store.setLoading(false);
       } catch {
         patchState(store, {
           kraals: [],
           page: { ...store.page(), total: 0 },
-          isLoading: false,
-          error: 'Could not load kraals.',
         });
+        store.setError('Could not load kraals.');
       }
     };
 
     return {
-      clearError(): void {
-        if (store.error()) {
-          patchState(store, { error: '' });
-        }
-      },
-
       async getById(id: string): Promise<KraalRow | undefined> {
         if (!id) {
-          patchState(store, { kraal: undefined, isLoading: false, error: '' });
+          patchState(store, { kraal: undefined });
+          store.setLoading(false);
+          store.clearError();
           return undefined;
         }
         patchState(store, {
-          isLoading: true,
-          error: '',
           kraal: store.kraal()?.$id === id ? store.kraal() : undefined,
         });
+        store.setLoading(true);
         try {
           const kraal = await kraalService.get(id);
-          patchState(store, { kraal, isLoading: false, error: '' });
+          patchState(store, { kraal });
+          store.setLoading(false);
           return kraal;
         } catch {
-          patchState(store, {
-            kraal: undefined,
-            isLoading: false,
-            error: 'Could not load kraal.',
-          });
+          patchState(store, { kraal: undefined });
+          store.setError('Could not load kraal.');
           return undefined;
         }
       },
@@ -138,17 +128,17 @@ export const KraalStore = signalStore(
           notes: notes.trim(),
           species,
         };
-        patchState(store, { error: '' });
+        store.clearError();
         try {
           return await kraalService.create(kraal);
         } catch {
-          patchState(store, { error: `Could not save ${speciesVocabulary(species).location}.` });
+          store.setError(`Could not save ${speciesVocabulary(species).location}.`);
           return undefined;
         }
       },
 
       async update(changes: Pick<KraalRow, '$id' | 'name' | 'notes' | 'species'>): Promise<void> {
-        patchState(store, { error: '' });
+        store.clearError();
         try {
           await kraalService.update(changes);
           const current = store.kraal();
@@ -156,12 +146,12 @@ export const KraalStore = signalStore(
             patchState(store, { kraal: { ...current, ...changes } });
           }
         } catch {
-          patchState(store, { error: `Could not save ${speciesVocabulary(changes.species).location}.` });
+          store.setError(`Could not save ${speciesVocabulary(changes.species).location}.`);
         }
       },
 
       async remove(id: string): Promise<void> {
-        patchState(store, { error: '' });
+        store.clearError();
         try {
           const animals = await animalService.list();
           if (animals.rows.some((animal) => animal.kraalId === id)) {
@@ -172,12 +162,23 @@ export const KraalStore = signalStore(
             patchState(store, { kraal: undefined });
           }
         } catch (error: unknown) {
-          patchState(store, {
-            error: error instanceof KraalInUseError ? error.message : 'Could not remove kraal.',
-          });
+          store.setError(
+            error instanceof KraalInUseError ? error.message : 'Could not remove kraal.',
+          );
         }
       },
 
+      async unfilteredList(): Promise<void> {
+        store.setLoading(true);
+        try {
+          const result = await kraalService.list();
+          patchState(store, { kraals: result.rows });
+          store.setLoading(false);
+        } catch {
+          store.setError('Could not load kraals.');
+        }
+      },
+      
       _refresh: refresh,
       _setupWatch: () => kraalService.watch(() => void refresh()),
     };

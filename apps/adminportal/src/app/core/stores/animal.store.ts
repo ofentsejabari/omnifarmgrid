@@ -1,21 +1,18 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { DuplicateTagError } from '../utils/errors';
-import { AnimalDraft, AnimalRow } from '../models/animal';
+import { AnimalCreatePayload, AnimalRow, AnimalUpdatePayload } from '../models/animal';
 import { DeathReason } from '../models/event';
 import { AnimalSex, AnimalStatus, speciesVocabulary, Species } from '../models/species';
 import { AnimalService as AnimalDataService } from '../services/animal.service';
 import { EventService as EventDataService } from '../services/event.service';
 import { KraalService as KraalDataService } from '../services/kraal.service';
 import { nowIso } from '../utils/dates';
+import { withRequestStateFeature } from './fetures/with-request-state-feature';
+import { KraalStore } from './kraal.store';
 
-export type { AnimalDraft } from '../models/animal';
 
-export interface KidDraft {
-  tag: string;
-  name: string;
-  sex: AnimalSex;
-}
+export type KidDraft = Pick<AnimalCreatePayload, 'tag' | 'name' | 'sex'>;
 
 export interface AnimalFilters {
   name: string;
@@ -29,7 +26,6 @@ interface AnimalState {
   animals: AnimalRow[];
   animal: AnimalRow | undefined;
   filters: AnimalFilters;
-  isLoading: boolean;
 }
 
 const initialAnimalFilters: AnimalFilters = {
@@ -44,19 +40,20 @@ const initialAnimalState: AnimalState = {
   animals: [],
   animal: undefined,
   filters: initialAnimalFilters,
-  isLoading: false,
 };
 
 export const AnimalStore = signalStore(
   { providedIn: 'root' },
+  withRequestStateFeature(),
   withState<AnimalState>(initialAnimalState),
   withMethods((store) => {
     const animalService = inject(AnimalDataService);
     const eventService = inject(EventDataService);
     const kraalService = inject(KraalDataService);
+    const kraalStore = inject(KraalStore);
 
     const refresh = async (): Promise<void> => {
-      patchState(store, { isLoading: true });
+      store.setLoading(true);
       try {
         const { name, species, sex, status, kraalId } = store.filters();
         const result = await animalService.list(
@@ -66,9 +63,11 @@ export const AnimalStore = signalStore(
           status ?? undefined,
           kraalId ?? undefined,
         );
-        patchState(store, { animals: result.rows, isLoading: false });
+        patchState(store, { animals: result.rows });
+        store.setLoading(false);
       } catch {
-        patchState(store, { animals: [], isLoading: false });
+        patchState(store, { animals: [] });
+        store.setLoading(false);
       }
     };
 
@@ -111,16 +110,16 @@ export const AnimalStore = signalStore(
         await refresh();
       },
 
-      async create(animal: AnimalDraft): Promise<AnimalRow> {
+      async create(animal: AnimalCreatePayload): Promise<AnimalRow> {
         await assertKraalSpecies(animal.kraalId, animal.species);
         await assertUniqueTag(animal.tag, animal.species);
-        return animalService.create({ ...animal, status: 'alive' });
+        return animalService.create(animal);
       },
 
-      async update(id: string, animal: AnimalDraft): Promise<void> {
+      async update(id: string, animal: Omit<AnimalUpdatePayload, '$id'>): Promise<void> {
         await assertKraalSpecies(animal.kraalId, animal.species);
         await assertUniqueTag(animal.tag, animal.species, id);
-        await animalService.update({ $id: id, ...animal });
+        await animalService.update({ ...animal, $id: id });
       },
 
       async recordBirth(
@@ -158,7 +157,6 @@ export const AnimalStore = signalStore(
             damId,
             sireId: '',
             kraalId,
-            status: 'alive',
             notes: '',
           });
           created.push(animal);

@@ -16,8 +16,9 @@ export type AnimalRow = Models.Row & {
   notes: string;
 };
 
-export type AnimalWrite = Omit<AnimalRow, keyof Models.Row>;
-export type AnimalDraft = Omit<AnimalWrite, 'status'>;
+export type AnimalCreatePayload = Omit<AnimalRow, keyof Models.Row | 'status'>;
+export type AnimalUpdatePayload = Pick<AnimalRow, '$id' | 'species' | 'tag' | 'kraalId'> &
+  Partial<Omit<AnimalRow, keyof Models.Row | 'species' | 'tag' | 'kraalId'>>;
 
 export const animalLabel = (animal: Pick<AnimalRow, 'tag' | 'name'>): string => {
   const tag = animal.tag.trim();
