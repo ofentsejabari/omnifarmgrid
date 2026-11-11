@@ -1,6 +1,6 @@
 {
   "/v1": {
-    "target": "http://localhost",
+    "target": "http://localhost:81",
     "secure": false,
     "changeOrigin": true,
     "ws": true

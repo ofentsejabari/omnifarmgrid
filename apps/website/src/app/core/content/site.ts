@@ -12,7 +12,11 @@ export const NAV_LINKS = [
 
 export type SpeciesId = 'goat' | 'sheep' | 'pig' | 'cow';
 
-export type SpeciesIcon = 'speciesGoat' | 'speciesSheep' | 'speciesPig' | 'speciesCow';
+export type SpeciesIcon =
+  | 'speciesGoat'
+  | 'speciesSheep'
+  | 'speciesPig'
+  | 'speciesCow';
 
 export interface SpeciesContent {
   id: SpeciesId;
@@ -54,9 +58,18 @@ export const SPECIES: readonly SpeciesContent[] = [
     locationPlural: 'kraals',
     birth: 'kidding',
     accentClass: 'border-l-[3px] border-l-emerald-500',
-    avatarClass: 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200/80',
+    avatarClass: 'bg-emerald-50 text-emerald-700',
     iconClass: 'text-emerald-700',
-    breeds: ['Tswana', 'Boer', 'Kalahari Red', 'Savannah', 'Saanen', 'Toggenburg', 'Alpine', 'Cross'],
+    breeds: [
+      'Tswana',
+      'Boer',
+      'Kalahari Red',
+      'Savannah',
+      'Saanen',
+      'Toggenburg',
+      'Alpine',
+      'Cross',
+    ],
     records: [
       'Does, bucks, and wethers with ear tags and optional names',
       'Kidding linked to the dam and the kraal the kids go into',
@@ -80,9 +93,16 @@ export const SPECIES: readonly SpeciesContent[] = [
     locationPlural: 'kraals',
     birth: 'lambing',
     accentClass: 'border-l-[3px] border-l-amber-500',
-    avatarClass: 'bg-amber-100 text-amber-900 ring-1 ring-amber-200/80',
+    avatarClass: 'bg-amber-50 text-amber-700',
     iconClass: 'text-amber-700',
-    breeds: ['Dorper', 'Damara', 'Meatmaster', 'Merino', 'Blackhead Persian', 'Cross'],
+    breeds: [
+      'Dorper',
+      'Damara',
+      'Meatmaster',
+      'Merino',
+      'Blackhead Persian',
+      'Cross',
+    ],
     records: [
       'Ewes, rams, and wethers with breed and date of birth',
       'Lambing recorded against the ewe and the kraal',
@@ -105,10 +125,17 @@ export const SPECIES: readonly SpeciesContent[] = [
     location: 'pen',
     locationPlural: 'pens',
     birth: 'farrowing',
-    accentClass: 'border-l-[3px] border-l-rose-400',
-    avatarClass: 'bg-rose-100 text-rose-800 ring-1 ring-rose-200/80',
-    iconClass: 'text-rose-600',
-    breeds: ['Large White', 'Landrace', 'Duroc', 'Kolbroek', 'Pietrain', 'Cross'],
+    accentClass: 'border-l-[3px] border-l-pink-400',
+    avatarClass: 'bg-pink-50 text-pink-700',
+    iconClass: 'text-pink-600',
+    breeds: [
+      'Large White',
+      'Landrace',
+      'Duroc',
+      'Kolbroek',
+      'Pietrain',
+      'Cross',
+    ],
     records: [
       'Sows, boars, and barrows with pen location',
       'Farrowing recorded with the sow and each piglet',
@@ -131,10 +158,19 @@ export const SPECIES: readonly SpeciesContent[] = [
     location: 'kraal',
     locationPlural: 'kraals',
     birth: 'calving',
-    accentClass: 'border-l-[3px] border-l-sky-500',
-    avatarClass: 'bg-sky-100 text-sky-800 ring-1 ring-sky-200/80',
-    iconClass: 'text-sky-700',
-    breeds: ['Tswana', 'Brahman', 'Bonsmara', 'Simmental', 'Afrikaner', 'Nguni', 'Angus', 'Cross'],
+    accentClass: 'border-l-[3px] border-l-blue-500',
+    avatarClass: 'bg-blue-50 text-blue-700',
+    iconClass: 'text-blue-700',
+    breeds: [
+      'Tswana',
+      'Brahman',
+      'Bonsmara',
+      'Simmental',
+      'Afrikaner',
+      'Nguni',
+      'Angus',
+      'Cross',
+    ],
     records: [
       'Cows, bulls, and steers with ear tags and optional names',
       'Calving linked to the cow and the kraal the calves go into',
@@ -249,7 +285,10 @@ export const FAQS = [
 
 export type ContactInterest = 'goats' | 'sheep' | 'pigs' | 'cattle' | 'mixed';
 
-export const CONTACT_INTERESTS: readonly { value: ContactInterest; label: string }[] = [
+export const CONTACT_INTERESTS: readonly {
+  value: ContactInterest;
+  label: string;
+}[] = [
   { value: 'goats', label: 'Goats' },
   { value: 'sheep', label: 'Sheep' },
   { value: 'pigs', label: 'Pigs' },

@@ -14,4 +14,12 @@ export class HomePage {
   protected readonly features = FEATURES;
   protected readonly steps = STEPS;
   protected readonly faqs = FAQS;
+  /** Sample numbers for the hero preview (goats, sheep, pigs, cattle). */
+  protected readonly previewCounts = [48, 31, 17, 32];
+  protected readonly previewColors = [
+    'var(--chart-goat)',
+    'var(--chart-sheep)',
+    'var(--chart-pig)',
+    'var(--chart-cow)',
+  ];
 }

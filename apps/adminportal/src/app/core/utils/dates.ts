@@ -6,7 +6,11 @@ export const isoToDate = (iso: string | undefined | null): Date | undefined => {
   if (!match) {
     return undefined;
   }
-  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  const date = new Date(
+    Number(match[1]),
+    Number(match[2]) - 1,
+    Number(match[3]),
+  );
   return Number.isNaN(date.getTime()) ? undefined : date;
 };
 
@@ -24,7 +28,10 @@ export const todayIsoDate = (): string => dateToIso(new Date());
 
 export const nowIso = (): string => new Date().toISOString();
 
-export const isExpired = (isoDate: string | undefined, onDate = todayIsoDate()): boolean => {
+export const isExpired = (
+  isoDate: string | undefined,
+  onDate = todayIsoDate(),
+): boolean => {
   return Boolean(isoDate) && isoDate! < onDate;
 };
 
@@ -42,8 +49,39 @@ export const expiresWithinDays = (
   return expiry >= new Date(`${onDate}T00:00:00`) && expiry <= until;
 };
 
-export const monthsAgoIsoDate = (months: number, from = new Date()): string => {
+export const daysAgoIsoDate = (days: number, from = new Date()): string => {
   const date = new Date(from);
-  date.setMonth(date.getMonth() - months);
+  date.setDate(date.getDate() - days);
   return dateToIso(date);
+};
+
+/** "Today", "Yesterday", "3 days ago", or "12 Oct" for older dates. */
+export const friendlyDate = (
+  iso: string | undefined | null,
+  today = new Date(),
+): string => {
+  const date = isoToDate(iso ?? undefined);
+  if (!date) {
+    return iso ?? '';
+  }
+  const start = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
+  const diff = Math.round((start.getTime() - date.getTime()) / 86_400_000);
+  if (diff === 0) {
+    return 'Today';
+  }
+  if (diff === 1) {
+    return 'Yesterday';
+  }
+  if (diff > 1 && diff < 7) {
+    return `${diff} days ago`;
+  }
+  return date.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    ...(date.getFullYear() === today.getFullYear() ? {} : { year: 'numeric' }),
+  });
 };

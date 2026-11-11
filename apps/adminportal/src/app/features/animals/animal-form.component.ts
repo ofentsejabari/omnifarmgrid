@@ -7,116 +7,139 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { form, FormField, FormRoot, required } from '@angular/forms/signals';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { map } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 import { AnimalCreatePayload } from '../../core/models/animal';
 import {
   ANIMAL_SEXES,
-  AnimalSex,
-  BREEDS,
-  SPECIES,
   animalSexLabel,
+  BREEDS,
   isSpecies,
+  SPECIES,
   speciesLabel,
   speciesVocabulary,
 } from '../../core/models/species';
 import { AnimalStore } from '../../core/stores/animal.store';
 import { KraalStore } from '../../core/stores/kraal.store';
 import { SpeciesFilterStore } from '../../core/stores/species-filter.store';
+import { ModalService } from '../../core/ui/modal.service';
+import { SpeciesAvatarComponent } from '../../core/ui/species-avatar.component';
+import { ToastService } from '../../core/ui/toast.service';
 import { DuplicateTagError } from '../../core/utils/errors';
+import { DateFieldComponent } from '../../core/ui/date-field.component';
+import { SelectFieldComponent } from '../../core/ui/select-field.component';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
 
+/** Popup: add or edit an animal. Params: `id` (edit), `kraalId`, `species`. */
 @Component({
   selector: 'fma-animal-form',
-  imports: [FormField, FormRoot, RouterLink, ...SpartanUiImports],
+  imports: [
+    FormField,
+    FormRoot,
+    SpeciesAvatarComponent,
+    SelectFieldComponent,
+    DateFieldComponent,
+    ...SpartanUiImports,
+  ],
   templateUrl: './animal-form.component.html',
+  host: { class: 'fma-modal' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnimalFormComponent {
   private readonly animalStore = inject(AnimalStore);
   private readonly kraalStore = inject(KraalStore);
-  private readonly speciesFilterStore = inject(SpeciesFilterStore);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  private readonly speciesFilter = inject(SpeciesFilterStore);
+  private readonly toast = inject(ToastService);
+  protected readonly modal = inject(ModalService);
+
+  private readonly params = inject(ActivatedRoute).snapshot.paramMap;
+  private readonly animalId = this.params.get('id') ?? '';
+  protected readonly isEdit = Boolean(this.animalId);
 
   protected readonly speciesOptions = SPECIES;
-  protected readonly sexes = ANIMAL_SEXES;
-  protected readonly vocabulary = speciesVocabulary;
   protected readonly speciesName = speciesLabel;
   protected readonly error = signal('');
   protected readonly loaded = signal(false);
-  private readonly animalId = toSignal(
-    this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
-    {
-      initialValue: this.route.snapshot.paramMap.get('id') ?? '',
-    },
+
+  protected readonly animalModel = signal<AnimalCreatePayload>(
+    this.blankDraft(),
   );
-  protected readonly isEdit = computed(() => Boolean(this.animalId()));
-  protected readonly animalModel = signal<AnimalCreatePayload>(this.blankDraft());
   protected readonly animalForm = form(
     this.animalModel,
-    (schemaPath) => {
-      required(schemaPath.tag, { message: 'Ear tag is required.' });
-      required(schemaPath.kraalId, { message: 'Place is required.' });
+    (path) => {
+      required(path.tag);
+      required(path.kraalId);
     },
-    {
-      submission: {
-        action: async (field) => {
-          this.error.set('');
-          const draft = field().value();
-          try {
-            const id = this.animalId();
-            if (id) {
-              await this.animalStore.update(id, draft);
-              await this.router.navigate(['/flock', id]);
-            } else {
-              const created = await this.animalStore.create(draft);
-              await this.router.navigate(['/flock', created.$id]);
-            }
-          } catch (error: unknown) {
-            this.error.set(
-              error instanceof DuplicateTagError
-                ? error.message
-                : `Could not save ${this.vocabulary(draft.species).noun}.`,
-            );
-          }
-          return undefined;
-        },
-      },
-    },
+    { submission: { action: async (field) => this.save(field().value()) } },
   );
-  protected readonly currentSpecies = computed(() => this.animalModel().species);
+
+  protected readonly currentSpecies = computed(
+    () => this.animalModel().species,
+  );
+  protected readonly words = computed(() =>
+    speciesVocabulary(this.currentSpecies()),
+  );
   protected readonly breeds = computed(() => BREEDS[this.currentSpecies()]);
-  protected readonly matchingKraals = computed(() =>
-    this.kraalStore.kraals().filter((kraal) => kraal.species === this.currentSpecies()),
+  protected readonly kraalOptions = computed(() =>
+    this.kraalStore
+      .kraals()
+      .filter((kraal) => kraal.species === this.currentSpecies())
+      .map((kraal) => ({ value: kraal.$id, label: kraal.name })),
+  );
+  protected readonly sexOptions = computed(() =>
+    ANIMAL_SEXES.map((sex) => ({
+      value: sex,
+      label: animalSexLabel(this.currentSpecies(), sex),
+    })),
   );
 
   constructor() {
+    // Changing species clears a kraal that belongs to another species.
     effect(() => {
-      const species = this.animalModel().species;
-      const kraalId = this.animalModel().kraalId;
+      const { species, kraalId } = this.animalModel();
       untracked(() => {
-        const kraal = this.kraalStore.kraals().find((item) => item.$id === kraalId);
+        const kraal = this.kraalStore
+          .kraals()
+          .find((item) => item.$id === kraalId);
         if (kraal && kraal.species !== species) {
           this.animalForm.kraalId().value.set('');
         }
       });
     });
-    void this.hydrate();
+    void this.load();
   }
 
-  protected sexLabel(sex: AnimalSex): string {
-    return animalSexLabel(this.currentSpecies(), sex);
+  private async save(draft: AnimalCreatePayload): Promise<undefined> {
+    this.error.set('');
+    try {
+      if (this.isEdit) {
+        await this.animalStore.update(this.animalId, draft);
+        this.toast.show('Changes saved');
+        await this.modal.close();
+      } else {
+        const created = await this.animalStore.create(draft);
+        this.toast.show(`${speciesLabel(draft.species)} added`);
+        await this.modal.closeAndNavigate(['/animals', created.$id]);
+      }
+    } catch (error: unknown) {
+      this.error.set(
+        error instanceof DuplicateTagError
+          ? error.message
+          : `Could not save this ${speciesVocabulary(draft.species).noun}.`,
+      );
+    }
+    return undefined;
   }
 
   private blankDraft(): AnimalCreatePayload {
-    const querySpecies = this.route.snapshot.queryParamMap.get('species');
+    const species = this.params.get('species');
+    const kraal = this.kraalStore
+      .kraals()
+      .find((item) => item.$id === this.params.get('kraalId'));
     return {
-      species: isSpecies(querySpecies)
-        ? querySpecies
-        : this.speciesFilterStore.preferredSpecies(),
+      species:
+        kraal?.species ??
+        (isSpecies(species) ? species : this.speciesFilter.preferredSpecies()),
       tag: '',
       name: '',
       sex: 'female',
@@ -125,47 +148,45 @@ export class AnimalFormComponent {
       birthDateEstimated: false,
       damId: '',
       sireId: '',
-      kraalId: this.route.snapshot.queryParamMap.get('kraalId') ?? '',
+      kraalId: kraal?.$id ?? '',
       notes: '',
     };
   }
 
-  private async hydrate(): Promise<void> {
-    await this.kraalStore.unfilteredList();
-    const id = this.animalId();
-    if (id) {
-      const animal = await this.animalStore.getById(id);
+  private async load(): Promise<void> {
+    if (this.isEdit) {
+      const animal = await this.animalStore.getById(this.animalId);
       if (animal) {
+        const {
+          species,
+          tag,
+          name,
+          sex,
+          breed,
+          dateOfBirth,
+          birthDateEstimated,
+          damId,
+          sireId,
+          kraalId,
+          notes,
+        } = animal;
         this.animalForm().reset({
-          species: animal.species,
-          tag: animal.tag,
-          name: animal.name,
-          sex: animal.sex,
-          breed: animal.breed,
-          dateOfBirth: animal.dateOfBirth,
-          birthDateEstimated: animal.birthDateEstimated,
-          damId: animal.damId,
-          sireId: animal.sireId,
-          kraalId: animal.kraalId,
-          notes: animal.notes,
+          species,
+          tag,
+          name,
+          sex,
+          breed,
+          dateOfBirth,
+          birthDateEstimated,
+          damId,
+          sireId,
+          kraalId,
+          notes,
         });
+      } else {
+        this.error.set('This animal could not be found.');
       }
-    } else {
-      this.applyQueryKraal();
     }
     this.loaded.set(true);
-  }
-
-  private applyQueryKraal(): void {
-    const kraalId = this.animalModel().kraalId;
-    if (!kraalId) {
-      return;
-    }
-    const kraal = this.kraalStore.kraals().find((item) => item.$id === kraalId);
-    if (kraal) {
-      this.animalForm.species().value.set(kraal.species);
-      return;
-    }
-    this.animalForm.kraalId().value.set('');
   }
 }

@@ -1,137 +1,124 @@
-<section class="flex flex-col gap-6">
-  <a [routerLink]="['/kraals', kraal()?.$id]" hlmBtn variant="link" size="sm" class="text-muted-foreground h-auto px-0">
-    <ng-icon name="lucideArrowLeft" />
-    {{ kraal()?.name || 'Kraal' }}
-  </a>
-  <div>
-    <h1 class="text-2xl font-semibold tracking-tight">Vaccinate {{ placeLabel() }}</h1>
-    <p class="text-muted-foreground mt-1 text-sm leading-relaxed">
-      Every animal here is included. Uncheck exceptions (too young, sick, already done).
+<div class="fma-modal">
+  <header class="fma-modal-header">
+    <h2 class="fma-modal-title">Vaccinate a {{ words().location }}</h2>
+    <p class="fma-modal-desc">
+      Everyone is included — untick the few you skip.
     </p>
-  </div>
+  </header>
 
-  @if (error()) {
-    <hlm-alert class="bg-warning/30 text-warning-foreground">
-      <ng-icon name="lucideTriangleAlert" />
-      <div hlmAlertDescription>{{ error() }}</div>
-    </hlm-alert>
-  }
+  <div class="fma-modal-body">
+    @if (error()) {
+      <p class="fma-error" role="alert">
+        <ng-icon name="lucideTriangleAlert" size="16" class="mt-0.5 shrink-0" />
+        {{ error() }}
+      </p>
+    }
 
-  <hlm-card>
-    <div hlmCardContent class="flex flex-col gap-3">
+    <div hlmField>
+      <label hlmFieldLabel for="vax-kraal">{{
+        words().location | sentence
+      }}</label>
+      <app-select
+        inputId="vax-kraal"
+        [value]="kraalId()"
+        (valueChange)="selectKraal($event)"
+        [options]="kraalOptions()"
+        placeholder="Choose a kraal or pen…"
+      />
+    </div>
+
+    <div class="fma-field-row">
       <div hlmField>
-        <label hlmFieldLabel>Product</label>
-        <hlm-select
-          class="w-full"
-          [ngModel]="productId()"
-          (ngModelChange)="productId.set($event ?? ''); batchId.set('')"
-          name="product"
-        >
-          <hlm-select-trigger class="w-full">
-            <hlm-select-value placeholder="Select vaccine or treatment" />
-          </hlm-select-trigger>
-          <hlm-select-content *hlmSelectPortal>
-            @for (product of inventoryStore.products(); track product.$id) {
-              <hlm-select-item [value]="product.$id">{{ product.name }}</hlm-select-item>
-            }
-          </hlm-select-content>
-        </hlm-select>
-      </div>
-      <div hlmField>
-        <label hlmFieldLabel>Batch</label>
-        <hlm-select class="w-full" [ngModel]="batchId()" (ngModelChange)="batchId.set($event ?? '')" name="batch">
-          <hlm-select-trigger class="w-full">
-            <hlm-select-value placeholder="Select batch" />
-          </hlm-select-trigger>
-          <hlm-select-content *hlmSelectPortal>
-            @for (batch of batches(); track batch.$id) {
-              <hlm-select-item [value]="batch.$id">
-                {{ batch.batchNumber || 'No batch no.' }} · {{ batch.quantityOnHand }} left
-                @if (batch.expiryDate) {
-                  · exp {{ batch.expiryDate }}
-                }
-              </hlm-select-item>
-            }
-          </hlm-select-content>
-        </hlm-select>
-      </div>
-      <div hlmField>
-        <label hlmFieldLabel>Date</label>
-        <input
-          hlmInput
-          type="date"
-          name="date"
-          [ngModel]="date()"
-          (ngModelChange)="date.set($event ?? '')"
+        <label hlmFieldLabel for="vax-product">Product</label>
+        <app-select
+          inputId="vax-product"
+          [value]="productId()"
+          (valueChange)="productId.set($event)"
+          [options]="productOptions()"
+          emptyText="Add a product under Stock first"
         />
       </div>
       <div hlmField>
-        <label hlmFieldLabel>Notes</label>
-        <textarea hlmTextarea [ngModel]="notes()" (ngModelChange)="notes.set($event)" name="notes"></textarea>
+        <label hlmFieldLabel for="vax-batch">Batch</label>
+        <app-select
+          inputId="vax-batch"
+          [value]="batchId()"
+          (valueChange)="batchId.set($event)"
+          [options]="batchOptions()"
+          [emptyText]="
+            productId()
+              ? 'No usable stock — receive a batch first'
+              : 'Choose a product first'
+          "
+        />
       </div>
     </div>
-  </hlm-card>
 
-  <div class="flex items-center justify-between">
-    <h2 class="font-semibold">{{ treatedCount() }} of {{ animals().length }} selected</h2>
-    <button type="button" hlmBtn variant="ghost" size="sm" (click)="selectAllDefault()">Select all</button>
+    <div hlmField>
+      <label hlmFieldLabel for="vax-date">Date</label>
+      <app-date-field
+        inputId="vax-date"
+        [value]="date()"
+        (valueChange)="date.set($event)"
+      />
+    </div>
+
+    @if (kraalId()) {
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between text-sm">
+          <span class="font-medium">Animals</span>
+          <span class="text-muted-foreground tabular-nums"
+            >{{ treatedCount() }} of {{ animals().length }} included</span
+          >
+        </div>
+        @if (animals().length === 0) {
+          <p
+            class="text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm"
+          >
+            No living animals in this {{ words().location }}.
+          </p>
+        } @else {
+          <ul
+            class="divide-border max-h-64 divide-y overflow-y-auto rounded-lg border"
+          >
+            @for (animal of animals(); track animal.$id) {
+              <li
+                class="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2"
+                [class]="isSelected(animal.$id) ? '' : 'bg-muted/50'"
+              >
+                <hlm-checkbox
+                  [inputId]="'vax-' + animal.$id"
+                  [checked]="isSelected(animal.$id)"
+                  (checkedChange)="toggle(animal.$id, $event)"
+                />
+                <label class="grow text-sm" [for]="'vax-' + animal.$id">{{
+                  label(animal)
+                }}</label>
+                @if (!isSelected(animal.$id)) {
+                  <app-select
+                    class="w-40"
+                    size="sm"
+                    [value]="reasons()[animal.$id]"
+                    (valueChange)="setReason(animal.$id, $event)"
+                    [options]="reasonOptions"
+                    placeholder="Why skipped?"
+                    ariaLabel="Why skipped?"
+                  />
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
   </div>
 
-  @if (animals().length === 0) {
-    <div
-      class="bg-card ring-foreground/10 flex flex-col items-center gap-3 rounded-xl px-6 py-10 text-center ring-1"
-    >
-      <span class="bg-muted flex size-14 items-center justify-center rounded-full">
-        <ng-icon name="lucideInbox" size="24" class="text-muted-foreground" />
-      </span>
-      <p class="text-muted-foreground text-sm">
-        This {{ placeLabel() }} has no living animals.
-      </p>
-    </div>
-  } @else {
-    <ul class="flex flex-col gap-2">
-      @for (animal of animals(); track animal.$id) {
-        <li>
-          <hlm-card size="sm">
-            <div hlmCardContent class="flex flex-col gap-2">
-              <div hlmField orientation="horizontal">
-                <hlm-checkbox
-                  [name]="'animal-' + animal.$id"
-                  [ngModel]="isSelected(animal.$id)"
-                  (ngModelChange)="toggle(animal.$id, $event)"
-                />
-                <label hlmFieldLabel>{{ label(animal) }}</label>
-              </div>
-              @if (!isSelected(animal.$id)) {
-                <hlm-select
-                  class="w-full"
-                  [ngModel]="reasonFor(animal.$id)"
-                  (ngModelChange)="setReason(animal.$id, $event ?? '')"
-                  [name]="'reason-' + animal.$id"
-                >
-                  <hlm-select-trigger class="w-full" size="sm">
-                    <hlm-select-value placeholder="Why skipped?" />
-                  </hlm-select-trigger>
-                  <hlm-select-content *hlmSelectPortal>
-                    @for (reason of exclusionReasons; track reason) {
-                      <hlm-select-item [value]="reason">{{ reason }}</hlm-select-item>
-                    }
-                  </hlm-select-content>
-                </hlm-select>
-              }
-            </div>
-          </hlm-card>
-        </li>
-      }
-    </ul>
-  }
-
-  <hlm-alert>
-    <ng-icon name="lucideSyringe" />
-    <div hlmAlertDescription>This will use {{ treatedCount() }} dose(s) from the selected batch.</div>
-  </hlm-alert>
-  <button type="button" hlmBtn class="w-full" (click)="save()">
-    <ng-icon name="lucideSyringe" />
-    Save vaccination
-  </button>
-</section>
+  <footer class="fma-modal-footer">
+    <button type="button" hlmBtn variant="outline" (click)="modal.close()">
+      Cancel
+    </button>
+    <button type="button" hlmBtn [disabled]="saving()" (click)="save()">
+      {{ saving() ? 'Saving…' : 'Vaccinate ' + treatedCount() }}
+    </button>
+  </footer>
+</div>

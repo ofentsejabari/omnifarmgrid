@@ -4,7 +4,13 @@ export type Species = (typeof SPECIES)[number];
 export const ANIMAL_SEXES = ['female', 'male', 'wether'] as const;
 export type AnimalSex = (typeof ANIMAL_SEXES)[number];
 
-export const ANIMAL_STATUSES = ['alive', 'sold', 'dead', 'culled', 'missing'] as const;
+export const ANIMAL_STATUSES = [
+  'alive',
+  'sold',
+  'dead',
+  'culled',
+  'missing',
+] as const;
 export type AnimalStatus = (typeof ANIMAL_STATUSES)[number];
 
 export interface SpeciesVocabulary {
@@ -40,7 +46,7 @@ export const SPECIES_VOCABULARY: Record<Species, SpeciesVocabulary> = {
   sheep: {
     id: 'sheep',
     noun: 'sheep',
-    plural: 'sheeps',
+    plural: 'sheep',
     icon: 'speciesSheep',
     young: 'lamb',
     youngPlural: 'lambs',
@@ -133,63 +139,54 @@ export const animalSexLabel = (species: Species, sex: AnimalSex): string => {
 };
 
 export const BREEDS: Record<Species, readonly string[]> = {
-  goat: ['Tswana', 'Boer', 'Kalahari Red', 'Savannah', 'Saanen', 'Toggenburg', 'Alpine', 'Cross'],
-  sheep: ['Dorper', 'Damara', 'Meatmaster', 'Merino', 'Blackhead Persian', 'Cross'],
+  goat: [
+    'Tswana',
+    'Boer',
+    'Kalahari Red',
+    'Savannah',
+    'Saanen',
+    'Toggenburg',
+    'Alpine',
+    'Cross',
+  ],
+  sheep: [
+    'Dorper',
+    'Damara',
+    'Meatmaster',
+    'Merino',
+    'Blackhead Persian',
+    'Cross',
+  ],
   pig: ['Large White', 'Landrace', 'Duroc', 'Kolbroek', 'Pietrain', 'Cross'],
-  cow: ['Tswana', 'Brahman', 'Bonsmara', 'Simmental', 'Afrikaner', 'Nguni', 'Angus', 'Cross'],
+  cow: [
+    'Tswana',
+    'Brahman',
+    'Bonsmara',
+    'Simmental',
+    'Afrikaner',
+    'Nguni',
+    'Angus',
+    'Cross',
+  ],
 };
 
-export const speciesBadgeClass = (species: Species): string => {
-  switch (species) {
-    case 'goat':
-      return 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200/80 dark:bg-emerald-900/50 dark:text-emerald-200 dark:ring-emerald-800/60';
-    case 'sheep':
-      return 'bg-amber-50 text-amber-900 ring-1 ring-amber-200/80 dark:bg-amber-900/40 dark:text-amber-200 dark:ring-amber-800/60';
-    case 'pig':
-      return 'bg-rose-50 text-rose-800 ring-1 ring-rose-200/80 dark:bg-rose-900/40 dark:text-rose-200 dark:ring-rose-800/60';
-    case 'cow':
-      return 'bg-sky-50 text-sky-800 ring-1 ring-sky-200/80 dark:bg-sky-900/50 dark:text-sky-200 dark:ring-sky-800/60';
-  }
-};
-
-export const speciesIconClass = (species: Species): string => {
-  switch (species) {
-    case 'goat':
-      return 'text-emerald-700 dark:text-emerald-300';
-    case 'sheep':
-      return 'text-amber-700 dark:text-amber-300';
-    case 'pig':
-      return 'text-rose-600 dark:text-rose-300';
-    case 'cow':
-      return 'text-sky-700 dark:text-sky-300';
-  }
-};
-
-export const speciesAccentClass = (species: Species): string => {
-  switch (species) {
-    case 'goat':
-      return 'border-l-[3px] border-l-emerald-500';
-    case 'sheep':
-      return 'border-l-[3px] border-l-amber-500';
-    case 'pig':
-      return 'border-l-[3px] border-l-rose-400';
-    case 'cow':
-      return 'border-l-[3px] border-l-sky-500';
-  }
-};
-
+/** Tinted tile behind a species icon. Hues match the dashboard chart colours. */
 export const speciesAvatarClass = (species: Species): string => {
   switch (species) {
     case 'goat':
-      return 'bg-emerald-100 ring-1 ring-emerald-200/70 dark:bg-emerald-900/50 dark:ring-emerald-800/50';
+      return 'bg-emerald-50 text-emerald-700';
     case 'sheep':
-      return 'bg-amber-100 ring-1 ring-amber-200/70 dark:bg-amber-900/40 dark:ring-amber-800/50';
+      return 'bg-amber-50 text-amber-700';
     case 'pig':
-      return 'bg-rose-100 ring-1 ring-rose-200/70 dark:bg-rose-900/40 dark:ring-rose-800/50';
+      return 'bg-pink-50 text-pink-700';
     case 'cow':
-      return 'bg-sky-100 ring-1 ring-sky-200/70 dark:bg-sky-900/50 dark:ring-sky-800/50';
+      return 'bg-blue-50 text-blue-700';
   }
 };
+
+/** Series colour for charts (CSS custom properties defined in theme.css). */
+export const speciesChartColor = (species: Species): string =>
+  `var(--chart-${species})`;
 
 export const animalStatusLabel = (status: AnimalStatus): string => {
   switch (status) {
@@ -209,15 +206,14 @@ export const animalStatusLabel = (status: AnimalStatus): string => {
 export const animalStatusClass = (status: AnimalStatus): string => {
   switch (status) {
     case 'alive':
-      return 'bg-success/20 text-success-foreground';
+      return 'bg-success text-success-foreground';
     case 'sold':
-      return 'bg-info/30 text-info-foreground';
+      return 'bg-info text-info-foreground';
     case 'dead':
-      return 'bg-destructive/10 text-destructive';
     case 'culled':
       return 'bg-destructive/10 text-destructive';
     case 'missing':
-      return 'bg-warning/40 text-warning-foreground';
+      return 'bg-warning text-warning-foreground';
   }
 };
 

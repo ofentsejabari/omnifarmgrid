@@ -1,229 +1,187 @@
-<section class="flex flex-col gap-6">
-  <a routerLink="/flock" hlmBtn variant="link" size="sm" class="text-muted-foreground h-auto px-0">
-    <ng-icon name="lucideArrowLeft" />
-    Animals
-  </a>
+<section class="fma-page">
+  <a routerLink="/animals" class="fma-back"
+    ><ng-icon name="lucideArrowLeft" />Animals</a
+  >
 
   @if (animal(); as current) {
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex min-w-0 items-start gap-3">
-        <span
-          class="flex size-12 shrink-0 items-center justify-center rounded-full"
-          [class]="avatarClass(current.species)"
-        >
-          <ng-icon
-            [name]="vocabulary(current.species).icon"
-            [class]="iconClass(current.species)"
-            size="24"
-          />
-        </span>
+    <header class="fma-page-header">
+      <div class="flex min-w-0 items-center gap-4">
+        <app-species-avatar [species]="current.species" size="lg" />
         <div class="min-w-0">
-          <h1 class="text-2xl font-semibold tracking-tight">{{ label(current) }}</h1>
-          <p class="text-muted-foreground text-sm">
-            {{ sexLabel(current.species, current.sex) }} · {{ kraalName(current.kraalId) }}
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="fma-title truncate">{{ label(current) }}</h1>
+            <span hlmBadge [class]="statusClass(current.status)">{{
+              statusLabel(current.status)
+            }}</span>
+          </div>
+          <p class="fma-subtitle">
+            {{ sexLabel(current) }} · {{ kraalName(current.kraalId) }}
           </p>
         </div>
       </div>
-      <a [routerLink]="['/flock', current.$id, 'edit']" hlmBtn variant="ghost" size="sm">
-        <ng-icon name="lucidePencil" />
-        Edit
-      </a>
-    </div>
-
-    <div class="flex flex-wrap gap-1.5">
-      <span hlmBadge [class]="badgeClass(current.species)">{{ vocabulary(current.species).noun }}</span>
-      <span hlmBadge [class]="statusClass(current.status)">{{ statusLabel(current.status) }}</span>
-    </div>
-
-    <hlm-card>
-      <div hlmCardContent>
-        <dl class="divide-border flex flex-col divide-y text-sm">
-          @if (current.breed) {
-            <div class="flex items-baseline justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
-              <dt class="text-muted-foreground">Breed</dt>
-              <dd class="text-right font-medium">{{ current.breed }}</dd>
-            </div>
-          }
-          @if (current.dateOfBirth) {
-            <div class="flex items-baseline justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
-              <dt class="text-muted-foreground">Born</dt>
-              <dd class="text-right font-medium">
-                {{ current.dateOfBirth }}
-                @if (current.birthDateEstimated) {
-                  <span class="text-muted-foreground font-normal"> (estimated)</span>
-                }
-              </dd>
-            </div>
-          }
-          @if (dam(); as dam) {
-            <div class="flex items-baseline justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
-              <dt class="text-muted-foreground">Dam</dt>
-              <dd class="text-right">
-                <a
-                  class="text-primary font-medium underline-offset-4 hover:underline"
-                  [routerLink]="['/flock', dam.$id]"
-                >
-                  {{ label(dam) }}
-                </a>
-              </dd>
-            </div>
-          }
-          <div class="flex items-baseline justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
-            <dt class="text-muted-foreground">{{ vocabulary(current.species).location }}</dt>
-            <dd class="text-right font-medium">{{ kraalName(current.kraalId) }}</dd>
-          </div>
-          @if (current.notes) {
-            <div class="flex flex-col gap-1 py-2.5 first:pt-0 last:pb-0">
-              <dt class="text-muted-foreground">Notes</dt>
-              <dd>{{ current.notes }}</dd>
-            </div>
-          }
-        </dl>
-      </div>
-    </hlm-card>
-
-    @if (current.status === 'alive') {
-      <div class="grid gap-2" [class.grid-cols-2]="current.sex === 'female'">
-        <a
-          [routerLink]="['/deaths/new']"
-          [queryParams]="{ animalId: current.$id }"
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
           hlmBtn
           variant="outline"
-          size="sm"
+          (click)="modal.open('animal', { id: current.$id })"
         >
-          <ng-icon name="lucideHeartOff" />
-          Record death
-        </a>
-        @if (current.sex === 'female') {
-          <a
-            [routerLink]="['/births/new']"
-            [queryParams]="{ damId: current.$id }"
+          <ng-icon name="lucidePencil" />
+          Edit
+        </button>
+        @if (current.status === 'alive') {
+          @if (current.sex === 'female') {
+            <button
+              type="button"
+              hlmBtn
+              variant="outline"
+              (click)="modal.open('birth', { damId: current.$id })"
+            >
+              <ng-icon name="lucideBaby" />
+              {{ words().birthVerb }}
+            </button>
+          }
+          <button
+            type="button"
             hlmBtn
             variant="outline"
-            size="sm"
+            (click)="modal.open('death', { animalId: current.$id })"
           >
-            <ng-icon name="lucideBaby" />
-            {{ vocabulary(current.species).birthVerb }}
-          </a>
+            <ng-icon name="lucideHeartOff" />
+            Record death
+          </button>
+        }
+      </div>
+    </header>
+
+    <div class="grid gap-3 lg:grid-cols-5">
+      <div class="flex flex-col gap-3 lg:col-span-2">
+        <div class="fma-panel p-5">
+          <h2 class="fma-section-title mb-3">Details</h2>
+          <dl class="divide-border flex flex-col divide-y text-sm">
+            @for (row of details(); track row.label) {
+              <div
+                class="flex justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
+              >
+                <dt class="text-muted-foreground">{{ row.label }}</dt>
+                <dd class="text-end font-medium">
+                  @if (row.link) {
+                    <a
+                      class="text-primary hover:underline"
+                      [routerLink]="row.link"
+                      >{{ row.value }}</a
+                    >
+                  } @else {
+                    {{ row.value }}
+                  }
+                </dd>
+              </div>
+            }
+          </dl>
+          @if (current.notes) {
+            <p class="bg-muted/60 mt-4 rounded-lg p-3 text-sm">
+              {{ current.notes }}
+            </p>
+          }
+        </div>
+
+        @if (current.status === 'alive' && moveOptions().length) {
+          <div class="fma-panel flex flex-col gap-3 p-5">
+            <h2 class="fma-section-title">
+              Move to another {{ words().location }}
+            </h2>
+            @if (moveError()) {
+              <p class="fma-error">{{ moveError() }}</p>
+            }
+            <div class="flex gap-2">
+              <app-select
+                class="grow"
+                [value]="moveTo()"
+                (valueChange)="moveTo.set($event)"
+                [options]="moveSelectOptions()"
+                ariaLabel="New kraal"
+              />
+              <button
+                type="button"
+                hlmBtn
+                [disabled]="!moveTo()"
+                (click)="move()"
+              >
+                Move
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (offspring().length) {
+          <div class="fma-panel p-5">
+            <h2 class="fma-section-title mb-2">
+              Offspring ({{ offspring().length }})
+            </h2>
+            <ul class="-mx-2 flex flex-col">
+              @for (young of offspring(); track young.$id) {
+                <li>
+                  <a
+                    [routerLink]="['/animals', young.$id]"
+                    class="hover:bg-muted flex items-center justify-between rounded-lg px-2 py-2 text-sm"
+                  >
+                    {{ label(young) }}
+                    <ng-icon
+                      name="lucideChevronRight"
+                      size="16"
+                      class="text-muted-foreground"
+                    />
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
         }
       </div>
 
-      <hlm-card>
-        <div hlmCardHeader>
-          <h2 hlmCardTitle>Move to another {{ vocabulary(current.species).location }}</h2>
-        </div>
-        <div hlmCardContent class="flex flex-col gap-3">
-          @if (moveError()) {
-            <hlm-alert class="bg-warning/30 text-warning-foreground">
-              <ng-icon name="lucideTriangleAlert" />
-              <div hlmAlertDescription>{{ moveError() }}</div>
-            </hlm-alert>
-          }
-          <hlm-select class="w-full" [ngModel]="moveKraalId()" (ngModelChange)="moveKraalId.set($event ?? '')" name="moveKraal">
-            <hlm-select-trigger class="w-full">
-              <hlm-select-value placeholder="Choose {{ vocabulary(current.species).location }}" />
-            </hlm-select-trigger>
-            <hlm-select-content *hlmSelectPortal>
-              @for (kraal of matchingKraals(); track kraal.$id) {
-                @if (kraal.$id !== current.kraalId) {
-                  <hlm-select-item [value]="kraal.$id">{{ kraal.name }}</hlm-select-item>
-                }
-              }
-            </hlm-select-content>
-          </hlm-select>
-          <button type="button" hlmBtn (click)="move()">
-            <ng-icon name="lucideMoveHorizontal" />
-            Move {{ vocabulary(current.species).noun }}
-          </button>
-        </div>
-      </hlm-card>
-    }
-
-    @if (offspring().length) {
-      <hlm-card>
-        <div hlmCardHeader>
-          <h2 hlmCardTitle>Offspring</h2>
-        </div>
-        <div hlmCardContent>
-          <ul class="divide-border flex flex-col divide-y">
-            @for (young of offspring(); track young.$id) {
-              <li>
-                <a
-                  [routerLink]="['/flock', young.$id]"
-                  class="hover:bg-muted/40 -mx-1 flex items-center justify-between gap-2 rounded-lg px-1 py-2
-                    transition-colors"
-                >
-                  <span class="font-medium">{{ label(young) }}</span>
-                  <ng-icon name="lucideChevronRight" class="text-muted-foreground" size="16" />
-                </a>
-              </li>
-            }
-          </ul>
-        </div>
-      </hlm-card>
-    }
-
-    <hlm-card>
-      <div hlmCardHeader>
-        <h2 hlmCardTitle>History</h2>
-      </div>
-      <div hlmCardContent>
+      <div class="fma-panel p-5 lg:col-span-3">
+        <h2 class="fma-section-title mb-4">History</h2>
         @if (history().length === 0) {
-          <p class="text-muted-foreground py-4 text-center text-sm">No events recorded yet.</p>
+          <p class="text-muted-foreground py-8 text-center text-sm">
+            Nothing recorded for this animal yet.
+          </p>
         } @else {
-          <ul class="flex flex-col gap-0">
-            @for (event of history(); track event.$id) {
+          <ol class="flex flex-col">
+            @for (event of history(); track event.$id; let last = $last) {
               <li class="flex gap-3">
                 <div class="flex flex-col items-center">
                   <span
-                    class="bg-muted flex size-8 shrink-0 items-center justify-center rounded-full"
+                    class="bg-muted text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-lg"
                   >
-                    <ng-icon
-                      [name]="eventIcon(event.type)"
-                      class="text-muted-foreground"
-                      size="14"
-                    />
+                    <ng-icon [name]="eventIcon(event.type)" size="15" />
                   </span>
-                  @if (!$last) {
-                    <span class="bg-border w-px grow"></span>
+                  @if (!last) {
+                    <span class="bg-border my-1 w-px grow"></span>
                   }
                 </div>
-                <div class="min-w-0 pb-4">
-                  <p class="font-medium">{{ eventLabel(event.type) }}</p>
-                  <p class="text-muted-foreground text-sm">
-                    {{ event.date }}
-                    @if (event.type === 'death') {
-                      · {{ deathLabel(event.reason, current.species) }}
-                    }
-                    @if (event.type === 'treatment') {
-                      · {{ productName(event.productId) }}
-                    }
-                    @if (event.type === 'move') {
-                      · {{ kraalName(event.fromKraalId) }} → {{ kraalName(event.toKraalId) }}
-                    }
-                    @if (event.type === 'birth') {
-                      · {{ event.kidIds.length }}
-                      {{
-                        event.kidIds.length === 1
-                          ? vocabulary(current.species).young
-                          : vocabulary(current.species).youngPlural
-                      }}
-                    }
+                <div class="min-w-0 pb-5">
+                  <p class="text-sm font-medium">
+                    {{ eventLabel(event.type) }}
                   </p>
+                  <p class="text-muted-foreground text-xs">
+                    {{ when(event.date) }} · {{ eventDetail(event) }}
+                  </p>
+                  @if (event.notes) {
+                    <p class="mt-1 text-sm">{{ event.notes }}</p>
+                  }
                 </div>
               </li>
             }
-          </ul>
+          </ol>
         }
       </div>
-    </hlm-card>
-  } @else {
-    <div class="fma-empty">
-      <span class="fma-empty-icon">
-        <ng-icon name="lucideInbox" size="24" />
-      </span>
-      <p class="font-medium">Animal not found</p>
-      <a routerLink="/flock" hlmBtn size="sm" variant="outline">Back to animals</a>
     </div>
+  } @else if (animalStore.herd().length) {
+    <div class="fma-empty">
+      <p class="font-medium">Animal not found</p>
+      <a routerLink="/animals" hlmBtn variant="outline">Back to animals</a>
+    </div>
+  } @else {
+    <div class="fma-skeleton h-64"></div>
   }
 </section>

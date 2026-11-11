@@ -1,151 +1,141 @@
-<section class="flex flex-col gap-6">
-  <div class="flex items-start justify-between gap-3">
-    <div class="min-w-0">
-      <h1 class="text-2xl font-semibold tracking-tight">{{ heading() }}</h1>
-      <p class="text-muted-foreground mt-1 text-sm leading-relaxed">
-        {{ animals().length }}
-        {{ animals().length === 1 ? 'animal' : 'animals' }}
-        @if (animalStore.filters.status() === 'alive') {
-          alive
-        }
+<section class="fma-page">
+  <header class="fma-page-header">
+    <div>
+      <h1 class="fma-title">{{ heading() }}</h1>
+      <p class="fma-subtitle">
+        {{ animals().length }} {{ animals().length === 1 ? 'animal' : 'animals'
+        }}{{ showInactive() ? '' : ' alive' }}
       </p>
     </div>
-    <a routerLink="/flock/new" hlmBtn>
+    <button type="button" hlmBtn (click)="add()">
       <ng-icon name="lucidePlus" />
       {{ addLabel() }}
-    </a>
-  </div>
+    </button>
+  </header>
 
-  <div class="bg-card/80 ring-foreground/10 flex flex-col gap-3 rounded-2xl p-3 shadow-sm ring-1">
-    <div class="relative">
+  <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+    <div class="relative grow">
       <ng-icon
         name="lucideSearch"
         size="16"
-        class="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 z-10 -translate-y-1/2"
+        class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
       />
       <input
         hlmInput
-        class="ps-8"
-        placeholder="Search name or tag"
-        [ngModel]="animalStore.filters.name()"
-        (ngModelChange)="onNameChange($event)"
-        name="search"
+        class="ps-9"
+        type="search"
+        placeholder="Search by name or tag"
+        aria-label="Search animals"
+        [value]="animalStore.filters.name()"
+        (input)="search($any($event.target).value)"
       />
     </div>
-
-    <div class="grid grid-cols-2 gap-2">
-      <hlm-select
-        class="w-full"
-        [ngModel]="animalStore.filters.kraalId() ?? ''"
-        (ngModelChange)="onKraalFilter($event)"
-        name="kraal"
-      >
-        <hlm-select-trigger class="w-full">
-          <hlm-select-value [placeholder]="locationFilterLabel()" />
-        </hlm-select-trigger>
-        <hlm-select-content *hlmSelectPortal>
-          <hlm-select-item value="">{{ locationFilterLabel() }}</hlm-select-item>
-          @for (kraal of visibleKraals(); track kraal.$id) {
-            <hlm-select-item [value]="kraal.$id">{{ kraal.name }}</hlm-select-item>
-          }
-        </hlm-select-content>
-      </hlm-select>
-      <hlm-select
-        class="w-full"
-        [ngModel]="animalStore.filters.sex() ?? ''"
-        (ngModelChange)="onSexFilter($event)"
-        name="sex"
-      >
-        <hlm-select-trigger class="w-full">
-          <hlm-select-value placeholder="All sexes" />
-        </hlm-select-trigger>
-        <hlm-select-content *hlmSelectPortal>
-          <hlm-select-item value="">All sexes</hlm-select-item>
-          @for (sex of sexes; track sex) {
-            <hlm-select-item [value]="sex">
-              {{ sex === 'wether' ? 'Castrated' : sex }}
-            </hlm-select-item>
-          }
-        </hlm-select-content>
-      </hlm-select>
+    <div class="grid grid-cols-2 gap-2 sm:flex">
+      <app-select
+        class="sm:w-48"
+        [value]="animalStore.filters.kraalId() ?? ''"
+        (valueChange)="filterKraal($event)"
+        [options]="kraalOptions()"
+        placeholder="All kraals"
+        ariaLabel="Kraal"
+      />
+      <app-select
+        class="sm:w-40"
+        [value]="animalStore.filters.sex() ?? ''"
+        (valueChange)="filterSex($event)"
+        [options]="sexOptions"
+        placeholder="Any sex"
+        ariaLabel="Sex"
+      />
     </div>
-
-    <div hlmField orientation="horizontal" class="px-1 py-0.5">
+    <label
+      class="text-muted-foreground flex items-center gap-2 px-1 text-sm whitespace-nowrap"
+    >
       <hlm-checkbox
-        [ngModel]="animalStore.filters.status() !== 'alive'"
-        (ngModelChange)="onShowInactive($event)"
-        name="inactive"
+        [checked]="showInactive()"
+        (checkedChange)="setShowInactive($event)"
       />
-      <label hlmFieldLabel>Show dead, sold, and culled</label>
-    </div>
+      Include sold &amp; dead
+    </label>
   </div>
 
-  @if (animalStore.isLoading()) {
-    <div class="flex flex-col gap-2">
-      @for (slot of skeletonSlots; track slot) {
-        <div class="bg-muted/80 h-16 animate-pulse rounded-xl"></div>
-      }
-    </div>
+  @if (animalStore.isLoading() && animals().length === 0) {
+    <div class="fma-skeleton h-72"></div>
   } @else if (animals().length === 0) {
     <div class="fma-empty">
-      <span class="fma-empty-icon">
-        <ng-icon name="lucideInbox" size="24" />
-      </span>
-      <div class="space-y-1">
-        <p class="font-medium">{{ emptyTitle() }}</p>
-        <p class="text-muted-foreground text-sm">{{ emptyHint() }}</p>
+      <span class="fma-empty-icon"
+        ><ng-icon name="lucidePawPrint" size="22"
+      /></span>
+      <div>
+        <p class="font-medium">
+          {{ hasFilters() ? 'No matches' : 'No animals yet' }}
+        </p>
+        <p class="text-muted-foreground text-sm">
+          {{
+            hasFilters()
+              ? 'Try another name, kraal or sex.'
+              : 'Add the first animal to start the herd record.'
+          }}
+        </p>
       </div>
       @if (!hasFilters()) {
-        <a routerLink="/flock/new" hlmBtn size="sm">
-          <ng-icon name="lucidePlus" />
-          {{ addLabel() }}
-        </a>
+        <button type="button" hlmBtn (click)="add()">
+          <ng-icon name="lucidePlus" />{{ addLabel() }}
+        </button>
       }
     </div>
   } @else {
-    <ul class="flex flex-col gap-2">
+    <div class="fma-list">
+      <div
+        class="text-muted-foreground bg-muted/50 hidden grid-cols-[2.5fr_1fr_1.5fr_1fr_1.25rem] gap-4 px-4 py-2 text-xs font-medium md:grid"
+      >
+        <span>Animal</span><span>Sex</span><span>Kraal</span><span>Breed</span
+        ><span></span>
+      </div>
       @for (animal of animals(); track animal.$id) {
-        <li>
-          <a
-            [routerLink]="['/flock', animal.$id]"
-            hlmCard
-            size="sm"
-            class="fma-list-card block"
-          >
-            <div hlmCardContent class="flex items-center gap-3">
+        <a
+          [routerLink]="['/animals', animal.$id]"
+          class="fma-row md:grid md:grid-cols-[2.5fr_1fr_1.5fr_1fr_1.25rem] md:gap-4"
+        >
+          <span class="flex min-w-0 grow items-center gap-3">
+            <app-species-avatar [species]="animal.species" size="sm" />
+            <span class="min-w-0">
+              <span class="flex items-center gap-2">
+                <span class="truncate text-sm font-medium">{{
+                  label(animal)
+                }}</span>
+                @if (animal.status !== 'alive') {
+                  <span hlmBadge [class]="statusClass(animal.status)">{{
+                    statusLabel(animal.status)
+                  }}</span>
+                }
+              </span>
               <span
-                class="flex size-11 shrink-0 items-center justify-center rounded-full"
-                [class]="avatarClass(animal.species)"
+                class="text-muted-foreground block truncate text-xs md:hidden"
               >
-                <ng-icon
-                  [name]="vocabulary(animal.species).icon"
-                  [class]="iconClass(animal.species)"
-                  size="22"
-                />
+                {{ sexLabel(animal.species, animal.sex) }} ·
+                {{ kraalName(animal.kraalId) }}
               </span>
-              <div class="min-w-0 grow">
-                <div class="flex items-center gap-2">
-                  <span class="truncate font-medium">{{ label(animal) }}</span>
-                  @if (animal.status !== 'alive') {
-                    <span hlmBadge [class]="statusClass(animal.status)">
-                      {{ statusLabel(animal.status) }}
-                    </span>
-                  }
-                </div>
-                <p class="text-muted-foreground truncate text-sm">
-                  {{ sexLabel(animal.species, animal.sex) }}
-                  ·
-                  {{ kraalName(animal.kraalId) }}
-                </p>
-              </div>
-              <span hlmBadge [class]="badgeClass(animal.species)">
-                {{ vocabulary(animal.species).noun }}
-              </span>
-              <ng-icon name="lucideChevronRight" class="text-muted-foreground shrink-0" size="16" />
-            </div>
-          </a>
-        </li>
+            </span>
+          </span>
+          <span class="hidden text-sm md:block">{{
+            sexLabel(animal.species, animal.sex)
+          }}</span>
+          <span
+            class="text-muted-foreground hidden truncate text-sm md:block"
+            >{{ kraalName(animal.kraalId) }}</span
+          >
+          <span
+            class="text-muted-foreground hidden truncate text-sm md:block"
+            >{{ animal.breed || '—' }}</span
+          >
+          <ng-icon
+            name="lucideChevronRight"
+            size="16"
+            class="text-muted-foreground shrink-0"
+          />
+        </a>
       }
-    </ul>
+    </div>
   }
 </section>

@@ -1,59 +1,65 @@
-<section class="flex flex-col gap-6">
-  <a routerLink="/" hlmBtn variant="link" size="sm" class="text-muted-foreground h-auto px-0">
-    <ng-icon name="lucideArrowLeft" />
-    Home
-  </a>
-  <div>
-    <h1 class="text-2xl font-semibold tracking-tight">Record death</h1>
-    <p class="text-muted-foreground mt-1 text-sm leading-relaxed">
-      Mark an animal dead or culled and keep the reason.
+<form class="fma-modal" [formGroup]="form" (ngSubmit)="save()">
+  <header class="fma-modal-header">
+    <h2 class="fma-modal-title">Record a death</h2>
+    <p class="fma-modal-desc">
+      The animal is marked dead (or culled, for slaughter) and kept in its
+      history.
     </p>
+  </header>
+
+  <div class="fma-modal-body">
+    @if (error()) {
+      <p class="fma-error" role="alert">
+        <ng-icon name="lucideTriangleAlert" size="16" class="mt-0.5 shrink-0" />
+        {{ error() }}
+      </p>
+    }
+
+    <div hlmField>
+      <label hlmFieldLabel for="death-animal">Animal</label>
+      <app-select
+        inputId="death-animal"
+        formControlName="animalId"
+        [options]="animalOptions()"
+        placeholder="Choose an animal…"
+        emptyText="No living animals"
+      />
+    </div>
+
+    <div class="fma-field-row">
+      <div hlmField>
+        <label hlmFieldLabel for="death-reason">Reason</label>
+        <app-select
+          inputId="death-reason"
+          formControlName="reason"
+          [options]="reasonOptions()"
+        />
+      </div>
+      <div hlmField>
+        <label hlmFieldLabel for="death-date">Date</label>
+        <app-date-field inputId="death-date" formControlName="date" />
+      </div>
+    </div>
+
+    <div hlmField>
+      <label hlmFieldLabel for="death-notes"
+        >Notes <span class="fma-optional">(optional)</span></label
+      >
+      <textarea
+        id="death-notes"
+        hlmTextarea
+        formControlName="notes"
+        placeholder="What did you notice?"
+      ></textarea>
+    </div>
   </div>
 
-  @if (error()) {
-    <hlm-alert class="bg-warning/30 text-warning-foreground">
-      <ng-icon name="lucideTriangleAlert" />
-      <div hlmAlertDescription>{{ error() }}</div>
-    </hlm-alert>
-  }
-
-  <form hlmCard [formGroup]="form" (ngSubmit)="save()">
-    <div hlmCardContent class="flex flex-col gap-3">
-      <div hlmField>
-        <label hlmFieldLabel>Animal</label>
-        <hlm-select class="w-full" formControlName="animalId">
-          <hlm-select-trigger class="w-full">
-            <hlm-select-value placeholder="Select animal" />
-          </hlm-select-trigger>
-          <hlm-select-content *hlmSelectPortal>
-            @for (animal of animals(); track animal.$id) {
-              <hlm-select-item [value]="animal.$id">{{ label(animal) }}</hlm-select-item>
-            }
-          </hlm-select-content>
-        </hlm-select>
-      </div>
-      <div hlmField>
-        <label hlmFieldLabel>Date</label>
-        <input hlmInput type="date" formControlName="date" />
-      </div>
-      <div hlmField>
-        <label hlmFieldLabel>Reason</label>
-        <hlm-select class="w-full" formControlName="reason">
-          <hlm-select-trigger class="w-full">
-            <hlm-select-value placeholder="Select reason" />
-          </hlm-select-trigger>
-          <hlm-select-content *hlmSelectPortal>
-            @for (reason of reasons; track reason) {
-              <hlm-select-item [value]="reason">{{ reasonLabel(reason) }}</hlm-select-item>
-            }
-          </hlm-select-content>
-        </hlm-select>
-      </div>
-      <div hlmField>
-        <label hlmFieldLabel>Notes</label>
-        <textarea hlmTextarea formControlName="notes"></textarea>
-      </div>
-      <button type="submit" hlmBtn>Save death</button>
-    </div>
-  </form>
-</section>
+  <footer class="fma-modal-footer">
+    <button type="button" hlmBtn variant="outline" (click)="modal.close()">
+      Cancel
+    </button>
+    <button type="submit" hlmBtn [disabled]="saving()">
+      {{ saving() ? 'Saving…' : 'Save' }}
+    </button>
+  </footer>
+</form>

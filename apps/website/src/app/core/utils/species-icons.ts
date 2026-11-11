@@ -1,21 +1,67 @@
-/** Livestock marks for ng-icons. Adapted from Griddy Icons (MIT). Fill follows `currentColor`. */
-
-export const speciesGoat =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd">' +
-  '<path d="M8.5 3.75v.917A4.76 4.76 0 0 0 5 9.25v3.345c0 1.27.495 2.46 1.39 3.36l1.11 1.11v.44a4.5 4.5 0 0 0 3.75 4.43v-2.12l-1.28-1.28 1.06-1.06.97.97.97-.97 1.06 1.06-1.28 1.28v2.12a4.5 4.5 0 0 0 3.75-4.43v-.44l1.11-1.11a4.72 4.72 0 0 0 1.39-3.36V9.25a4.76 4.76 0 0 0-3.5-4.583V3.75c0-.69.56-1.25 1.25-1.25H18V1h-1.25A2.755 2.755 0 0 0 14 3.75v.75h-4v-.75A2.755 2.755 0 0 0 7.25 1H6v1.5h1.25c.69 0 1.25.56 1.25 1.25m0 9.75c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1m7 0c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1m4.5-4v3.095c0 .135-.01.27-.02.405h.27A2.755 2.755 0 0 0 23 10.25V9.5zm-19 0h3v3.095c0 .135.01.27.02.405h-.27A2.755 2.755 0 0 1 1 10.25z" clip-rule="evenodd"/>' +
+/**
+ * Livestock icons for ng-icons: friendly two-tone heads on a 24×24 grid.
+ * Outlines and eyes use `currentColor`; faces are a light tint of it, so the icon follows the
+ * text colour it sits in (see speciesAvatarClass). Stroke width follows ng-icon's `strokeWidth`.
+ */
+const svg = (body: string): string =>
+  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" ' +
+  'stroke="currentColor" stroke-width="var(--ng-icon__stroke-width, 1.6)" stroke-linecap="round" stroke-linejoin="round">' +
+  body +
   '</svg>';
 
-export const speciesSheep =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">' +
-  '<path d="m22.63 16.08-1.545-4.38c.57-.66.915-1.51.915-2.445 0-1.42-.805-2.705-2.045-3.335A3.97 3.97 0 0 0 16 2.505c-.475 0-.94.085-1.38.245a5.05 5.05 0 0 0-5.245 0 3.9 3.9 0 0 0-1.38-.245A3.97 3.97 0 0 0 4.04 5.92a3.76 3.76 0 0 0-2.045 3.335c0 .935.345 1.79.915 2.445l-1.545 4.38c-.155.445-.055.935.27 1.275.24.255.565.39.905.39q.181.001.355-.05l3.015-.885.37 1.55A4.735 4.735 0 0 0 10.9 22h.345v-1.94l-1.28-1.28 1.06-1.06.97.97.97-.97 1.06 1.06-1.28 1.28V22h.345a4.74 4.74 0 0 0 4.62-3.64l.37-1.55 3.015.885a1.24 1.24 0 0 0 1.26-.34c.325-.34.43-.83.27-1.275zm-19.685.04 1.225-3.47c.255.12.525.215.81.275l.585 2.43-2.615.77zM9 15.005c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1m6 0c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1m1.36-4.55-.38-.6-.62.345c-.93.52-2.125.805-3.365.805S9.56 10.72 8.63 10.2l-.62-.345-.38.6a2.23 2.23 0 0 1-1.89 1.05c-1.24 0-2.25-1.01-2.25-2.25 0-.95.605-1.805 1.505-2.12l.49-.17.01-.52a2.48 2.48 0 0 1 2.495-2.44c.39 0 .77.09 1.12.27l.415.21.37-.28a3.53 3.53 0 0 1 4.185 0l.37.28.415-.21q.534-.27 1.12-.27c1.37 0 2.465 1.07 2.495 2.44l.01.52.49.17c.9.315 1.505 1.17 1.505 2.12 0 1.24-1.01 2.25-2.25 2.25-.765 0-1.47-.395-1.89-1.05zm2.075 4.9.585-2.43c.285-.06.555-.155.81-.275l1.225 3.47-2.615-.77z"/>' +
-  '</svg>';
+/** Goat: swept-back horns, long face, little beard. */
+export const speciesGoat = svg(
+  '<path d="M8.6 6.6C7.4 4 5.6 2.8 3.5 3c1.6 1 2.4 2.6 2.8 4.6" />' +
+    '<path d="M15.4 6.6C16.6 4 18.4 2.8 20.5 3c-1.6 1-2.4 2.6-2.8 4.6"/>' +
+    '<path fill="currentColor" fill-opacity=".18" d="M7.9 9.6 3.6 9.2c.4 2 2.2 3.1 4.6 2.6Z"/>' +
+    '<path fill="currentColor" fill-opacity=".18" d="M16.1 9.6l4.3-.4c-.4 2-2.2 3.1-4.6 2.6Z"/>' +
+    '<path fill="currentColor" fill-opacity=".18" d="M8 7.5c1-.6 2.4-.9 4-.9s3 .3 4 .9c.7 2.2.6 4.6-.2 6.8L14.3 18c-.6 1.1-1.3 1.6-2.3 1.6s-1.7-.5-2.3-1.6l-1.5-3.7C7.4 12.1 7.3 9.7 8 7.5Z"/>' +
+    '<path d="M11 19.4c-.2 1.2.2 2.1 1 2.1s1.2-.9 1-2.1"/>' +
+    '<path d="M10.6 16.6c.9.5 1.9.5 2.8 0"/>' +
+    '<circle fill="currentColor" fill-opacity=".35" stroke="none" cx="9.3" cy="13.6" r=".85"/>' +
+    '<circle fill="currentColor" fill-opacity=".35" stroke="none" cx="14.7" cy="13.6" r=".85"/>' +
+    '<circle fill="currentColor" stroke="none" cx="10" cy="11.2" r=".9"/>' +
+    '<circle fill="currentColor" stroke="none" cx="14" cy="11.2" r=".9"/>',
+);
 
-export const speciesPig =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd">' +
-  '<path d="M20.515 7.19c.79 1.395 1.315 3 1.48 4.74.3 3.13-.34 5.585-1.89 7.29C18.43 21.065 15.7 22 12 22s-6.43-.935-8.105-2.78c-1.555-1.705-2.19-4.16-1.89-7.29.165-1.74.69-3.345 1.48-4.74A2.76 2.76 0 0 1 2 4.75V2h2.92a2.73 2.73 0 0 1 1.945.805l.465.465A9.3 9.3 0 0 1 12 2c1.685 0 3.27.46 4.67 1.27l.465-.465A2.73 2.73 0 0 1 19.08 2H22v2.75c0 1.06-.605 1.98-1.485 2.44M3.5 4.75c0 .545.345 1 .83 1.175V5.92a10.5 10.5 0 0 1 1.74-1.79l-.265-.265A1.27 1.27 0 0 0 4.92 3.5H3.5zM7.75 8a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5m-.25 7c0 1.93 2.02 3.5 4.5 3.5s4.5-1.57 4.5-3.5-2.02-3.5-4.5-3.5-4.5 1.57-4.5 3.5M15 9.25a1.25 1.25 0 1 0 2.5 0 1.25 1.25 0 0 0-2.5 0m3.195-5.385-.265.265-.005.005c.645.515 1.225 1.12 1.74 1.79.485-.175.835-.635.835-1.175V3.5h-1.42c-.335 0-.65.13-.885.365M10.5 16a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2" clip-rule="evenodd"/>' +
-  '</svg>';
+/** Sheep: woolly crown, floppy ears, narrow face. */
+export const speciesSheep = svg(
+  '<path fill="currentColor" fill-opacity=".18" d="M7 9.3c-1.6-.4-2.4-1.8-1.9-3.2.4-1.2 1.6-1.8 2.8-1.6.4-1.4 1.6-2.2 2.9-2.2.5 0 .9.1 1.2.3.3-.2.7-.3 1.2-.3 1.3 0 2.5.8 2.9 2.2 1.2-.2 2.4.4 2.8 1.6.5 1.4-.3 2.8-1.9 3.2"/>' +
+    '<path fill="currentColor" fill-opacity=".18" d="M7.4 9.6 3.4 10.4c.3 1.6 1.9 2.5 3.9 2.1Z"/>' +
+    '<path fill="currentColor" fill-opacity=".18" d="M16.6 9.6l4 .8c-.3 1.6-1.9 2.5-3.9 2.1Z"/>' +
+    '<path fill="currentColor" fill-opacity=".18" d="M7.6 9.2c-.4 4 .6 7.8 2.6 10.2.5.6 1.1.9 1.8.9s1.3-.3 1.8-.9c2-2.4 3-6.2 2.6-10.2-1.2-.6-2.7-.9-4.4-.9s-3.2.3-4.4.9Z"/>' +
+    '<circle fill="currentColor" stroke="none" cx="10.3" cy="12.6" r=".9"/>' +
+    '<circle fill="currentColor" stroke="none" cx="13.7" cy="12.6" r=".9"/>' +
+    '<path d="M11 17.3c.6.4 1.4.4 2 0"/>' +
+    '<circle fill="currentColor" fill-opacity=".35" stroke="none" cx="9.4" cy="14.6" r=".9"/>' +
+    '<circle fill="currentColor" fill-opacity=".35" stroke="none" cx="14.6" cy="14.6" r=".9"/>',
+);
 
-export const speciesCow =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">' +
-  '<path d="M6.8 2.4c.55-1.05 1.9-1.55 3-.95L8.7 5.4 6.8 2.4zm10.4 0-1.9 3 1.1-3.95c1.1-.6 2.45-.1 3 .95zM5.4 8.55 7.1 5.4c.2-.85.9-1.5 1.8-1.65.25-.05.5 0 .75.1L10.4 6.5h3.2l.75-2.65c.25-.1.5-.15.75-.1.9.15 1.6.8 1.8 1.65l1.7 3.15A4.4 4.4 0 0 1 21 12.2v1.55c0 .97-.78 1.75-1.75 1.75h-.2c.12.7.2 1.42.2 2.15V20.5c0 .83-.67 1.5-1.5 1.5h-1.4c-.83 0-1.5-.67-1.5-1.5V19H9.15v1c0 .83-.67 1.5-1.5 1.5H6.25c-.83 0-1.5-.67-1.5-1.5v-2.85c0-.73.08-1.45.2-2.15h-.2C3.78 15.5 3 14.72 3 13.75v-1.55a4.4 4.4 0 0 1 2.4-3.95zM8.25 11.4a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5zm7.5 0a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5zM9.3 14.85h5.4c.4 0 .7.4.52.77-.6 1.18-1.95 2-3.22 2s-2.62-.82-3.22-2c-.18-.37.12-.77.52-.77z"/>' +
-  '</svg>';
+/** Pig: round face, pricked ears, big snout. */
+export const speciesPig = svg(
+  '<path fill="currentColor" fill-opacity=".18" d="M7.2 7.1 4.6 3.7l-.6 5.1"/>' +
+    '<path fill="currentColor" fill-opacity=".18" d="M16.8 7.1l2.6-3.4.6 5.1"/>' +
+    '<circle fill="currentColor" fill-opacity=".18" cx="12" cy="12.8" r="7.4"/>' +
+    '<ellipse fill="#fff" fill-opacity=".9" cx="12" cy="15.2" rx="3.3" ry="2.3"/>' +
+    '<circle fill="currentColor" stroke="none" cx="10.8" cy="15.2" r=".65"/>' +
+    '<circle fill="currentColor" stroke="none" cx="13.2" cy="15.2" r=".65"/>' +
+    '<circle fill="currentColor" stroke="none" cx="9.2" cy="11" r=".9"/>' +
+    '<circle fill="currentColor" stroke="none" cx="14.8" cy="11" r=".9"/>' +
+    '<circle fill="currentColor" fill-opacity=".35" stroke="none" cx="7.6" cy="13.6" r="1.1"/>' +
+    '<circle fill="currentColor" fill-opacity=".35" stroke="none" cx="16.4" cy="13.6" r="1.1"/>',
+);
+
+/** Cattle: curved horns, broad face, patch, muzzle. */
+export const speciesCow = svg(
+  '<path d="M7.6 7.4C5.4 7.6 3.8 6.1 3.6 3.6"/>' +
+    '<path d="M16.4 7.4c2.2.2 3.8-1.3 4-3.8"/>' +
+    '<path fill="currentColor" fill-opacity=".18" d="M7.4 9.2 3.4 10c.4 1.8 2 2.6 4.1 2.2Z"/>' +
+    '<path fill="currentColor" fill-opacity=".18" d="M16.6 9.2l4 .8c-.4 1.8-2 2.6-4.1 2.2Z"/>' +
+    '<path fill="currentColor" fill-opacity=".18" d="M7.6 7.2h8.8c.8 2.6.7 5.4-.2 7.9H7.8c-.9-2.5-1-5.3-.2-7.9Z"/>' +
+    '<path fill="currentColor" fill-opacity=".45" stroke="none" d="M12.6 7.2h3.8c.4 1.4.6 2.8.5 4.2-1.4.3-2.9-.2-3.7-1.4-.4-.8-.6-1.8-.6-2.8Z"/>' +
+    '<rect fill="#fff" fill-opacity=".9" x="7.1" y="14.6" width="9.8" height="6.4" rx="3.2"/>' +
+    '<circle fill="currentColor" stroke="none" cx="10.3" cy="17.8" r=".7"/>' +
+    '<circle fill="currentColor" stroke="none" cx="13.7" cy="17.8" r=".7"/>' +
+    '<circle fill="currentColor" stroke="none" cx="9.9" cy="11.3" r=".9"/>' +
+    '<circle fill="currentColor" stroke="none" cx="14.1" cy="11.3" r=".9"/>',
+);

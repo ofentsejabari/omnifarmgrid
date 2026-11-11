@@ -1,81 +1,114 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { animalLabel } from '../../core/models/animal';
-import { DEATH_REASONS, DeathReason, deathReasonLabel } from '../../core/models/event';
-import { speciesVocabulary } from '../../core/models/species';
+import {
+  DEATH_REASONS,
+  DeathReason,
+  deathReasonLabel,
+} from '../../core/models/event';
 import { AnimalStore } from '../../core/stores/animal.store';
 import { SpeciesFilterStore } from '../../core/stores/species-filter.store';
+import { ModalService } from '../../core/ui/modal.service';
+import { ToastService } from '../../core/ui/toast.service';
 import { todayIsoDate } from '../../core/utils/dates';
+import { DateFieldComponent } from '../../core/ui/date-field.component';
+import { SelectFieldComponent } from '../../core/ui/select-field.component';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
 
+/** Popup: record a death. Params: `animalId`, `kraalId` (limits the picker). */
 @Component({
   selector: 'fma-death-form',
-  imports: [ReactiveFormsModule, RouterLink, ...SpartanUiImports],
+  imports: [
+    ReactiveFormsModule,
+    SelectFieldComponent,
+    DateFieldComponent,
+    ...SpartanUiImports,
+  ],
   templateUrl: './death-form.component.html',
+  host: { class: 'fma-modal' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeathFormComponent {
-  private readonly formBuilder = inject(FormBuilder);
   private readonly animalStore = inject(AnimalStore);
-  private readonly speciesFilterStore = inject(SpeciesFilterStore);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  private readonly speciesFilter = inject(SpeciesFilterStore);
+  private readonly toast = inject(ToastService);
+  protected readonly modal = inject(ModalService);
 
-  protected readonly reasons = DEATH_REASONS;
-  protected readonly label = animalLabel;
-  protected readonly vocabulary = speciesVocabulary;
   protected readonly error = signal('');
-  protected readonly form;
-  protected readonly animalId;
-  protected readonly animals;
-  protected readonly selectedAnimal;
+  protected readonly saving = signal(false);
 
-  constructor() {
-    this.form = this.formBuilder.nonNullable.group({
-      animalId: [this.route.snapshot.queryParamMap.get('animalId') ?? '', Validators.required],
-      date: [todayIsoDate(), Validators.required],
-      reason: this.formBuilder.nonNullable.control<DeathReason>('unknown'),
-      notes: [''],
-    });
-    this.animalId = toSignal(this.form.controls.animalId.valueChanges, {
+  private readonly params = inject(ActivatedRoute).snapshot.paramMap;
+  private readonly kraalId = this.params.get('kraalId');
+  protected readonly form = inject(FormBuilder).nonNullable.group({
+    animalId: [this.params.get('animalId') ?? '', Validators.required],
+    date: [todayIsoDate(), Validators.required],
+    reason: ['unknown' as DeathReason],
+    notes: [''],
+  });
+
+  private readonly animalId = toSignal(
+    this.form.controls.animalId.valueChanges,
+    {
       initialValue: this.form.controls.animalId.value,
-    });
-    const kraalId = this.route.snapshot.queryParamMap.get('kraalId');
-    this.animals = computed(() =>
-      this.animalStore
-        .animals()
-        .filter(
-          (animal) =>
-            animal.status === 'alive' &&
-            this.speciesFilterStore.matches(animal.species) &&
-            (!kraalId || animal.kraalId === kraalId),
-        )
-        .sort((left, right) => left.tag.localeCompare(right.tag)),
-    );
-    this.selectedAnimal = computed(() =>
-      this.animalStore.animals().find((animal) => animal.$id === this.animalId()),
-    );
-  }
+    },
+  );
 
-  protected reasonLabel(reason: DeathReason): string {
-    return deathReasonLabel(reason, this.selectedAnimal()?.species);
-  }
+  protected readonly animals = computed(() =>
+    this.animalStore
+      .herd()
+      .filter(
+        (animal) =>
+          animal.status === 'alive' &&
+          this.speciesFilter.matches(animal.species) &&
+          (!this.kraalId || animal.kraalId === this.kraalId),
+      )
+      .sort((a, b) => a.tag.localeCompare(b.tag)),
+  );
+
+  private readonly species = computed(
+    () =>
+      this.animalStore.herd().find((animal) => animal.$id === this.animalId())
+        ?.species,
+  );
+
+  protected readonly animalOptions = computed(() =>
+    this.animals().map((animal) => ({
+      value: animal.$id,
+      label: animalLabel(animal),
+    })),
+  );
+  protected readonly reasonOptions = computed(() =>
+    DEATH_REASONS.map((reason) => ({
+      value: reason,
+      label: deathReasonLabel(reason, this.species()),
+    })),
+  );
 
   protected async save(): Promise<void> {
     this.error.set('');
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.error.set('Select the animal and a date.');
+      this.error.set('Choose the animal and a date.');
       return;
     }
-    const value = this.form.getRawValue();
+    const { animalId, date, reason, notes } = this.form.getRawValue();
+    this.saving.set(true);
     try {
-      await this.animalStore.recordDeath(value.animalId, value.date, value.reason, value.notes);
-      await this.router.navigate(['/flock', value.animalId]);
+      await this.animalStore.recordDeath(animalId, date, reason, notes);
+      this.toast.show('Death recorded');
+      await this.modal.close();
     } catch {
-      this.error.set('Could not record death.');
+      this.error.set('Could not record the death.');
+    } finally {
+      this.saving.set(false);
     }
   }
 }

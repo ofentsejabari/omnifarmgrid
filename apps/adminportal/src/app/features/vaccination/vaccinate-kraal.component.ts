@@ -1,141 +1,166 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { map } from 'rxjs';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { animalLabel } from '../../core/models/animal';
 import { EXCLUSION_REASONS } from '../../core/models/event';
 import { speciesVocabulary } from '../../core/models/species';
 import { AnimalStore } from '../../core/stores/animal.store';
 import { InventoryStore } from '../../core/stores/inventory.store';
 import { KraalStore } from '../../core/stores/kraal.store';
-import { InsufficientStockError } from '../../core/utils/errors';
 import { VaccinationStore } from '../../core/stores/vaccination.store';
+import { ModalService } from '../../core/ui/modal.service';
+import { ToastService } from '../../core/ui/toast.service';
 import { todayIsoDate } from '../../core/utils/dates';
+import { InsufficientStockError } from '../../core/utils/errors';
+import { DateFieldComponent } from '../../core/ui/date-field.component';
+import { SelectFieldComponent } from '../../core/ui/select-field.component';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
 
+/** Popup: vaccinate everyone in a kraal, minus the exceptions. Params: `kraalId`. */
 @Component({
   selector: 'fma-vaccinate-kraal',
-  imports: [FormsModule, RouterLink, ...SpartanUiImports],
+  imports: [SelectFieldComponent, DateFieldComponent, ...SpartanUiImports],
   templateUrl: './vaccinate-kraal.component.html',
+  host: { class: 'fma-modal' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaccinateKraalComponent {
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private readonly kraalStore = inject(KraalStore);
-  private readonly animalStore = inject(AnimalStore);
+  protected readonly kraalStore = inject(KraalStore);
   protected readonly inventoryStore = inject(InventoryStore);
+  private readonly animalStore = inject(AnimalStore);
   private readonly vaccinationStore = inject(VaccinationStore);
+  private readonly toast = inject(ToastService);
+  protected readonly modal = inject(ModalService);
 
-  private readonly kraalId = toSignal(
-    this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
-    {
-      initialValue: this.route.snapshot.paramMap.get('id') ?? '',
-    },
-  );
-  protected readonly exclusionReasons = EXCLUSION_REASONS;
+  protected readonly reasonOptions = EXCLUSION_REASONS.map((reason) => ({
+    value: reason,
+    label: reason.charAt(0).toUpperCase() + reason.slice(1),
+  }));
   protected readonly label = animalLabel;
-  protected readonly vocabulary = speciesVocabulary;
   protected readonly error = signal('');
+  protected readonly saving = signal(false);
+
+  protected readonly kraalId = signal(
+    inject(ActivatedRoute).snapshot.paramMap.get('kraalId') ?? '',
+  );
   protected readonly productId = signal('');
   protected readonly batchId = signal('');
   protected readonly date = signal(todayIsoDate());
-  protected readonly notes = signal('');
-  protected readonly selectedIds = signal<Set<string>>(new Set());
+  private readonly skipped = signal<Set<string>>(new Set());
   protected readonly reasons = signal<Record<string, string>>({});
-  protected readonly selectionReady = signal(false);
-  protected readonly kraal = computed(() =>
+
+  private readonly kraal = computed(() =>
     this.kraalStore.kraals().find((item) => item.$id === this.kraalId()),
+  );
+  protected readonly words = computed(() =>
+    speciesVocabulary(this.kraal()?.species ?? 'goat'),
   );
   protected readonly animals = computed(() =>
     this.animalStore
-      .animals()
-      .filter((animal) => animal.kraalId === this.kraalId() && animal.status === 'alive')
-      .sort((left, right) => left.tag.localeCompare(right.tag)),
+      .herd()
+      .filter(
+        (animal) =>
+          animal.kraalId === this.kraalId() && animal.status === 'alive',
+      )
+      .sort((a, b) => a.tag.localeCompare(b.tag)),
   );
-  protected readonly batches = computed(() => this.inventoryStore.usableBatches(this.productId()));
-  protected readonly treatedCount = computed(() => this.selectedIds().size);
+  protected readonly batches = computed(() =>
+    this.inventoryStore.usableBatches(this.productId()),
+  );
+  protected readonly treatedCount = computed(
+    () => this.animals().length - this.skipped().size,
+  );
+
+  protected readonly kraalOptions = computed(() =>
+    this.kraalStore
+      .kraals()
+      .map((kraal) => ({ value: kraal.$id, label: kraal.name })),
+  );
+  protected readonly productOptions = computed(() =>
+    this.inventoryStore
+      .products()
+      .map((product) => ({ value: product.$id, label: product.name })),
+  );
+  protected readonly batchOptions = computed(() =>
+    this.batches().map((batch) => ({
+      value: batch.$id,
+      label: `${batch.batchNumber || 'No batch no.'} · ${batch.quantityOnHand} left`,
+    })),
+  );
 
   constructor() {
+    // Pick the only usable batch automatically.
     effect(() => {
-      const animals = this.animals();
-      if (!this.selectionReady() && animals.length > 0) {
-        this.selectedIds.set(new Set(animals.map((animal) => animal.$id)));
-        this.selectionReady.set(true);
-      }
+      const batches = this.batches();
+      untracked(() =>
+        this.batchId.set(batches.length === 1 ? batches[0].$id : ''),
+      );
     });
   }
 
-  protected placeLabel(): string {
-    const kraal = this.kraal();
-    return kraal ? speciesVocabulary(kraal.species).location : 'kraal';
+  protected selectKraal(id: string): void {
+    this.kraalId.set(id);
+    this.skipped.set(new Set());
+    this.reasons.set({});
   }
 
   protected isSelected(animalId: string): boolean {
-    return this.selectedIds().has(animalId);
+    return !this.skipped().has(animalId);
   }
 
-  protected toggle(animalId: string, checked: boolean): void {
-    this.ensureSelection();
-    const next = new Set(this.selectedIds());
-    if (checked) {
-      next.add(animalId);
-    } else {
-      next.delete(animalId);
-    }
-    this.selectedIds.set(next);
+  protected toggle(animalId: string, included: boolean): void {
+    this.skipped.update((current) => {
+      const next = new Set(current);
+      if (included) {
+        next.delete(animalId);
+      } else {
+        next.add(animalId);
+      }
+      return next;
+    });
   }
 
   protected setReason(animalId: string, reason: string): void {
     this.reasons.update((current) => ({ ...current, [animalId]: reason }));
   }
 
-  protected reasonFor(animalId: string): string {
-    return this.reasons()[animalId] ?? '';
-  }
-
-  private ensureSelection(): void {
-    if (this.selectionReady()) {
-      return;
-    }
-    this.selectedIds.set(new Set(this.animals().map((animal) => animal.$id)));
-    this.selectionReady.set(true);
-  }
-
-  protected selectAllDefault(): void {
-    this.selectedIds.set(new Set(this.animals().map((animal) => animal.$id)));
-    this.selectionReady.set(true);
-  }
-
   protected async save(): Promise<void> {
-    this.ensureSelection();
     this.error.set('');
-    const kraalId = this.kraalId();
-    if (!kraalId || !this.productId() || !this.batchId()) {
-      this.error.set('Choose a product and a usable batch.');
+    if (!this.kraalId() || !this.productId() || !this.batchId()) {
+      this.error.set('Choose the kraal, a product and a batch with stock.');
       return;
     }
-    const treatedAnimalIds = [...this.selectedIds()];
-    const excludedAnimalIds = this.animals()
-      .map((animal) => animal.$id)
-      .filter((id) => !this.selectedIds().has(id));
+    const ids = this.animals().map((animal) => animal.$id);
+    const skipped = this.skipped();
+    this.saving.set(true);
     try {
       await this.vaccinationStore.vaccinateKraal({
-        kraalId,
+        kraalId: this.kraalId(),
         productId: this.productId(),
         batchId: this.batchId(),
         date: this.date(),
-        treatedAnimalIds,
-        excludedAnimalIds,
+        treatedAnimalIds: ids.filter((id) => !skipped.has(id)),
+        excludedAnimalIds: ids.filter((id) => skipped.has(id)),
         exclusionReasons: this.reasons(),
-        notes: this.notes(),
+        notes: '',
       });
-      await this.router.navigate(['/kraals', kraalId]);
+      this.toast.show(`${this.treatedCount()} vaccinated`);
+      await this.modal.close();
     } catch (error: unknown) {
       this.error.set(
-        error instanceof InsufficientStockError ? error.message : 'Could not record vaccination.',
+        error instanceof InsufficientStockError
+          ? error.message
+          : 'Could not record the vaccination.',
       );
+    } finally {
+      this.saving.set(false);
     }
   }
 }

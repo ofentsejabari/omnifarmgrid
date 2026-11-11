@@ -1,11 +1,11 @@
 <div class="flex min-h-dvh flex-col">
-  <header class="bg-card/80 sticky top-0 z-30 border-b border-border/80 shadow-sm backdrop-blur-xl">
+  <header class="bg-background/85 sticky top-0 z-30 border-b backdrop-blur">
     <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
       <a routerLink="/" class="flex min-w-0 items-center gap-3">
         <img
           src="logo.svg"
           alt=""
-          class="size-10 shrink-0 rounded-xl object-cover shadow-sm ring-1 ring-primary/25"
+          class="size-9 shrink-0"
         />
         <span class="min-w-0">
           <span class="block leading-tight font-semibold tracking-tight">{{ name }}</span>
@@ -15,17 +15,16 @@
         </span>
       </a>
 
-      <nav class="hidden items-center gap-1 lg:flex" aria-label="Primary">
+      <nav class="bg-muted hidden items-center gap-0.5 rounded-lg p-0.5 lg:flex" aria-label="Primary">
         @for (link of navLinks; track link.path) {
           <a
             [routerLink]="link.path"
             routerLinkActive
             #navLink="routerLinkActive"
             [routerLinkActiveOptions]="{ exact: link.exact }"
-            class="rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-            [class.bg-primary/10]="navLink.isActive"
-            [class.text-primary]="navLink.isActive"
-            [class.text-muted-foreground]="!navLink.isActive"
+            class="rounded-md px-3.5 py-1.5 text-sm font-medium transition-all"
+            [class]="navLink.isActive ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'"
+            [attr.aria-current]="navLink.isActive ? 'page' : null"
           >
             {{ link.label }}
           </a>
@@ -81,11 +80,11 @@
     <router-outlet />
   </main>
 
-  <footer class="border-t border-border/80 bg-card/60">
+  <footer class="bg-card mt-8 border-t">
     <div class="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-4">
       <div class="md:col-span-2">
         <div class="flex items-center gap-3">
-          <img src="logo.svg" alt="" class="size-10 rounded-xl ring-1 ring-primary/25" />
+          <img src="logo.svg" alt="" class="size-10" />
           <p class="font-semibold tracking-tight">{{ name }}</p>
         </div>
         <p class="text-muted-foreground mt-3 max-w-md text-sm leading-relaxed">
@@ -125,7 +124,7 @@
         </ul>
       </div>
     </div>
-    <div class="border-t border-border/60">
+    <div class="border-t">
       <p class="text-muted-foreground mx-auto max-w-6xl px-4 py-4 text-xs sm:px-6">
         © {{ year }} {{ name }}. Farm records for goats, sheep, pigs, and cattle.
       </p>

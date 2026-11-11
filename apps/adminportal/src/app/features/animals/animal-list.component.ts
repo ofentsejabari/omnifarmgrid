@@ -7,137 +7,145 @@ import {
   untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { debounceTime, Subject } from 'rxjs';
 import { animalLabel } from '../../core/models/animal';
 import {
   AnimalSex,
-  ANIMAL_SEXES,
   animalSexLabel,
   animalStatusClass,
   animalStatusLabel,
-  speciesAvatarClass,
-  speciesBadgeClass,
-  speciesVocabulary,
-  speciesIconClass,
   Species,
+  speciesVocabulary,
 } from '../../core/models/species';
 import { AnimalStore } from '../../core/stores/animal.store';
 import { KraalStore } from '../../core/stores/kraal.store';
 import { SpeciesFilterStore } from '../../core/stores/species-filter.store';
+import { ModalService } from '../../core/ui/modal.service';
+import { SelectFieldComponent } from '../../core/ui/select-field.component';
+import { SpeciesAvatarComponent } from '../../core/ui/species-avatar.component';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
 
 @Component({
   selector: 'app-animal-list',
-  imports: [FormsModule, RouterLink, ...SpartanUiImports],
+  imports: [
+    RouterLink,
+    SpeciesAvatarComponent,
+    SelectFieldComponent,
+    ...SpartanUiImports,
+  ],
   templateUrl: './animal-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnimalListComponent {
   protected readonly animalStore = inject(AnimalStore);
-  protected readonly kraalStore = inject(KraalStore);
-  protected readonly speciesFilterStore = inject(SpeciesFilterStore);
-  private readonly nameChanges = new Subject<string>();
+  private readonly kraalStore = inject(KraalStore);
+  private readonly speciesFilter = inject(SpeciesFilterStore);
+  private readonly modal = inject(ModalService);
+  private readonly searches = new Subject<string>();
 
-  protected readonly sexes = ANIMAL_SEXES;
-  protected readonly skeletonSlots = [1, 2, 3, 4];
-  protected readonly vocabulary = speciesVocabulary;
-  protected readonly badgeClass = speciesBadgeClass;
-  protected readonly iconClass = speciesIconClass;
-  protected readonly avatarClass = speciesAvatarClass;
+  protected readonly label = animalLabel;
   protected readonly statusClass = animalStatusClass;
   protected readonly statusLabel = animalStatusLabel;
-  protected readonly label = animalLabel;
 
   protected readonly animals = computed(() =>
-    this.animalStore.animals().sort((left, right) => left.tag.localeCompare(right.tag)),
+    [...this.animalStore.animals()].sort((a, b) => a.tag.localeCompare(b.tag)),
   );
-
-  protected readonly visibleKraals = computed(() =>
-    this.kraalStore.kraals().filter((kraal) => this.speciesFilterStore.matches(kraal.species)),
+  protected readonly kraals = computed(() =>
+    this.kraalStore
+      .kraals()
+      .filter((kraal) => this.speciesFilter.matches(kraal.species)),
   );
-
+  protected readonly kraalOptions = computed(() => [
+    { value: '', label: 'All kraals' },
+    ...this.kraals().map((kraal) => ({ value: kraal.$id, label: kraal.name })),
+  ]);
+  protected readonly sexOptions = [
+    { value: '', label: 'Any sex' },
+    { value: 'female', label: 'Female' },
+    { value: 'male', label: 'Male' },
+    { value: 'wether', label: 'Castrated' },
+  ];
+  protected readonly showInactive = computed(
+    () => this.animalStore.filters.status() === null,
+  );
   protected readonly hasFilters = computed(() => {
-    const filters = this.animalStore.filters();
-    return Boolean(filters.name.trim() || filters.sex || filters.kraalId);
+    const { name, sex, kraalId } = this.animalStore.filters();
+    return Boolean(name.trim() || sex || kraalId);
+  });
+
+  protected readonly heading = computed(() => {
+    const selected = this.speciesFilter.selected();
+    return selected === 'all'
+      ? 'Animals'
+      : speciesVocabulary(selected).plural.replace(/^./, (c) =>
+          c.toUpperCase(),
+        );
+  });
+  protected readonly addLabel = computed(() => {
+    const selected = this.speciesFilter.selected();
+    return selected === 'all'
+      ? 'Add animal'
+      : `Add ${speciesVocabulary(selected).noun}`;
   });
 
   constructor() {
-    this.nameChanges.pipe(debounceTime(300), takeUntilDestroyed()).subscribe((name) => {
-      void this.animalStore.setFilters({ name });
-    });
+    this.searches
+      .pipe(debounceTime(300), takeUntilDestroyed())
+      .subscribe((name) => {
+        void this.animalStore.setFilters({ name });
+      });
 
+    // Follow the species switch in the top bar; drop a kraal filter that no longer fits.
     effect(() => {
-      const selected = this.speciesFilterStore.selected();
+      const selected = this.speciesFilter.selected();
       untracked(() => {
-        const current = this.animalStore.filters();
         const species = selected === 'all' ? null : selected;
+        const { kraalId, species: current } = this.animalStore.filters();
         void this.animalStore.setFilters({
           species,
-          kraalId: species === current.species ? current.kraalId : null,
+          kraalId: species === current ? kraalId : null,
         });
       });
     });
+  }
+
+  protected add(): void {
+    const selected = this.speciesFilter.selected();
+    void this.modal.open('animal', {
+      species: selected === 'all' ? null : selected,
+      kraalId: this.animalStore.filters.kraalId(),
+    });
+  }
+
+  protected search(value: string): void {
+    this.searches.next(value);
+  }
+
+  protected filterKraal(value: string): void {
+    void this.animalStore.setFilters({ kraalId: value || null });
+  }
+
+  protected filterSex(value: string): void {
+    const sex =
+      value === 'female' || value === 'male' || value === 'wether'
+        ? value
+        : null;
+    void this.animalStore.setFilters({ sex });
+  }
+
+  protected setShowInactive(include: boolean): void {
+    void this.animalStore.setFilters({ status: include ? null : 'alive' });
   }
 
   protected sexLabel(species: Species, sex: AnimalSex): string {
     return animalSexLabel(species, sex);
   }
 
-  protected heading(): string {
-    const selected = this.speciesFilterStore.selected();
-    if (selected === 'all') {
-      return 'Animals';
-    }
-    return speciesVocabulary(selected).plural.replace(/^./, (char) => char.toUpperCase());
-  }
-
-  protected addLabel(): string {
-    const selected = this.speciesFilterStore.selected();
-    if (selected === 'all') {
-      return 'Add animal';
-    }
-    return `Add ${speciesVocabulary(selected).noun}`;
-  }
-
-  protected onNameChange(value: string): void {
-    this.nameChanges.next(value);
-  }
-
-  protected onKraalFilter(value: string | undefined | null): void {
-    void this.animalStore.setFilters({ kraalId: value?.trim() ? value : null });
-  }
-
-  protected onSexFilter(value: string | undefined | null): void {
-    const sex = value === 'female' || value === 'male' || value === 'wether' ? value : null;
-    void this.animalStore.setFilters({ sex });
-  }
-
-  protected onShowInactive(includeInactive: boolean): void {
-    void this.animalStore.setFilters({ status: includeInactive ? null : 'alive' });
-  }
-
-  protected locationFilterLabel(): string {
-    const selected = this.speciesFilterStore.selected();
-    if (selected === 'all') {
-      return 'All kraals';
-    }
-    return `All ${speciesVocabulary(selected).locationPlural}`;
-  }
-
   protected kraalName(kraalId: string): string {
-    return this.kraalStore.kraals().find((kraal) => kraal.$id === kraalId)?.name ?? 'No kraal';
-  }
-
-  protected emptyTitle(): string {
-    return this.hasFilters() ? 'No matches' : `No ${this.heading().toLowerCase()} yet`;
-  }
-
-  protected emptyHint(): string {
-    if (this.hasFilters()) {
-      return 'Try a different name, kraal, or sex.';
-    }
-    return 'Add the first animal to start the herd record.';
+    return (
+      this.kraalStore.kraals().find((kraal) => kraal.$id === kraalId)?.name ??
+      '—'
+    );
   }
 }

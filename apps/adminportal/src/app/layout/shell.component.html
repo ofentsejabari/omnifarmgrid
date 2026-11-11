@@ -1,104 +1,115 @@
-<div class="min-h-dvh pb-[calc(6.25rem+env(safe-area-inset-bottom))]">
-  <header class="bg-card/80 sticky top-0 z-20 border-b border-border/80 shadow-sm backdrop-blur-xl">
-    <div class="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3.5">
-      <app-brand-mark class="min-w-0" />
-      <div class="flex min-w-0 shrink-0 items-center gap-1.5">
-        @if (onlineStore.online()) {
-          <span hlmBadge variant="secondary" class="hidden gap-1.5 font-medium sm:inline-flex">
-            <span class="size-1.5 rounded-full bg-emerald-500"></span>
-            Online
-          </span>
-        } @else {
-          <span
-            hlmBadge
-            class="bg-warning/40 text-warning-foreground hidden gap-1.5 font-medium sm:inline-flex"
-          >
-            <span class="bg-warning-foreground/70 size-1.5 rounded-full"></span>
-            Offline
-          </span>
-        }
-        @if (authStore.currentUser(); as user) {
-          <div class="flex min-w-0 items-center gap-2 ps-1">
-            <span
-              class="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center
-                rounded-full text-xs font-semibold"
-              [attr.aria-hidden]="true"
-            >
-              {{ authStore.initials() }}
+<div hlmSidebarWrapper>
+  <hlm-sidebar variant="inset">
+    <hlm-sidebar-header>
+      <ul hlmSidebarMenu>
+        <li hlmSidebarMenuItem>
+          <a hlmSidebarMenuButton size="lg" routerLink="/">
+            <app-logo [size]="32" />
+            <span class="grid flex-1 text-start text-sm leading-tight">
+              <span class="truncate font-semibold">AgroHerd</span>
+              <span class="text-muted-foreground truncate text-xs"
+                >Farm Manager</span
+              >
             </span>
-            <div class="min-w-0 max-w-28 sm:max-w-40">
-              <p class="truncate text-sm leading-tight font-medium">{{ authStore.displayName() }}</p>
-              @if (user.name.trim() && user.email) {
-                <p class="text-muted-foreground hidden truncate text-xs leading-tight sm:block">
-                  {{ user.email }}
-                </p>
-              }
-            </div>
-          </div>
-        }
+          </a>
+        </li>
+      </ul>
+    </hlm-sidebar-header>
+
+    <hlm-sidebar-content>
+      <app-nav-main [items]="navItems" />
+      <app-nav-record [actions]="record.all()" />
+      <app-nav-secondary class="mt-auto" />
+    </hlm-sidebar-content>
+
+    <hlm-sidebar-footer>
+      <app-nav-user />
+    </hlm-sidebar-footer>
+  </hlm-sidebar>
+
+  <main hlmSidebarInset>
+    <header
+      class="bg-background/90 sticky top-0 z-20 flex h-16 shrink-0 items-center gap-2 rounded-t-xl border-b px-4 backdrop-blur"
+    >
+      <button hlmSidebarTrigger class="-ms-1"></button>
+      <hlm-separator
+        orientation="vertical"
+        class="me-2 data-vertical:h-4 data-vertical:self-center"
+      />
+      <nav hlmBreadcrumb class="min-w-0">
+        <ol hlmBreadcrumbList>
+          @for (crumb of breadcrumbs(); track crumb.label; let last = $last) {
+            @if (last) {
+              <li hlmBreadcrumbItem>
+                <span hlmBreadcrumbPage class="truncate">{{
+                  crumb.label
+                }}</span>
+              </li>
+            } @else {
+              <li hlmBreadcrumbItem class="hidden sm:inline-flex">
+                <a hlmBreadcrumbLink [link]="crumb.url">{{ crumb.label }}</a>
+              </li>
+              <li hlmBreadcrumbSeparator class="hidden sm:inline-flex"></li>
+            }
+          }
+        </ol>
+      </nav>
+
+      <div class="ms-auto flex items-center gap-2">
+        <app-select
+          class="hidden w-40 sm:block"
+          size="sm"
+          [value]="speciesFilter.selected()"
+          (valueChange)="setFilter($event)"
+          [options]="speciesOptions"
+          ariaLabel="Show species"
+        />
         <button
-          type="button"
           hlmBtn
-          variant="ghost"
-          size="icon-sm"
-          (click)="logout()"
-          aria-label="Log out"
+          size="sm"
+          [hlmDropdownMenuTrigger]="recordMenu"
+          align="end"
         >
-          <ng-icon name="lucideLogOut" />
+          <ng-icon name="lucidePlus" />
+          <span class="hidden sm:inline">Record</span>
         </button>
       </div>
-    </div>
-    <div class="mx-auto max-w-3xl px-4 pb-3">
-      <div class="bg-muted/70 flex gap-1 rounded-full p-1 shadow-inner ring-1 ring-border/50">
-        <button
-          type="button"
-          class="flex-1 rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all"
-          [class]="chipClass('all')"
-          (click)="setFilter('all')"
-        >
-          All
-        </button>
-        @for (value of species; track value) {
-          <button
-            type="button"
-            class="inline-flex flex-1 items-center justify-center gap-1 rounded-full px-1.5 py-1.5
-              text-xs font-medium whitespace-nowrap transition-all sm:px-3"
-            [class]="chipClass(value)"
-            (click)="setFilter(value)"
-          >
-            <ng-icon [name]="vocabulary(value).icon" size="14" />
-            {{ speciesName(value) }}
-          </button>
-        }
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <main class="mx-auto w-full max-w-3xl px-4 py-6">
-    <router-outlet />
+    <div class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 lg:px-8">
+      <app-select
+        class="mb-4 sm:hidden"
+        [value]="speciesFilter.selected()"
+        (valueChange)="setFilter($event)"
+        [options]="speciesOptions"
+        ariaLabel="Show species"
+      />
+      <router-outlet />
+    </div>
   </main>
-
-  <nav
-    class="bg-card/95 fixed inset-x-3 z-20 rounded-2xl border border-border/80 shadow-lg backdrop-blur-xl
-      bottom-[max(0.75rem,env(safe-area-inset-bottom))]"
-  >
-    <div class="mx-auto grid max-w-3xl grid-cols-5 p-1">
-      @for (item of navItems; track item.path) {
-        <a
-          [routerLink]="item.path"
-          routerLinkActive
-          #navLink="routerLinkActive"
-          [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }"
-          class="relative flex flex-col items-center gap-0.5 rounded-xl py-2 text-[11px] font-medium
-            transition-colors"
-          [class.bg-primary/10]="navLink.isActive"
-          [class.text-primary]="navLink.isActive"
-          [class.text-muted-foreground]="!navLink.isActive"
-        >
-          <ng-icon [name]="item.icon" size="20" />
-          {{ item.label }}
-        </a>
-      }
-    </div>
-  </nav>
 </div>
+
+<ng-template #recordMenu>
+  <hlm-dropdown-menu class="w-64">
+    <hlm-dropdown-menu-label>Record</hlm-dropdown-menu-label>
+    <hlm-dropdown-menu-separator />
+    @for (action of record.all(); track action.modal) {
+      <button
+        hlmDropdownMenuItem
+        class="items-start justify-start gap-3 py-2 text-start"
+        (click)="action.run()"
+      >
+        <ng-icon [name]="action.icon" class="mt-0.5" />
+        <span>
+          <span class="block font-medium">{{ action.label }}</span>
+          <span class="text-muted-foreground block text-xs">{{
+            action.hint
+          }}</span>
+        </span>
+      </button>
+    }
+  </hlm-dropdown-menu>
+</ng-template>
+
+<app-modal-host />
+<app-toaster />

@@ -1,42 +1,39 @@
-<div class="grid min-h-dvh lg:grid-cols-2">
+<div class="grid min-h-dvh lg:grid-cols-[1.05fr_1fr]">
   <aside
-    class="relative hidden overflow-hidden bg-primary text-primary-foreground lg:flex lg:flex-col
-      lg:justify-between lg:p-12"
+    class="relative hidden overflow-hidden bg-emerald-600 p-12 text-white lg:flex lg:flex-col lg:justify-between"
   >
     <div
-      class="pointer-events-none absolute -top-24 -left-16 size-72 rounded-full bg-white/10 blur-2xl"
+      class="pointer-events-none absolute -end-24 -top-24 size-[28rem] rounded-full bg-emerald-400/30 blur-3xl"
     ></div>
     <div
-      class="pointer-events-none absolute right-[-4rem] bottom-[-3rem] size-80 rounded-full
-        bg-amber-300/20 blur-3xl"
+      class="pointer-events-none absolute -bottom-32 -start-16 size-96 rounded-full bg-emerald-900/30 blur-3xl"
     ></div>
 
-    <app-brand-mark class="relative" variant="onPrimary" tagline="Farm Manager" />
+    <app-brand-mark class="relative" tone="inverse" tagline="Farm Manager" />
 
     <div class="relative max-w-md">
-      <p class="text-sm font-medium tracking-wide text-primary-foreground/70 uppercase">
-        Built for Botswana kraals and pens
-      </p>
-      <h1 class="mt-3 text-4xl font-semibold tracking-tight text-balance">
-        Know every goat, sheep, pig, and cow on the farm.
+      <h1 class="text-4xl leading-tight font-semibold tracking-tight">
+        Know every goat, sheep, pig and cow on the farm.
       </h1>
-      <p class="mt-4 text-base leading-relaxed text-primary-foreground/80">
-        Ear tags, kidding, lambing, farrowing, calving, vaccines, and stock — in the language you already use.
+      <p class="mt-4 text-base leading-relaxed text-white/80">
+        Births, deaths, vaccinations and medicine stock — recorded in a few
+        taps.
       </p>
       <div class="mt-8 flex flex-wrap gap-2">
         @for (value of species; track value) {
           <span
-            class="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-sm
-              font-medium ring-1 ring-white/15"
+            class="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-sm font-medium"
           >
-            <ng-icon [name]="vocabulary(value).icon" size="14" />
+            <ng-icon [name]="vocabulary(value).icon" size="18" />
             {{ speciesName(value) }}
           </span>
         }
       </div>
     </div>
 
-    <p class="relative text-sm text-primary-foreground/65">AgroHerd · works with or without signal</p>
+    <p class="relative text-sm text-white/65">
+      Built for Botswana kraals and pens
+    </p>
   </aside>
 
   <section class="flex flex-col justify-center px-4 py-10 sm:px-8">
@@ -51,15 +48,14 @@
       </div>
 
       @if (error()) {
-        <hlm-alert class="bg-warning/30 text-warning-foreground mt-6">
+        <hlm-alert class="bg-warning text-warning-foreground mt-6 border-0">
           <ng-icon name="lucideTriangleAlert" />
           <div hlmAlertDescription>{{ error() }}</div>
         </hlm-alert>
       }
 
       <form
-        class="bg-card/90 ring-foreground/10 mt-6 flex flex-col gap-5 rounded-3xl p-6 shadow-lg ring-1
-          sm:p-8"
+        class="fma-panel mt-6 flex flex-col gap-5 p-6 sm:p-8"
         (submit)="onSubmit($event)"
       >
         <div hlmField>
@@ -68,8 +64,7 @@
             <ng-icon
               name="lucideMail"
               size="16"
-              class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10
-                -translate-y-1/2"
+              class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 -translate-y-1/2"
             />
             <input
               id="email"
@@ -83,7 +78,10 @@
             />
           </div>
           @if (loginForm.email().touched() && loginForm.email().invalid()) {
-            @for (fieldError of loginForm.email().errors(); track fieldError.kind) {
+            @for (
+              fieldError of loginForm.email().errors();
+              track fieldError.kind
+            ) {
               <p class="text-destructive text-sm">{{ fieldError.message }}</p>
             }
           }
@@ -95,8 +93,7 @@
             <ng-icon
               name="lucideLock"
               size="16"
-              class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10
-                -translate-y-1/2"
+              class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 -translate-y-1/2"
             />
             <input
               id="password"
@@ -109,17 +106,25 @@
             />
             <button
               type="button"
-              class="text-muted-foreground hover:text-foreground absolute top-1/2 right-1.5
-                inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-lg
-                transition-colors"
+              class="text-muted-foreground hover:text-foreground absolute top-1/2 right-1.5 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-lg transition-colors"
               (click)="togglePassword()"
-              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+              [attr.aria-label]="
+                showPassword() ? 'Hide password' : 'Show password'
+              "
             >
-              <ng-icon [name]="showPassword() ? 'lucideEyeOff' : 'lucideEye'" size="16" />
+              <ng-icon
+                [name]="showPassword() ? 'lucideEyeOff' : 'lucideEye'"
+                size="16"
+              />
             </button>
           </div>
-          @if (loginForm.password().touched() && loginForm.password().invalid()) {
-            @for (fieldError of loginForm.password().errors(); track fieldError.kind) {
+          @if (
+            loginForm.password().touched() && loginForm.password().invalid()
+          ) {
+            @for (
+              fieldError of loginForm.password().errors();
+              track fieldError.kind
+            ) {
               <p class="text-destructive text-sm">{{ fieldError.message }}</p>
             }
           }
@@ -129,7 +134,7 @@
           type="submit"
           hlmBtn
           size="lg"
-          class="mt-1 h-11 w-full text-base"
+          class="mt-1 w-full"
           [disabled]="loginForm().submitting()"
         >
           @if (loginForm().submitting()) {

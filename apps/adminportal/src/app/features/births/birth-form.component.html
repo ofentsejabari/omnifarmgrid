@@ -1,94 +1,123 @@
-<section class="flex flex-col gap-6">
-  <a routerLink="/" hlmBtn variant="link" size="sm" class="text-muted-foreground h-auto px-0">
-    <ng-icon name="lucideArrowLeft" />
-    Home
-  </a>
-  <div>
-    <h1 class="text-2xl font-semibold tracking-tight">{{ vocabulary(birthSpecies()).birthVerb }}</h1>
-    <p class="text-muted-foreground mt-1 text-sm leading-relaxed">
-      Record the dam and each {{ vocabulary(birthSpecies()).young }}.
+<form class="fma-modal" [formGroup]="form" (ngSubmit)="save()">
+  <header class="fma-modal-header">
+    <h2 class="fma-modal-title">{{ vocabulary(species()).birthVerb }}</h2>
+    <p class="fma-modal-desc">
+      Choose the mother, then tag each {{ vocabulary(species()).young }}.
     </p>
-  </div>
+  </header>
 
-  @if (error()) {
-    <hlm-alert class="bg-warning/30 text-warning-foreground">
-      <ng-icon name="lucideTriangleAlert" />
-      <div hlmAlertDescription>{{ error() }}</div>
-    </hlm-alert>
-  }
+  <div class="fma-modal-body">
+    @if (error()) {
+      <p class="fma-error" role="alert">
+        <ng-icon name="lucideTriangleAlert" size="16" class="mt-0.5 shrink-0" />
+        {{ error() }}
+      </p>
+    }
 
-  <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="save()">
-    <hlm-card>
-      <div hlmCardContent class="flex flex-col gap-3">
-        <div hlmField>
-          <label hlmFieldLabel>Dam ({{ vocabulary(birthSpecies()).dam }})</label>
-          <hlm-select class="w-full" formControlName="damId">
-            <hlm-select-trigger class="w-full">
-              <hlm-select-value placeholder="Select {{ vocabulary(birthSpecies()).dam }}" />
-            </hlm-select-trigger>
-            <hlm-select-content *hlmSelectPortal>
-              @for (dam of dams(); track dam.$id) {
-                <hlm-select-item [value]="dam.$id">{{ label(dam) }}</hlm-select-item>
-              }
-            </hlm-select-content>
-          </hlm-select>
-        </div>
-        <div hlmField>
-          <label hlmFieldLabel>{{ vocabulary(birthSpecies()).location }} for {{ vocabulary(birthSpecies()).youngPlural }}</label>
-          <hlm-select class="w-full" formControlName="kraalId">
-            <hlm-select-trigger class="w-full">
-              <hlm-select-value placeholder="Select {{ vocabulary(birthSpecies()).location }}" />
-            </hlm-select-trigger>
-            <hlm-select-content *hlmSelectPortal>
-              @for (kraal of matchingKraals(); track kraal.$id) {
-                <hlm-select-item [value]="kraal.$id">{{ kraal.name }}</hlm-select-item>
-              }
-            </hlm-select-content>
-          </hlm-select>
-        </div>
-        <div hlmField>
-          <label hlmFieldLabel>{{ vocabulary(birthSpecies()).birth }} date</label>
-          <input hlmInput type="date" formControlName="date" />
-        </div>
-        <div hlmField>
-          <label hlmFieldLabel>Notes</label>
-          <textarea hlmTextarea formControlName="notes"></textarea>
-        </div>
-      </div>
-    </hlm-card>
-
-    <div class="flex items-center justify-between">
-      <h2 class="font-semibold">{{ vocabulary(birthSpecies()).youngPlural }}</h2>
-      <button type="button" hlmBtn size="sm" variant="secondary" (click)="addKid()">
-        Add {{ vocabulary(birthSpecies()).young }}
-      </button>
+    <div hlmField>
+      <label hlmFieldLabel for="birth-dam">Mother</label>
+      <app-select
+        inputId="birth-dam"
+        formControlName="damId"
+        [options]="damOptions()"
+        [placeholder]="'Choose a ' + vocabulary(species()).dam + '…'"
+        emptyText="No living females recorded"
+      />
     </div>
 
-    <div formArrayName="kids" class="flex flex-col gap-3">
-      @for (kid of kids.controls; track $index) {
-        <div hlmCard [formGroupName]="$index">
-          <div hlmCardContent class="flex flex-col gap-3">
-            <div class="flex justify-between">
-              <span class="font-medium">{{ vocabulary(birthSpecies()).young }} {{ $index + 1 }}</span>
-              <button type="button" hlmBtn variant="ghost" size="xs" (click)="removeKid($index)">Remove</button>
-            </div>
-            <input hlmInput formControlName="tag" placeholder="Ear tag" />
-            <input hlmInput formControlName="name" placeholder="Name (optional)" />
-            <hlm-select class="w-full" formControlName="sex">
-              <hlm-select-trigger class="w-full">
-                <hlm-select-value placeholder="Select sex" />
-              </hlm-select-trigger>
-              <hlm-select-content *hlmSelectPortal>
-                @for (sex of sexes; track sex) {
-                  <hlm-select-item [value]="sex">{{ sexLabel(sex) }}</hlm-select-item>
-                }
-              </hlm-select-content>
-            </hlm-select>
-          </div>
+    <div class="fma-field-row">
+      <div hlmField>
+        <label hlmFieldLabel for="birth-kraal">{{
+          vocabulary(species()).location | sentence
+        }}</label>
+        <app-select
+          inputId="birth-kraal"
+          formControlName="kraalId"
+          [options]="kraalOptions()"
+        />
+      </div>
+      <div hlmField>
+        <label hlmFieldLabel for="birth-date">Date</label>
+        <app-date-field inputId="birth-date" formControlName="date" />
+      </div>
+    </div>
+
+    <fieldset class="flex flex-col gap-2" formArrayName="kids">
+      <legend
+        class="mb-2 flex w-full items-center justify-between text-sm font-medium"
+      >
+        {{ vocabulary(species()).youngPlural | sentence }} ({{ kids.length }})
+      </legend>
+      @for (kid of kids.controls; track kid; let i = $index) {
+        <div
+          class="bg-muted/50 grid grid-cols-[1fr_1fr_auto] items-center gap-2 rounded-lg p-2 sm:grid-cols-[1fr_1fr_8rem_auto]"
+          [formGroupName]="i"
+        >
+          <input
+            hlmInput
+            formControlName="tag"
+            placeholder="Ear tag"
+            [attr.aria-label]="'Ear tag ' + (i + 1)"
+          />
+          <input
+            hlmInput
+            formControlName="name"
+            placeholder="Name (optional)"
+            [attr.aria-label]="'Name ' + (i + 1)"
+          />
+          <app-select
+            class="col-span-2 sm:col-span-1"
+            formControlName="sex"
+            [options]="sexOptions()"
+            [ariaLabel]="'Sex ' + (i + 1)"
+          />
+          <button
+            type="button"
+            hlmBtn
+            variant="ghost"
+            size="icon"
+            class="text-muted-foreground hover:text-destructive row-start-1 col-start-3 sm:col-start-4"
+            [disabled]="kids.length === 1"
+            (click)="removeKid(i)"
+            [attr.aria-label]="
+              'Remove ' + vocabulary(species()).young + ' ' + (i + 1)
+            "
+          >
+            <ng-icon name="lucideTrash2" />
+          </button>
         </div>
       }
-    </div>
+      <button
+        type="button"
+        hlmBtn
+        variant="outline"
+        class="w-full border-dashed"
+        (click)="addKid()"
+      >
+        <ng-icon name="lucidePlus" />
+        Add another {{ vocabulary(species()).young }}
+      </button>
+    </fieldset>
 
-    <button type="submit" hlmBtn class="w-full">Save {{ vocabulary(birthSpecies()).birth }}</button>
-  </form>
-</section>
+    <div hlmField>
+      <label hlmFieldLabel for="birth-notes"
+        >Notes <span class="fma-optional">(optional)</span></label
+      >
+      <textarea
+        id="birth-notes"
+        hlmTextarea
+        formControlName="notes"
+        placeholder="Assisted? Weak at birth?"
+      ></textarea>
+    </div>
+  </div>
+
+  <footer class="fma-modal-footer">
+    <button type="button" hlmBtn variant="outline" (click)="modal.close()">
+      Cancel
+    </button>
+    <button type="submit" hlmBtn [disabled]="saving()">
+      {{ saving() ? 'Saving…' : 'Save ' + vocabulary(species()).birth }}
+    </button>
+  </footer>
+</form>

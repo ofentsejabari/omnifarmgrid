@@ -1,128 +1,125 @@
-import { TitleCasePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   effect,
   inject,
-  signal,
   untracked,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { form, FormField, FormRoot, required } from '@angular/forms/signals';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
-import { animalLabel } from '../../core/models/animal';
-import { KraalRow } from '../../core/models/kraal';
-import {
-  AnimalSex,
-  animalSexLabel,
-  speciesAccentClass,
-  speciesAvatarClass,
-  speciesBadgeClass,
-  speciesVocabulary,
-  speciesIconClass,
-  Species,
-} from '../../core/models/species';
+import { animalLabel, AnimalRow } from '../../core/models/animal';
+import { animalSexLabel, speciesVocabulary } from '../../core/models/species';
 import { AnimalStore } from '../../core/stores/animal.store';
 import { KraalStore } from '../../core/stores/kraal.store';
+import {
+  ModalName,
+  ModalParams,
+  ModalService,
+} from '../../core/ui/modal.service';
+import { SpeciesAvatarComponent } from '../../core/ui/species-avatar.component';
+import { ToastService } from '../../core/ui/toast.service';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
+
+interface KraalAction {
+  label: string;
+  icon: string;
+  tone: string;
+  modal: ModalName;
+  params: ModalParams;
+}
 
 @Component({
   selector: 'app-kraal-detail',
-  imports: [FormField, FormRoot, RouterLink, TitleCasePipe, ...SpartanUiImports],
+  imports: [RouterLink, SpeciesAvatarComponent, ...SpartanUiImports],
   templateUrl: './kraal-detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KraalDetailComponent {
-  private readonly route = inject(ActivatedRoute);
   protected readonly kraalStore = inject(KraalStore);
+  protected readonly modal = inject(ModalService);
   private readonly animalStore = inject(AnimalStore);
-
-  protected readonly vocabulary = speciesVocabulary;
-  protected readonly accentClass = speciesAccentClass;
-  protected readonly badgeClass = speciesBadgeClass;
-  protected readonly iconClass = speciesIconClass;
-  protected readonly avatarClass = speciesAvatarClass;
+  private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   private readonly kraalId = toSignal(
-    this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
+    inject(ActivatedRoute).paramMap.pipe(map((p) => p.get('id') ?? '')),
     {
-      initialValue: this.route.snapshot.paramMap.get('id') ?? '',
+      initialValue: '',
     },
   );
 
+  protected readonly label = animalLabel;
   protected readonly kraal = this.kraalStore.kraal;
-
+  protected readonly words = computed(() =>
+    speciesVocabulary(this.kraal()?.species ?? 'goat'),
+  );
   protected readonly animals = computed(() =>
     this.animalStore
-      .animals()
-      .filter((animal) => animal.kraalId === this.kraalId() && animal.status === 'alive')
-      .sort((left, right) => left.tag.localeCompare(right.tag)),
+      .herd()
+      .filter(
+        (animal) =>
+          animal.kraalId === this.kraalId() && animal.status === 'alive',
+      )
+      .sort((a, b) => a.tag.localeCompare(b.tag)),
   );
 
-  protected readonly editing = signal(false);
-  protected readonly kraalModel = signal<Pick<KraalRow, 'name' | 'notes'>>({
-    name: '',
-    notes: '',
-  });
-  protected readonly kraalForm = form(
-    this.kraalModel,
-    (schemaPath) => {
-      required(schemaPath.name, { message: 'Give this place a name.' });
-    },
-    {
-      submission: {
-        action: async (field) => {
-          const kraal = this.kraal();
-          if (!kraal) {
-            return;
-          }
-          const { name, notes } = field().value();
-          await this.kraalStore.update({
-            $id: kraal.$id,
-            name: name.trim(),
-            notes: notes.trim(),
-            species: kraal.species,
-          });
-          if (!this.kraalStore.error()) {
-            this.editing.set(false);
-          }
-          return undefined;
-        },
+  protected readonly actions = computed<KraalAction[]>(() => {
+    const kraalId = this.kraalId();
+    const words = this.words();
+    return [
+      {
+        label: `Add ${words.noun}`,
+        icon: 'lucidePlus',
+        tone: 'bg-secondary text-primary',
+        modal: 'animal',
+        params: { kraalId },
       },
-    },
-  );
-
-  protected label = animalLabel;
+      {
+        label: 'Vaccinate',
+        icon: 'lucideSyringe',
+        tone: 'bg-warning text-warning-foreground',
+        modal: 'vaccinate',
+        params: { kraalId },
+      },
+      {
+        label: words.birthVerb,
+        icon: 'lucideBaby',
+        tone: 'bg-info text-info-foreground',
+        modal: 'birth',
+        params: { kraalId },
+      },
+      {
+        label: 'Record death',
+        icon: 'lucideHeartOff',
+        tone: 'bg-destructive/10 text-destructive',
+        modal: 'death',
+        params: { kraalId },
+      },
+    ];
+  });
 
   constructor() {
     effect(() => {
       const id = this.kraalId();
-      untracked(() => {
-        void this.kraalStore.getById(id);
-      });
+      untracked(() => void this.kraalStore.getById(id));
     });
   }
 
-  protected sexLabel(species: Species, sex: AnimalSex): string {
-    return animalSexLabel(species, sex);
+  protected sexLabel(animal: AnimalRow): string {
+    return animalSexLabel(animal.species, animal.sex);
   }
 
-  protected startEdit(): void {
+  protected async remove(): Promise<void> {
     const kraal = this.kraal();
     if (!kraal) {
       return;
     }
-    this.kraalStore.clearError();
-    this.kraalForm().reset({
-      name: kraal.name,
-      notes: kraal.notes,
-    });
-    this.editing.set(true);
-  }
-
-  protected cancelEdit(): void {
-    this.editing.set(false);
+    await this.kraalStore.remove(kraal.$id);
+    if (!this.kraalStore.error()) {
+      this.toast.show(`${kraal.name} deleted`);
+      await this.router.navigate(['/kraals']);
+    }
   }
 }
