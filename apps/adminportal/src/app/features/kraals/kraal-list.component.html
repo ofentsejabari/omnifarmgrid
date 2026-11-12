@@ -19,6 +19,13 @@
     </button>
   </header>
 
+  <app-page-guide
+    heading="Kraals and pens"
+    description="A kraal or pen is any place you keep animals: home, the lands, a ram kraal or a sick pen. Grouping animals by place lets you work on the whole group at once."
+    icon="lucideFence"
+    [steps]="guideSteps"
+  />
+
   @if (kraalStore.error()) {
     <p
       class="bg-destructive/8 text-destructive flex items-start gap-2 rounded-lg px-3 py-2.5 text-sm"

@@ -15,6 +15,7 @@ import {
   animalSexLabel,
   animalStatusClass,
   animalStatusLabel,
+  SPECIES,
   Species,
   speciesVocabulary,
 } from '../../core/models/species';
@@ -25,10 +26,15 @@ import { ModalService } from '../../core/ui/modal.service';
 import { SelectFieldComponent } from '../../core/ui/select-field.component';
 import { SpeciesAvatarComponent } from '../../core/ui/species-avatar.component';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
+import {
+  GuideStep,
+  PageGuideComponent,
+} from '../../core/ui/page-guide.component';
 
 @Component({
   selector: 'app-animal-list',
   imports: [
+    PageGuideComponent,
     RouterLink,
     SpeciesAvatarComponent,
     SelectFieldComponent,
@@ -38,6 +44,33 @@ import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnimalListComponent {
+  protected readonly guideSteps: readonly GuideStep[] = [
+    {
+      icon: 'lucidePlus',
+      title: 'Add an animal',
+      text: 'An ear tag and a kraal are all you need. Breed and birth date can wait.',
+    },
+    {
+      icon: 'lucideSearch',
+      title: 'Find it fast',
+      text: 'Search by name or tag, or narrow down by kraal and sex.',
+      tone: 'bg-info text-info-foreground',
+    },
+    {
+      icon: 'lucideHistory',
+      title: 'Open its record',
+      text: 'Tap a row to see details, offspring and every event in its life.',
+      tone: 'bg-warning text-warning-foreground',
+    },
+  ];
+  /** Farm words per species, shown as a quick reference card. */
+  protected readonly glossary = computed(() => {
+    const selected = this.speciesFilter.selected();
+    return SPECIES.filter(
+      (value) => selected === 'all' || selected === value,
+    ).map((value) => speciesVocabulary(value));
+  });
+
   protected readonly animalStore = inject(AnimalStore);
   private readonly kraalStore = inject(KraalStore);
   private readonly speciesFilter = inject(SpeciesFilterStore);

@@ -19,6 +19,41 @@
     </button>
   </header>
 
+  <app-page-guide
+    heading="Your herd register"
+    description="Every animal on the farm, one row each. This replaces the herd book: each animal keeps its own record from birth (or purchase) to sale or death."
+    icon="lucidePawPrint"
+    [steps]="guideSteps"
+  >
+    <div class="border-primary/15 mt-4 border-t pt-4">
+      <p class="text-secondary-foreground mb-2.5 text-xs font-semibold">
+        Farm words used in the app
+      </p>
+      <ul class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        @for (words of glossary(); track words.id) {
+          <li
+            class="bg-card/70 flex items-center gap-3 rounded-lg p-2.5 text-xs"
+          >
+            <app-species-avatar [species]="words.id" size="sm" />
+            <span class="min-w-0">
+              <span class="block text-sm font-medium capitalize">{{
+                words.plural
+              }}</span>
+              <span class="text-muted-foreground block"
+                >{{ words.dam | sentence }} (female) ·
+                {{ words.sire | sentence }} (male)</span
+              >
+              <span class="text-muted-foreground block"
+                >{{ words.young | sentence }} born at {{ words.birth }} · kept
+                in a {{ words.location }}</span
+              >
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+  </app-page-guide>
+
   <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
     <div class="relative grow">
       <ng-icon
