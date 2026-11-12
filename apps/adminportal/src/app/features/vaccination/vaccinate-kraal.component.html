@@ -1,14 +1,19 @@
-<div class="fma-modal">
-  <header class="fma-modal-header">
-    <h2 class="fma-modal-title">Vaccinate a {{ words().location }}</h2>
-    <p class="fma-modal-desc">
+<div class="flex min-h-0 flex-1 flex-col">
+  <header class="border-b px-5 pt-5 pb-4 pe-14">
+    <h2 class="text-lg font-semibold tracking-tight">
+      Vaccinate a {{ words().location }}
+    </h2>
+    <p class="text-muted-foreground mt-0.5 text-sm">
       Everyone is included — untick the few you skip.
     </p>
   </header>
 
-  <div class="fma-modal-body">
+  <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5">
     @if (error()) {
-      <p class="fma-error" role="alert">
+      <p
+        class="bg-destructive/8 text-destructive flex items-start gap-2 rounded-lg px-3 py-2.5 text-sm"
+        role="alert"
+      >
         <ng-icon name="lucideTriangleAlert" size="16" class="mt-0.5 shrink-0" />
         {{ error() }}
       </p>
@@ -27,7 +32,7 @@
       />
     </div>
 
-    <div class="fma-field-row">
+    <div class="grid gap-4 sm:grid-cols-2">
       <div hlmField>
         <label hlmFieldLabel for="vax-product">Product</label>
         <app-select
@@ -113,7 +118,9 @@
     }
   </div>
 
-  <footer class="fma-modal-footer">
+  <footer
+    class="bg-muted/40 flex flex-col-reverse gap-2 border-t px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:flex-row md:justify-end md:pb-4 max-md:[&_[hlmBtn]]:h-12 max-md:[&_[hlmBtn]]:text-base"
+  >
     <button type="button" hlmBtn variant="outline" (click)="modal.close()">
       Cancel
     </button>

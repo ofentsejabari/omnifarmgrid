@@ -9,6 +9,7 @@ import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { HlmSidebarImports, HlmSidebarService } from '@spartan-ng/helm/sidebar';
 import { AuthStore } from '../../core/stores/auth.store';
+import { ThemePickerComponent } from '../../core/ui/theme-picker.component';
 
 /** Signed-in farmer, with a menu to sign out. */
 @Component({
@@ -18,6 +19,7 @@ import { AuthStore } from '../../core/stores/auth.store';
     HlmAvatarImports,
     HlmDropdownMenuImports,
     NgIcon,
+    ThemePickerComponent,
   ],
   template: `
     <ul hlmSidebarMenu>
@@ -49,7 +51,7 @@ import { AuthStore } from '../../core/stores/auth.store';
     </ul>
 
     <ng-template #menu>
-      <hlm-dropdown-menu class="min-w-56">
+      <hlm-dropdown-menu class="min-w-64">
         <hlm-dropdown-menu-label>
           <span class="block truncate text-sm font-medium">{{
             auth.displayName()
@@ -59,6 +61,13 @@ import { AuthStore } from '../../core/stores/auth.store';
             >{{ auth.currentUser()?.email }}</span
           >
         </hlm-dropdown-menu-label>
+        <hlm-dropdown-menu-separator />
+        <div class="px-2 py-1.5">
+          <p class="text-muted-foreground mb-1.5 text-xs font-medium">
+            Appearance
+          </p>
+          <app-theme-picker />
+        </div>
         <hlm-dropdown-menu-separator />
         <button hlmDropdownMenuItem (click)="logout()">
           <ng-icon name="lucideLogOut" />

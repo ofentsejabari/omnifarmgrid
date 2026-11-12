@@ -67,8 +67,7 @@ export interface BarSeries {
               @if (hovered() === i) {
                 <div
                   class="bg-popover text-popover-foreground pointer-events-none absolute bottom-full z-10 mb-2 min-w-28
-                    rounded-lg border px-3 py-2 text-xs whitespace-nowrap"
-                  style="box-shadow: var(--shadow-float)"
+                    rounded-lg border px-3 py-2 text-xs whitespace-nowrap shadow-(--shadow-float)"
                 >
                   <p class="mb-1 font-semibold">{{ label }}</p>
                   @for (series of series(); track series.name) {

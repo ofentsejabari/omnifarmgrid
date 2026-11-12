@@ -1,15 +1,23 @@
-<section class="fma-page">
-  <a routerLink="/kraals" class="fma-back"
+<section class="flex flex-col gap-5 md:gap-6">
+  <a
+    routerLink="/kraals"
+    class="text-muted-foreground hover:text-foreground hidden w-fit items-center gap-1.5 text-sm font-medium transition-colors md:inline-flex"
     ><ng-icon name="lucideArrowLeft" />Kraals</a
   >
 
   @if (kraal(); as kraal) {
-    <header class="fma-page-header">
+    <header
+      class="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 sm:items-center max-md:[&_[hlmBtn]]:min-h-11"
+    >
       <div class="flex min-w-0 items-center gap-4">
         <app-species-avatar [species]="kraal.species" size="lg" />
         <div class="min-w-0">
-          <h1 class="fma-title truncate">{{ kraal.name }}</h1>
-          <p class="fma-subtitle">
+          <h1
+            class="text-3xl font-bold tracking-tight md:text-2xl md:font-semibold truncate"
+          >
+            {{ kraal.name }}
+          </h1>
+          <p class="text-muted-foreground mt-1 text-sm">
             {{ animals().length }}
             {{ animals().length === 1 ? words().noun : words().plural }}
             @if (kraal.notes) {
@@ -44,14 +52,18 @@
     </header>
 
     @if (kraalStore.error()) {
-      <p class="fma-error">{{ kraalStore.error() }}</p>
+      <p
+        class="bg-destructive/8 text-destructive flex items-start gap-2 rounded-lg px-3 py-2.5 text-sm"
+      >
+        {{ kraalStore.error() }}
+      </p>
     }
 
     <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
       @for (action of actions(); track action.label) {
         <button
           type="button"
-          class="fma-panel hover:border-primary/40 flex items-center gap-3 p-3 text-start text-sm font-medium transition-colors"
+          class="bg-card rounded-xl border shadow-(--shadow-card) hover:border-primary/40 flex items-center gap-3 p-3 text-start text-sm font-medium transition-colors"
           (click)="modal.open(action.modal, action.params)"
         >
           <span
@@ -66,8 +78,11 @@
     </div>
 
     @if (animals().length === 0) {
-      <div class="fma-empty">
-        <span class="fma-empty-icon"
+      <div
+        class="bg-card flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-12 text-center"
+      >
+        <span
+          class="bg-secondary text-primary flex size-12 items-center justify-center rounded-xl"
           ><ng-icon name="lucideInbox" size="22"
         /></span>
         <p class="text-muted-foreground text-sm">
@@ -75,9 +90,14 @@
         </p>
       </div>
     } @else {
-      <div class="fma-list">
+      <div
+        class="bg-card divide-border flex flex-col divide-y overflow-hidden rounded-xl border shadow-(--shadow-card)"
+      >
         @for (animal of animals(); track animal.$id) {
-          <a [routerLink]="['/animals', animal.$id]" class="fma-row">
+          <a
+            [routerLink]="['/animals', animal.$id]"
+            class="hover:bg-muted/60 focus-visible:bg-muted active:bg-muted flex min-h-15 min-w-0 items-center gap-3 px-4 py-3 transition-colors outline-none md:min-h-0"
+          >
             <span class="grow truncate text-sm font-medium">{{
               label(animal)
             }}</span>
@@ -94,9 +114,11 @@
       </div>
     }
   } @else if (kraalStore.isLoading()) {
-    <div class="fma-skeleton h-64"></div>
+    <div class="bg-muted animate-pulse rounded-xl h-64"></div>
   } @else {
-    <div class="fma-empty">
+    <div
+      class="bg-card flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-12 text-center"
+    >
       <p class="font-medium">Kraal not found</p>
       <a routerLink="/kraals" hlmBtn variant="outline">Back to kraals</a>
     </div>

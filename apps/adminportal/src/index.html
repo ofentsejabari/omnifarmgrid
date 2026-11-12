@@ -2,17 +2,52 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>AgroHerd</title>
+    <title>OmniFarmGrid</title>
     <base href="/" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#059669" />
-    <meta name="color-scheme" content="light" />
+    <meta
+      name="description"
+      content="Livestock records for smallholder farms."
+    />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      // Apply the saved theme before the app starts, so dark mode never flashes white.
+      // Keep in sync with ThemeService (src/app/core/ui/theme.service.ts).
+      (function () {
+        var pref = 'system';
+        try {
+          pref = localStorage.getItem('ofg-theme') || 'system';
+        } catch (e) {}
+        var dark =
+          pref === 'dark' ||
+          (pref === 'system' &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (dark) {
+          document.documentElement.classList.add('dark');
+          document.documentElement.style.colorScheme = 'dark';
+          document
+            .querySelector('meta[name="theme-color"]')
+            .setAttribute('content', '#0d1412');
+        }
+      })();
+    </script>
+
+    <!-- Installable app (Android, desktop) -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- iPhone / iPad home screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="OmniFarmGrid" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="alternate icon" href="favicon.ico" />
-    <link rel="apple-touch-icon" href="favicon.svg" />
   </head>
   <body>
     <app-root></app-root>

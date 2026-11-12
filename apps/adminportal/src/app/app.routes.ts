@@ -6,7 +6,7 @@ import { ShellComponent } from './layout/shell.component';
 export const routes: Routes = [
   {
     path: 'login',
-    title: 'Sign in · AgroHerd',
+    title: 'Sign in · OmniFarmGrid',
     canActivate: [guestGuard],
     loadComponent: () =>
       import('./features/login/login.component').then((m) => m.LoginComponent),
@@ -19,7 +19,7 @@ export const routes: Routes = [
       // ── Pages ──────────────────────────────────────────
       {
         path: '',
-        title: 'Dashboard · AgroHerd',
+        title: 'Dashboard · OmniFarmGrid',
         loadComponent: () =>
           import('./features/dashboard/dashboard.component').then(
             (m) => m.DashboardComponent,
@@ -27,7 +27,7 @@ export const routes: Routes = [
       },
       {
         path: 'animals',
-        title: 'Animals · AgroHerd',
+        title: 'Animals · OmniFarmGrid',
         loadComponent: () =>
           import('./features/animals/animal-list.component').then(
             (m) => m.AnimalListComponent,
@@ -35,7 +35,7 @@ export const routes: Routes = [
       },
       {
         path: 'animals/:id',
-        title: 'Animal · AgroHerd',
+        title: 'Animal · OmniFarmGrid',
         loadComponent: () =>
           import('./features/animals/animal-detail.component').then(
             (m) => m.AnimalDetailComponent,
@@ -43,7 +43,7 @@ export const routes: Routes = [
       },
       {
         path: 'kraals',
-        title: 'Kraals · AgroHerd',
+        title: 'Kraals · OmniFarmGrid',
         loadComponent: () =>
           import('./features/kraals/kraal-list.component').then(
             (m) => m.KraalListComponent,
@@ -51,7 +51,7 @@ export const routes: Routes = [
       },
       {
         path: 'kraals/:id',
-        title: 'Kraal · AgroHerd',
+        title: 'Kraal · OmniFarmGrid',
         loadComponent: () =>
           import('./features/kraals/kraal-detail.component').then(
             (m) => m.KraalDetailComponent,
@@ -59,7 +59,7 @@ export const routes: Routes = [
       },
       {
         path: 'stock',
-        title: 'Stock · AgroHerd',
+        title: 'Stock · OmniFarmGrid',
         loadComponent: () =>
           import('./features/inventory/inventory-list.component').then(
             (m) => m.InventoryListComponent,

@@ -31,7 +31,7 @@ import { OnlineStore } from '../../core/stores/online.store';
             <a
               hlmSidebarMenuButton
               size="sm"
-              href="mailto:hello@agroherd.co.bw?subject=AgroHerd%20help"
+              href="mailto:hello@agroherd.co.bw?subject=OmniFarmGrid%20help"
             >
               <ng-icon name="lucideLifeBuoy" />
               <span>Help &amp; support</span>
@@ -41,7 +41,7 @@ import { OnlineStore } from '../../core/stores/online.store';
             <a
               hlmSidebarMenuButton
               size="sm"
-              href="mailto:hello@agroherd.co.bw?subject=AgroHerd%20feedback"
+              href="mailto:hello@agroherd.co.bw?subject=OmniFarmGrid%20feedback"
             >
               <ng-icon name="lucideSend" />
               <span>Send feedback</span>

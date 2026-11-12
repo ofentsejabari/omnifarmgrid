@@ -1,9 +1,15 @@
 <section class="relative overflow-hidden">
   <div
-    class="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:py-24"
+    class="art-savanna-tint text-primary pointer-events-none absolute inset-x-0 bottom-0 h-56 opacity-[0.12] sm:h-72"
+    aria-hidden="true"
+  ></div>
+  <div
+    class="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:py-24"
   >
     <div>
-      <p class="fma-eyebrow inline-flex items-center gap-2">
+      <p
+        class="text-primary text-xs font-semibold tracking-wide uppercase inline-flex items-center gap-2"
+      >
         <ng-icon name="lucideSprout" size="14" />
         Built for Botswana kraals and pens
       </p>
@@ -50,8 +56,7 @@
         class="pointer-events-none absolute -inset-8 rounded-[3rem] bg-emerald-200/40 blur-3xl"
       ></div>
       <div
-        class="bg-card relative overflow-hidden rounded-2xl border"
-        style="box-shadow: var(--shadow-float)"
+        class="bg-card relative overflow-hidden rounded-2xl border shadow-(--shadow-float)"
       >
         <div class="flex items-center gap-2 border-b px-4 py-3">
           <img src="logo.svg" alt="" class="size-6" />
@@ -136,7 +141,9 @@
 <section class="border-t border-border/70">
   <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
     <div class="max-w-2xl">
-      <p class="fma-eyebrow">Features</p>
+      <p class="text-primary text-xs font-semibold tracking-wide uppercase">
+        Features
+      </p>
       <h2 class="mt-2 text-3xl font-semibold tracking-tight">
         What Farm Manager records
       </h2>
@@ -147,7 +154,9 @@
     </div>
     <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       @for (feature of features; track feature.title) {
-      <hlm-card class="fma-list-card h-full">
+      <hlm-card
+        class="hover:border-primary/40 transition-[border-color,box-shadow] duration-200 hover:shadow-md h-full"
+      >
         <div hlmCardHeader>
           <span
             class="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-xl"
@@ -172,7 +181,9 @@
 
 <section class="border-t border-border/70 bg-card/40">
   <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-    <p class="fma-eyebrow">Getting started</p>
+    <p class="text-primary text-xs font-semibold tracking-wide uppercase">
+      Getting started
+    </p>
     <h2 class="mt-2 text-3xl font-semibold tracking-tight">How it starts</h2>
     <ol class="mt-10 grid gap-4 md:grid-cols-3">
       @for (step of steps; track step.step) {
@@ -195,7 +206,9 @@
 <section class="border-t border-border/70">
   <div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2">
     <div>
-      <p class="fma-eyebrow">FAQ</p>
+      <p class="text-primary text-xs font-semibold tracking-wide uppercase">
+        FAQ
+      </p>
       <h2 class="mt-2 text-3xl font-semibold tracking-tight">
         Questions farmers ask
       </h2>
@@ -221,6 +234,10 @@
     >
       <div
         class="pointer-events-none absolute -end-16 -top-24 size-80 rounded-full bg-emerald-400/40 blur-3xl"
+      ></div>
+      <div
+        class="art-savanna pointer-events-none absolute inset-0 opacity-60"
+        aria-hidden="true"
       ></div>
       <div
         class="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between"

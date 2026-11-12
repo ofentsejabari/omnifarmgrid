@@ -2,7 +2,8 @@ export const isoToDate = (iso: string | undefined | null): Date | undefined => {
   if (!iso) {
     return undefined;
   }
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  // Accepts a plain date (2025-12-27) or an Appwrite datetime (2025-12-27T00:00:00.000+00:00).
+  const match = /^(\d{4})-(\d{2})-(\d{2})(?:$|T)/.exec(iso);
   if (!match) {
     return undefined;
   }
@@ -84,4 +85,16 @@ export const friendlyDate = (
     month: 'short',
     ...(date.getFullYear() === today.getFullYear() ? {} : { year: 'numeric' }),
   });
+};
+
+/** "27 Dec 2025" for a plain date or datetime string; empty when missing. */
+export const longDate = (iso: string | undefined | null): string => {
+  const date = isoToDate(iso);
+  return date
+    ? date.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
+    : (iso ?? '');
 };

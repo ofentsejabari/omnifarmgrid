@@ -1,8 +1,14 @@
-<section class="fma-page">
-  <header class="fma-page-header">
+<section class="flex flex-col gap-5 md:gap-6">
+  <header
+    class="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 sm:items-center max-md:[&_[hlmBtn]]:min-h-11"
+  >
     <div>
-      <h1 class="fma-title">{{ heading() }}</h1>
-      <p class="fma-subtitle">
+      <h1
+        class="text-3xl font-bold tracking-tight md:text-2xl md:font-semibold"
+      >
+        {{ heading() }}
+      </h1>
+      <p class="text-muted-foreground mt-1 text-sm">
         {{ kraalStore.page().total }}
         {{ kraalStore.page().total === 1 ? 'place' : 'places' }}
       </p>
@@ -14,18 +20,25 @@
   </header>
 
   @if (kraalStore.error()) {
-    <p class="fma-error">{{ kraalStore.error() }}</p>
+    <p
+      class="bg-destructive/8 text-destructive flex items-start gap-2 rounded-lg px-3 py-2.5 text-sm"
+    >
+      {{ kraalStore.error() }}
+    </p>
   }
 
   @if (kraalStore.isLoading() && rows().length === 0) {
     <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       @for (slot of [1, 2, 3]; track slot) {
-        <div class="fma-skeleton h-28"></div>
+        <div class="bg-muted animate-pulse rounded-xl h-28"></div>
       }
     </div>
   } @else if (rows().length === 0) {
-    <div class="fma-empty">
-      <span class="fma-empty-icon"
+    <div
+      class="bg-card flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-12 text-center"
+    >
+      <span
+        class="bg-secondary text-primary flex size-12 items-center justify-center rounded-xl"
         ><ng-icon name="lucideFence" size="22"
       /></span>
       <div>
@@ -45,7 +58,7 @@
         <li>
           <a
             [routerLink]="['/kraals', row.kraal.$id]"
-            class="fma-panel hover:border-primary/40 flex h-full flex-col gap-4 p-4 transition-colors"
+            class="bg-card rounded-xl border shadow-(--shadow-card) hover:border-primary/40 flex h-full flex-col gap-4 p-4 transition-colors"
           >
             <span class="flex items-center gap-3">
               <app-species-avatar [species]="row.kraal.species" />

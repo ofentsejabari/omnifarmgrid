@@ -1,14 +1,21 @@
-<form class="fma-modal" [formGroup]="form" (ngSubmit)="save()">
-  <header class="fma-modal-header">
-    <h2 class="fma-modal-title">Receive stock</h2>
-    <p class="fma-modal-desc">
+<form
+  class="flex min-h-0 flex-1 flex-col"
+  [formGroup]="form"
+  (ngSubmit)="save()"
+>
+  <header class="border-b px-5 pt-5 pb-4 pe-14">
+    <h2 class="text-lg font-semibold tracking-tight">Receive stock</h2>
+    <p class="text-muted-foreground mt-0.5 text-sm">
       Log a new batch so it can be used when you vaccinate.
     </p>
   </header>
 
-  <div class="fma-modal-body">
+  <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5">
     @if (error()) {
-      <p class="fma-error" role="alert">
+      <p
+        class="bg-destructive/8 text-destructive flex items-start gap-2 rounded-lg px-3 py-2.5 text-sm"
+        role="alert"
+      >
         <ng-icon name="lucideTriangleAlert" size="16" class="mt-0.5 shrink-0" />
         {{ error() }}
       </p>
@@ -22,7 +29,7 @@
         placeholder="Choose a product…"
       />
     </div>
-    <div class="fma-field-row">
+    <div class="grid gap-4 sm:grid-cols-2">
       <div hlmField>
         <label hlmFieldLabel for="receive-qty">Quantity</label>
         <input
@@ -36,15 +43,21 @@
       </div>
       <div hlmField>
         <label hlmFieldLabel for="receive-batch"
-          >Batch number <span class="fma-optional">(optional)</span></label
+          >Batch number
+          <span class="text-muted-foreground font-normal"
+            >(optional)</span
+          ></label
         >
         <input id="receive-batch" hlmInput formControlName="batchNumber" />
       </div>
     </div>
-    <div class="fma-field-row">
+    <div class="grid gap-4 sm:grid-cols-2">
       <div hlmField>
         <label hlmFieldLabel for="receive-expiry"
-          >Expiry date <span class="fma-optional">(optional)</span></label
+          >Expiry date
+          <span class="text-muted-foreground font-normal"
+            >(optional)</span
+          ></label
         >
         <app-date-field
           inputId="receive-expiry"
@@ -60,7 +73,9 @@
     </div>
   </div>
 
-  <footer class="fma-modal-footer">
+  <footer
+    class="bg-muted/40 flex flex-col-reverse gap-2 border-t px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:flex-row md:justify-end md:pb-4 max-md:[&_[hlmBtn]]:h-12 max-md:[&_[hlmBtn]]:text-base"
+  >
     <button type="button" hlmBtn variant="outline" (click)="modal.close()">
       Cancel
     </button>

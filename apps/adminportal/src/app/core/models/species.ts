@@ -174,13 +174,13 @@ export const BREEDS: Record<Species, readonly string[]> = {
 export const speciesAvatarClass = (species: Species): string => {
   switch (species) {
     case 'goat':
-      return 'bg-emerald-50 text-emerald-700';
+      return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300';
     case 'sheep':
-      return 'bg-amber-50 text-amber-700';
+      return 'bg-amber-50 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300';
     case 'pig':
-      return 'bg-pink-50 text-pink-700';
+      return 'bg-pink-50 text-pink-700 dark:bg-pink-400/15 dark:text-pink-300';
     case 'cow':
-      return 'bg-blue-50 text-blue-700';
+      return 'bg-blue-50 text-blue-700 dark:bg-blue-400/15 dark:text-blue-300';
   }
 };
 

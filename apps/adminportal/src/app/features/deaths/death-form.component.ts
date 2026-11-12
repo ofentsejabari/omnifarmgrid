@@ -33,7 +33,7 @@ import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
     ...SpartanUiImports,
   ],
   templateUrl: './death-form.component.html',
-  host: { class: 'fma-modal' },
+  host: { class: 'flex min-h-0 flex-1 flex-col' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeathFormComponent {

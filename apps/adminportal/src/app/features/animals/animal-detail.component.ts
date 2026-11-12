@@ -29,7 +29,7 @@ import { ModalService } from '../../core/ui/modal.service';
 import { SelectFieldComponent } from '../../core/ui/select-field.component';
 import { SpeciesAvatarComponent } from '../../core/ui/species-avatar.component';
 import { ToastService } from '../../core/ui/toast.service';
-import { friendlyDate, todayIsoDate } from '../../core/utils/dates';
+import { friendlyDate, longDate, todayIsoDate } from '../../core/utils/dates';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
 
 interface DetailRow {
@@ -119,7 +119,7 @@ export class AnimalDetailComponent {
       {
         label: 'Born',
         value: animal.dateOfBirth
-          ? `${animal.dateOfBirth}${animal.birthDateEstimated ? ' (estimated)' : ''}`
+          ? `${longDate(animal.dateOfBirth)}${animal.birthDateEstimated ? ' (estimated)' : ''}`
           : '—',
       },
     ];

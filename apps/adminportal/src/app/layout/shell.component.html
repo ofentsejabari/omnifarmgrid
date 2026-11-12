@@ -6,7 +6,7 @@
           <a hlmSidebarMenuButton size="lg" routerLink="/">
             <app-logo [size]="32" />
             <span class="grid flex-1 text-start text-sm leading-tight">
-              <span class="truncate font-semibold">AgroHerd</span>
+              <span class="truncate font-semibold">OmniFarmGrid</span>
               <span class="text-muted-foreground truncate text-xs"
                 >Farm Manager</span
               >
@@ -28,8 +28,18 @@
   </hlm-sidebar>
 
   <main hlmSidebarInset>
+    <!-- Phones: native-style top bar -->
+    <app-mobile-app-bar
+      [title]="pageTitle()"
+      [backUrl]="back()?.url ?? null"
+      [backLabel]="back()?.label ?? 'Back'"
+      [initials]="auth.initials()"
+      (account)="accountOpen.set(true)"
+    />
+
+    <!-- Tablets and desktops: breadcrumbs + Record menu -->
     <header
-      class="bg-background/90 sticky top-0 z-20 flex h-16 shrink-0 items-center gap-2 rounded-t-xl border-b px-4 backdrop-blur"
+      class="bg-background/90 sticky top-0 z-20 hidden h-16 shrink-0 items-center gap-2 rounded-t-xl border-b px-4 backdrop-blur md:flex"
     >
       <button hlmSidebarTrigger class="-ms-1"></button>
       <hlm-separator
@@ -57,7 +67,7 @@
 
       <div class="ms-auto flex items-center gap-2">
         <app-select
-          class="hidden w-40 sm:block"
+          class="hidden w-40 md:block"
           size="sm"
           [value]="speciesFilter.selected()"
           (valueChange)="setFilter($event)"
@@ -76,18 +86,186 @@
       </div>
     </header>
 
-    <div class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 lg:px-8">
-      <app-select
-        class="mb-4 sm:hidden"
-        [value]="speciesFilter.selected()"
-        (valueChange)="setFilter($event)"
-        [options]="speciesOptions"
-        ariaLabel="Show species"
-      />
+    <div
+      class="mx-auto w-full max-w-6xl flex-1 px-4 pt-2 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:py-6 lg:px-8"
+    >
+      @if (!back()) {
+        <app-species-chips class="-mx-4 mb-3 block md:hidden" />
+      }
       <router-outlet />
     </div>
   </main>
 </div>
+
+<!-- Phones: bottom tabs, Record sheet and account sheet (Spartan Sheet) -->
+<app-mobile-tab-bar [tabs]="mobileTabs" (record)="recordOpen.set(true)" />
+
+<hlm-sheet
+  side="bottom"
+  [state]="recordOpen() ? 'open' : 'closed'"
+  (closed)="recordOpen.set(false)"
+>
+  <hlm-sheet-content
+    *hlmSheetPortal="let ctx"
+    [showCloseButton]="false"
+    class="max-h-[88dvh] gap-0 overflow-y-auto rounded-t-2xl pt-2.5 pb-[max(1rem,env(safe-area-inset-bottom))]"
+  >
+    <span
+      class="bg-foreground/20 mx-auto mb-3 block h-1.5 w-10 shrink-0 rounded-full"
+      aria-hidden="true"
+    ></span>
+    <h2
+      hlmSheetTitle
+      class="text-muted-foreground px-5 pb-2 text-center text-sm font-medium"
+    >
+      What happened?
+    </h2>
+    <ul
+      class="bg-muted divide-foreground/10 mx-4 divide-y overflow-hidden rounded-2xl"
+    >
+      @for (action of record.all(); track action.modal) {
+        <li>
+          <button
+            type="button"
+            class="flex min-h-15 w-full items-center gap-3.5 px-4 py-2.5 text-start transition-colors active:bg-foreground/10"
+            (click)="runRecord(action)"
+          >
+            <span
+              class="bg-card text-primary-text inline-flex size-10 shrink-0 items-center justify-center rounded-xl"
+              ><ng-icon [name]="action.icon" size="20"
+            /></span>
+            <span class="min-w-0 grow">
+              <span class="block font-medium">{{ action.label }}</span>
+              <span class="text-muted-foreground block text-sm">{{
+                action.hint
+              }}</span>
+            </span>
+            <ng-icon
+              name="lucideChevronRight"
+              size="18"
+              class="text-muted-foreground"
+            />
+          </button>
+        </li>
+      }
+    </ul>
+    <div class="px-4 pt-3">
+      <button
+        hlmBtn
+        variant="secondary"
+        hlmSheetClose
+        class="h-13 w-full rounded-2xl text-base font-semibold"
+      >
+        Cancel
+      </button>
+    </div>
+  </hlm-sheet-content>
+</hlm-sheet>
+
+<hlm-sheet
+  side="bottom"
+  [state]="accountOpen() ? 'open' : 'closed'"
+  (closed)="accountOpen.set(false)"
+>
+  <hlm-sheet-content
+    *hlmSheetPortal="let ctx"
+    [showCloseButton]="false"
+    class="max-h-[88dvh] gap-0 overflow-y-auto rounded-t-2xl pt-2.5 pb-[max(1rem,env(safe-area-inset-bottom))]"
+  >
+    <span
+      class="bg-foreground/20 mx-auto mb-3 block h-1.5 w-10 shrink-0 rounded-full"
+      aria-hidden="true"
+    ></span>
+    <h2 hlmSheetTitle class="sr-only">Account</h2>
+    <div class="flex items-center gap-3 px-5 pb-4">
+      <span
+        class="bg-primary-strong text-primary-strong-foreground inline-flex size-12 shrink-0 items-center justify-center rounded-full font-semibold"
+        >{{ auth.initials() }}</span
+      >
+      <span class="min-w-0">
+        <span class="block truncate font-semibold">{{
+          auth.displayName()
+        }}</span>
+        <span class="text-muted-foreground block truncate text-sm">{{
+          auth.currentUser()?.email
+        }}</span>
+      </span>
+    </div>
+    <div class="px-4 pb-4">
+      <p class="text-muted-foreground mb-2 px-1 text-xs font-medium">
+        Appearance
+      </p>
+      <app-theme-picker />
+    </div>
+    <ul
+      class="bg-muted divide-foreground/10 mx-4 divide-y overflow-hidden rounded-2xl"
+    >
+      <li
+        class="flex min-h-15 w-full items-center gap-3.5 px-4 py-2.5 text-start transition-colors active:bg-foreground/10 active:bg-transparent"
+        role="status"
+      >
+        <span
+          class="bg-card text-primary-text inline-flex size-10 shrink-0 items-center justify-center rounded-xl"
+        >
+          <ng-icon
+            [name]="online.online() ? 'lucideCloud' : 'lucideCloudOff'"
+            size="20"
+          />
+        </span>
+        <span class="grow">{{
+          online.online() ? 'Online · synced' : 'Offline · not saving'
+        }}</span>
+      </li>
+      <li>
+        <a
+          class="flex min-h-15 w-full items-center gap-3.5 px-4 py-2.5 text-start transition-colors active:bg-foreground/10"
+          href="mailto:hello@agroherd.co.bw?subject=OmniFarmGrid%20help"
+        >
+          <span
+            class="bg-card text-primary-text inline-flex size-10 shrink-0 items-center justify-center rounded-xl"
+            ><ng-icon name="lucideLifeBuoy" size="20"
+          /></span>
+          <span class="grow">Help &amp; support</span>
+        </a>
+      </li>
+      <li>
+        <a
+          class="flex min-h-15 w-full items-center gap-3.5 px-4 py-2.5 text-start transition-colors active:bg-foreground/10"
+          href="mailto:hello@agroherd.co.bw?subject=OmniFarmGrid%20feedback"
+        >
+          <span
+            class="bg-card text-primary-text inline-flex size-10 shrink-0 items-center justify-center rounded-xl"
+            ><ng-icon name="lucideSend" size="20"
+          /></span>
+          <span class="grow">Send feedback</span>
+        </a>
+      </li>
+      <li>
+        <button
+          type="button"
+          class="flex min-h-15 w-full items-center gap-3.5 px-4 py-2.5 text-start transition-colors active:bg-foreground/10 text-destructive"
+          (click)="logout()"
+        >
+          <span
+            class="bg-destructive/10 text-destructive inline-flex size-10 shrink-0 items-center justify-center rounded-xl"
+            ><ng-icon name="lucideLogOut" size="20"
+          /></span>
+          <span class="grow font-medium">Log out</span>
+        </button>
+      </li>
+    </ul>
+    <div class="px-4 pt-3">
+      <button
+        hlmBtn
+        variant="secondary"
+        hlmSheetClose
+        class="h-13 w-full rounded-2xl text-base font-semibold"
+      >
+        Close
+      </button>
+    </div>
+  </hlm-sheet-content>
+</hlm-sheet>
 
 <ng-template #recordMenu>
   <hlm-dropdown-menu class="w-64">
