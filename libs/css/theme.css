@@ -64,13 +64,73 @@
   --chart-births: #2a78d6;
   --chart-deaths: #eb6834;
 
+  /* Grid Green Dark (brand manual): filled buttons, chips and links, 5.5:1 on white. */
+  --primary-strong: #047857;
+  --primary-strong-foreground: #ffffff;
+  --primary-text: #047857;
+
   --shadow-card: 0 1px 2px oklch(0.2 0.02 265 / 0.05);
   --shadow-float:
     0 12px 32px -12px oklch(0.2 0.02 265 / 0.25),
     0 2px 6px oklch(0.2 0.02 265 / 0.06);
 }
 
+/*
+ * Dark theme. The Farm Manager adds the `dark` class to <html> (see ThemeService);
+ * Spartan's `dark:` variant and every token below follow it.
+ * Surfaces carry a faint green tint from the brand's Deep Field.
+ */
+.dark {
+  color-scheme: dark;
+
+  --background: oklch(0.185 0.012 170);
+  --foreground: oklch(0.965 0.006 170);
+  --card: oklch(0.225 0.014 170);
+  --card-foreground: oklch(0.965 0.006 170);
+  --popover: oklch(0.245 0.015 170);
+  --popover-foreground: oklch(0.965 0.006 170);
+  --primary: oklch(0.696 0.17 162.5); /* emerald-500, dark text on it */
+  --primary-foreground: oklch(0.2 0.045 166);
+  --secondary: oklch(0.29 0.045 166);
+  --secondary-foreground: oklch(0.88 0.09 165);
+  --muted: oklch(0.275 0.013 170);
+  --muted-foreground: oklch(0.74 0.015 170);
+  --accent: oklch(0.29 0.045 166);
+  --accent-foreground: oklch(0.88 0.09 165);
+  --destructive: oklch(0.704 0.191 22.2);
+  --border: oklch(1 0 0 / 0.1);
+  --input: oklch(1 0 0 / 0.16);
+  --ring: oklch(0.696 0.17 162.5);
+
+  --sidebar: oklch(0.165 0.011 170);
+  --sidebar-foreground: oklch(0.86 0.01 170);
+  --sidebar-primary: oklch(0.696 0.17 162.5);
+  --sidebar-primary-foreground: oklch(0.2 0.045 166);
+  --sidebar-accent: oklch(0.26 0.014 170);
+  --sidebar-accent-foreground: oklch(0.965 0.006 170);
+  --sidebar-border: oklch(1 0 0 / 0.08);
+  --sidebar-ring: oklch(0.696 0.17 162.5);
+
+  --success: oklch(0.31 0.06 163);
+  --success-foreground: oklch(0.87 0.12 163);
+  --warning: oklch(0.33 0.065 75);
+  --warning-foreground: oklch(0.89 0.13 85);
+  --info: oklch(0.31 0.06 240);
+  --info-foreground: oklch(0.87 0.08 237);
+
+  --primary-strong: #10b981; /* brighter green with dark text keeps 4.5:1 */
+  --primary-strong-foreground: #022c22;
+  --primary-text: #34d399;
+
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.4);
+  --shadow-float:
+    0 12px 32px -12px oklch(0 0 0 / 0.7), 0 2px 6px oklch(0 0 0 / 0.35);
+}
+
 @theme inline {
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-strong-foreground: var(--primary-strong-foreground);
+  --color-primary-text: var(--primary-text);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
@@ -113,134 +173,21 @@
   }
 }
 
+/*
+ * Savanna artwork: koppies, acacias, a kraal fence, cattle and goats.
+ * The build bundles both SVGs from libs/img/art, so either app can use these classes.
+ */
 @layer components {
-  /* ── Page scaffolding ─────────────────────────────── */
-  .fma-page {
-    @apply flex flex-col gap-6;
+  /* Full-colour scene, drawn for emerald panels. */
+  .art-savanna {
+    background: url('../img/art/savanna.svg') center bottom / cover no-repeat;
   }
 
-  .fma-page-header {
-    @apply flex flex-wrap items-start justify-between gap-x-4 gap-y-3 sm:items-center;
-  }
-
-  .fma-title {
-    @apply text-2xl font-semibold tracking-tight;
-  }
-
-  .fma-subtitle {
-    @apply text-muted-foreground mt-1 text-sm;
-  }
-
-  .fma-section-title {
-    @apply text-foreground text-sm font-semibold;
-  }
-
-  .fma-back {
-    @apply text-muted-foreground hover:text-foreground inline-flex w-fit items-center gap-1.5 text-sm font-medium transition-colors;
-  }
-
-  /* ── Surfaces ─────────────────────────────────────── */
-  .fma-panel {
-    @apply bg-card rounded-xl border;
-    box-shadow: var(--shadow-card);
-  }
-
-  .fma-list {
-    @apply bg-card divide-border flex flex-col divide-y overflow-hidden rounded-xl border;
-    box-shadow: var(--shadow-card);
-  }
-
-  .fma-row {
-    @apply hover:bg-muted/60 flex min-w-0 items-center gap-3 px-4 py-3 transition-colors outline-none focus-visible:bg-muted;
-  }
-
-  .fma-empty {
-    @apply bg-card flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-12 text-center;
-  }
-
-  .fma-empty-icon {
-    @apply bg-secondary text-primary flex size-12 items-center justify-center rounded-xl;
-  }
-
-  .fma-skeleton {
-    @apply bg-muted animate-pulse rounded-xl;
-  }
-
-  .fma-kpi {
-    @apply bg-card flex flex-col gap-1 rounded-xl border p-4;
-    box-shadow: var(--shadow-card);
-  }
-
-  .fma-kpi-label {
-    @apply text-muted-foreground flex items-center gap-2 text-xs font-medium;
-  }
-
-  .fma-kpi-value {
-    @apply text-2xl font-semibold tracking-tight tabular-nums;
-  }
-
-  /* ── Modal (see ModalHostComponent; bottom sheet on phones) ── */
-  .fma-dialog {
-    @apply bg-card text-card-foreground flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl outline-none sm:max-h-[85dvh] sm:w-[min(36rem,calc(100vw-2rem))] sm:rounded-2xl;
-    box-shadow: var(--shadow-float);
-    animation: fma-dialog-in 180ms ease-out;
-  }
-
-  .fma-modal {
-    @apply flex min-h-0 flex-1 flex-col;
-  }
-
-  .fma-modal-header {
-    @apply border-b px-5 pt-5 pb-4 pe-14;
-  }
-
-  .fma-modal-title {
-    @apply text-lg font-semibold tracking-tight;
-  }
-
-  .fma-modal-desc {
-    @apply text-muted-foreground mt-0.5 text-sm;
-  }
-
-  .fma-modal-body {
-    @apply flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5;
-  }
-
-  .fma-modal-footer {
-    @apply bg-muted/40 flex flex-col-reverse gap-2 border-t px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:flex-row sm:justify-end sm:pb-4;
-  }
-
-  .fma-field-row {
-    @apply grid gap-4 sm:grid-cols-2;
-  }
-
-  .fma-optional {
-    @apply text-muted-foreground font-normal;
-  }
-
-  .fma-error {
-    @apply bg-destructive/8 text-destructive flex items-start gap-2 rounded-lg px-3 py-2.5 text-sm;
-  }
-}
-
-@keyframes fma-dialog-in {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* Marketing site helpers */
-@layer components {
-  .fma-eyebrow {
-    @apply text-primary text-xs font-semibold tracking-wide uppercase;
-  }
-
-  .fma-list-card {
-    @apply hover:border-primary/40 transition-[border-color,box-shadow] duration-200 hover:shadow-md;
+  /* One-colour silhouette in the current text colour, so it follows the theme. */
+  .art-savanna-tint {
+    background-color: currentColor;
+    -webkit-mask: url('../img/art/savanna-mask.svg') center bottom / cover
+      no-repeat;
+    mask: url('../img/art/savanna-mask.svg') center bottom / cover no-repeat;
   }
 }

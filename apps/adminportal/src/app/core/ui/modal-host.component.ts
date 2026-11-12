@@ -12,7 +12,8 @@ import { NgIcon } from '@ng-icons/core';
 import { MODAL_OUTLET, ModalService } from './modal.service';
 
 /**
- * Renders whatever is routed into the `modal` outlet as a popup.
+ * Renders whatever is routed into the `modal` outlet as a popup: full screen on
+ * phones, a centred dialog from 768px up.
  *
  * Not a native <dialog>: a modal dialog sits in the browser's top layer, which would hide
  * Spartan's select and date-picker overlays (they render in the CDK overlay container).
@@ -23,7 +24,7 @@ import { MODAL_OUTLET, ModalService } from './modal.service';
   host: { '(document:keydown.escape)': 'onEscape()' },
   template: `
     <div
-      class="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4"
+      class="fixed inset-0 z-50 flex items-end justify-center md:items-center md:p-4"
       [hidden]="!open()"
     >
       <div
@@ -33,7 +34,7 @@ import { MODAL_OUTLET, ModalService } from './modal.service';
       ></div>
       <div
         #panel
-        class="fma-dialog relative"
+        class="bg-card text-card-foreground flex h-dvh w-full flex-col overflow-hidden pt-[env(safe-area-inset-top)] shadow-(--shadow-float) outline-none animate-in slide-in-from-bottom duration-300 ease-out md:h-auto md:max-h-[85dvh] md:w-[min(36rem,calc(100vw-2rem))] md:rounded-2xl md:pt-0 md:fade-in md:slide-in-from-bottom-3 md:duration-200 relative"
         role="dialog"
         aria-modal="true"
         tabindex="-1"
@@ -45,7 +46,7 @@ import { MODAL_OUTLET, ModalService } from './modal.service';
         />
         <button
           type="button"
-          class="text-muted-foreground hover:bg-muted hover:text-foreground absolute end-3 top-3 z-10 inline-flex size-9
+          class="text-muted-foreground hover:bg-muted hover:text-foreground absolute end-3 top-[calc(env(safe-area-inset-top)+0.75rem)] z-10 inline-flex size-9 md:top-3
             items-center justify-center rounded-lg transition-colors"
           aria-label="Close"
           (click)="modal.close()"

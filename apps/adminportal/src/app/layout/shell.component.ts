@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   inject,
+  signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -16,19 +17,29 @@ import { HlmBreadcrumbImports } from '@spartan-ng/helm/breadcrumb';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
+import { HlmSheetImports } from '@spartan-ng/helm/sheet';
 import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
 import { filter, map } from 'rxjs';
 import { LIST_PAGE_SIZE } from '../core/data/appwrite-client.service';
 import { animalLabel } from '../core/models/animal';
 import { isSpecies, SPECIES, speciesLabel } from '../core/models/species';
 import { AnimalStore } from '../core/stores/animal.store';
+import { AuthStore } from '../core/stores/auth.store';
+import { OnlineStore } from '../core/stores/online.store';
 import { KraalStore } from '../core/stores/kraal.store';
 import { SpeciesFilterStore } from '../core/stores/species-filter.store';
 import { AppLogoComponent } from '../core/ui/app-logo.component';
 import { ModalHostComponent } from '../core/ui/modal-host.component';
+import { ThemePickerComponent } from '../core/ui/theme-picker.component';
 import { SelectFieldComponent } from '../core/ui/select-field.component';
 import { ToasterComponent } from '../core/ui/toaster.component';
-import { RecordActions } from './record-actions';
+import { MobileAppBarComponent } from './mobile/mobile-app-bar.component';
+import {
+  MobileTabBarComponent,
+  TabItem,
+} from './mobile/mobile-tab-bar.component';
+import { SpeciesChipsComponent } from './mobile/species-chips.component';
+import { RecordAction, RecordActions } from './record-actions';
 import { NavItem, NavMainComponent } from './sidebar/nav-main.component';
 import { NavRecordComponent } from './sidebar/nav-record.component';
 import { NavSecondaryComponent } from './sidebar/nav-secondary.component';
@@ -46,7 +57,11 @@ const SECTIONS: Record<string, string> = {
   stock: 'Stock',
 };
 
-/** App frame: Spartan inset sidebar (spartan.ng/blocks/sidebar#sidebar-2) around the routed page. */
+/**
+ * App frame. Tablets and desktops: Spartan inset sidebar
+ * (spartan.ng/blocks/sidebar#sidebar-2). Phones: a native-style top bar, bottom
+ * tabs with a central Record button, and bottom sheets for actions.
+ */
 @Component({
   selector: 'app-shell',
   imports: [
@@ -66,6 +81,11 @@ const SECTIONS: Record<string, string> = {
     NavRecordComponent,
     NavSecondaryComponent,
     NavUserComponent,
+    MobileAppBarComponent,
+    MobileTabBarComponent,
+    HlmSheetImports,
+    SpeciesChipsComponent,
+    ThemePickerComponent,
   ],
   templateUrl: './shell.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -76,6 +96,18 @@ export class ShellComponent {
   private readonly router = inject(Router);
   private readonly animalStore = inject(AnimalStore);
   private readonly kraalStore = inject(KraalStore);
+  protected readonly auth = inject(AuthStore);
+  protected readonly online = inject(OnlineStore);
+
+  protected readonly recordOpen = signal(false);
+  protected readonly accountOpen = signal(false);
+
+  protected readonly mobileTabs: TabItem[] = [
+    { title: 'Home', url: '/', icon: 'lucideHouse', exact: true },
+    { title: 'Animals', url: '/animals', icon: 'lucidePawPrint' },
+    { title: 'Kraals', url: '/kraals', icon: 'lucideFence' },
+    { title: 'Stock', url: '/stock', icon: 'lucidePackage' },
+  ];
 
   protected readonly navItems: NavItem[] = [
     {
@@ -120,9 +152,32 @@ export class ShellComponent {
     return crumbs;
   });
 
+  /** Title of the current page, shown in the phone top bar once the page scrolls. */
+  protected readonly pageTitle = computed(() => {
+    const crumbs = this.breadcrumbs();
+    return crumbs[crumbs.length - 1]?.label ?? '';
+  });
+
+  /** On detail pages, where the phone back button goes. */
+  protected readonly back = computed(() => {
+    const crumbs = this.breadcrumbs();
+    return crumbs.length > 1 ? crumbs[0] : null;
+  });
+
   constructor() {
     // Kraal names are needed on almost every screen and in every form.
     void this.kraalStore.setPage({ page: 1, limit: LIST_PAGE_SIZE });
+  }
+
+  protected runRecord(action: RecordAction): void {
+    this.recordOpen.set(false);
+    action.run();
+  }
+
+  protected async logout(): Promise<void> {
+    this.accountOpen.set(false);
+    await this.auth.logout();
+    window.location.assign('/login');
   }
 
   protected setFilter(value: string): void {

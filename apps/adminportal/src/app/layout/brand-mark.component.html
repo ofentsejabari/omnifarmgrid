@@ -4,13 +4,16 @@
     layout() === 'stack' ? 'flex-col items-center text-center' : 'items-center'
   "
 >
-  <app-logo [size]="layout() === 'stack' ? 52 : 40" />
+  <app-logo
+    [size]="layout() === 'stack' ? 56 : 40"
+    [inverse]="tone() === 'inverse'"
+  />
   <div class="min-w-0">
     <p
       class="text-lg leading-tight font-semibold tracking-tight"
       [class.text-white]="tone() === 'inverse'"
     >
-      AgroHerd
+      OmniFarmGrid
     </p>
     <p
       class="text-sm"

@@ -6,7 +6,8 @@
       class="pointer-events-none absolute -end-24 -top-24 size-[28rem] rounded-full bg-emerald-400/30 blur-3xl"
     ></div>
     <div
-      class="pointer-events-none absolute -bottom-32 -start-16 size-96 rounded-full bg-emerald-900/30 blur-3xl"
+      class="art-savanna pointer-events-none absolute inset-x-0 bottom-0 h-[min(55%,28rem)]"
+      aria-hidden="true"
     ></div>
 
     <app-brand-mark class="relative" tone="inverse" tagline="Farm Manager" />
@@ -36,8 +37,14 @@
     </p>
   </aside>
 
-  <section class="flex flex-col justify-center px-4 py-10 sm:px-8">
-    <div class="mx-auto w-full max-w-[420px]">
+  <section
+    class="relative flex flex-col justify-center overflow-hidden px-4 py-10 sm:px-8"
+  >
+    <div
+      class="art-savanna-tint text-primary pointer-events-none absolute inset-x-0 bottom-0 h-44 opacity-15 lg:hidden"
+      aria-hidden="true"
+    ></div>
+    <div class="relative mx-auto w-full max-w-[420px]">
       <app-brand-mark class="mb-8 lg:hidden" layout="stack" />
 
       <div class="hidden lg:block">
@@ -55,7 +62,7 @@
       }
 
       <form
-        class="fma-panel mt-6 flex flex-col gap-5 p-6 sm:p-8"
+        class="bg-card rounded-xl border shadow-(--shadow-card) mt-6 flex flex-col gap-5 p-6 sm:p-8"
         (submit)="onSubmit($event)"
       >
         <div hlmField>

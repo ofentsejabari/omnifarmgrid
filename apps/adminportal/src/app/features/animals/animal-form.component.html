@@ -1,16 +1,19 @@
-<form class="fma-modal" [formRoot]="animalForm">
-  <header class="fma-modal-header">
-    <h2 class="fma-modal-title">
+<form class="flex min-h-0 flex-1 flex-col" [formRoot]="animalForm">
+  <header class="border-b px-5 pt-5 pb-4 pe-14">
+    <h2 class="text-lg font-semibold tracking-tight">
       {{ isEdit ? 'Edit ' + words().noun : 'Add an animal' }}
     </h2>
-    <p class="fma-modal-desc">
+    <p class="text-muted-foreground mt-0.5 text-sm">
       Ear tag and {{ words().location }} are required; the rest can wait.
     </p>
   </header>
 
-  <div class="fma-modal-body">
+  <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5">
     @if (error()) {
-      <p class="fma-error" role="alert">
+      <p
+        class="bg-destructive/8 text-destructive flex items-start gap-2 rounded-lg px-3 py-2.5 text-sm"
+        role="alert"
+      >
         <ng-icon name="lucideTriangleAlert" size="16" class="mt-0.5 shrink-0" />
         {{ error() }}
       </p>
@@ -44,7 +47,7 @@
         </div>
       </div>
 
-      <div class="fma-field-row">
+      <div class="grid gap-4 sm:grid-cols-2">
         <div hlmField>
           <label hlmFieldLabel for="animal-tag">Ear tag</label>
           <input
@@ -60,13 +63,16 @@
         </div>
         <div hlmField>
           <label hlmFieldLabel for="animal-name"
-            >Name <span class="fma-optional">(optional)</span></label
+            >Name
+            <span class="text-muted-foreground font-normal"
+              >(optional)</span
+            ></label
           >
           <input id="animal-name" hlmInput [formField]="animalForm.name" />
         </div>
       </div>
 
-      <div class="fma-field-row">
+      <div class="grid gap-4 sm:grid-cols-2">
         <div hlmField>
           <label hlmFieldLabel for="animal-kraal">{{
             words().location | sentence
@@ -98,10 +104,13 @@
         </div>
       </div>
 
-      <div class="fma-field-row">
+      <div class="grid gap-4 sm:grid-cols-2">
         <div hlmField>
           <label hlmFieldLabel for="animal-breed"
-            >Breed <span class="fma-optional">(optional)</span></label
+            >Breed
+            <span class="text-muted-foreground font-normal"
+              >(optional)</span
+            ></label
           >
           <input
             id="animal-breed"
@@ -117,7 +126,10 @@
         </div>
         <div hlmField>
           <label hlmFieldLabel for="animal-dob"
-            >Date of birth <span class="fma-optional">(optional)</span></label
+            >Date of birth
+            <span class="text-muted-foreground font-normal"
+              >(optional)</span
+            ></label
           >
           <app-date-field
             inputId="animal-dob"
@@ -139,7 +151,10 @@
 
       <div hlmField>
         <label hlmFieldLabel for="animal-notes"
-          >Notes <span class="fma-optional">(optional)</span></label
+          >Notes
+          <span class="text-muted-foreground font-normal"
+            >(optional)</span
+          ></label
         >
         <textarea
           id="animal-notes"
@@ -148,11 +163,13 @@
         ></textarea>
       </div>
     } @else {
-      <div class="fma-skeleton h-64"></div>
+      <div class="bg-muted animate-pulse rounded-xl h-64"></div>
     }
   </div>
 
-  <footer class="fma-modal-footer">
+  <footer
+    class="bg-muted/40 flex flex-col-reverse gap-2 border-t px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:flex-row md:justify-end md:pb-4 max-md:[&_[hlmBtn]]:h-12 max-md:[&_[hlmBtn]]:text-base"
+  >
     <button type="button" hlmBtn variant="outline" (click)="modal.close()">
       Cancel
     </button>

@@ -5,7 +5,12 @@ import {
 import { provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
+  lucideSun,
+  lucideMoon,
+  lucideMonitorSmartphone,
   lucideArrowRight,
+  lucideHouse,
+  lucideChevronLeft,
   lucideOctagonAlert,
   lucideSend,
   lucideLifeBuoy,
@@ -51,7 +56,12 @@ import {
 /** Every icon the app renders by name. Unused icons are left out to keep the bundle small. */
 export const LUCIDE_ICONS = {
   lucideArrowLeft,
+  lucideSun,
+  lucideMoon,
+  lucideMonitorSmartphone,
   lucideArrowRight,
+  lucideHouse,
+  lucideChevronLeft,
   lucideOctagonAlert,
   lucideSend,
   lucideLifeBuoy,

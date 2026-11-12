@@ -1,20 +1,28 @@
-<section class="fma-page">
-  <a routerLink="/animals" class="fma-back"
+<section class="flex flex-col gap-5 md:gap-6">
+  <a
+    routerLink="/animals"
+    class="text-muted-foreground hover:text-foreground hidden w-fit items-center gap-1.5 text-sm font-medium transition-colors md:inline-flex"
     ><ng-icon name="lucideArrowLeft" />Animals</a
   >
 
   @if (animal(); as current) {
-    <header class="fma-page-header">
+    <header
+      class="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 sm:items-center max-md:[&_[hlmBtn]]:min-h-11"
+    >
       <div class="flex min-w-0 items-center gap-4">
         <app-species-avatar [species]="current.species" size="lg" />
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-2">
-            <h1 class="fma-title truncate">{{ label(current) }}</h1>
+            <h1
+              class="text-3xl font-bold tracking-tight md:text-2xl md:font-semibold truncate"
+            >
+              {{ label(current) }}
+            </h1>
             <span hlmBadge [class]="statusClass(current.status)">{{
               statusLabel(current.status)
             }}</span>
           </div>
-          <p class="fma-subtitle">
+          <p class="text-muted-foreground mt-1 text-sm">
             {{ sexLabel(current) }} · {{ kraalName(current.kraalId) }}
           </p>
         </div>
@@ -56,8 +64,8 @@
 
     <div class="grid gap-3 lg:grid-cols-5">
       <div class="flex flex-col gap-3 lg:col-span-2">
-        <div class="fma-panel p-5">
-          <h2 class="fma-section-title mb-3">Details</h2>
+        <div class="bg-card rounded-xl border shadow-(--shadow-card) p-5">
+          <h2 class="text-foreground text-sm font-semibold mb-3">Details</h2>
           <dl class="divide-border flex flex-col divide-y text-sm">
             @for (row of details(); track row.label) {
               <div
@@ -86,12 +94,18 @@
         </div>
 
         @if (current.status === 'alive' && moveOptions().length) {
-          <div class="fma-panel flex flex-col gap-3 p-5">
-            <h2 class="fma-section-title">
+          <div
+            class="bg-card rounded-xl border shadow-(--shadow-card) flex flex-col gap-3 p-5"
+          >
+            <h2 class="text-foreground text-sm font-semibold">
               Move to another {{ words().location }}
             </h2>
             @if (moveError()) {
-              <p class="fma-error">{{ moveError() }}</p>
+              <p
+                class="bg-destructive/8 text-destructive flex items-start gap-2 rounded-lg px-3 py-2.5 text-sm"
+              >
+                {{ moveError() }}
+              </p>
             }
             <div class="flex gap-2">
               <app-select
@@ -114,8 +128,8 @@
         }
 
         @if (offspring().length) {
-          <div class="fma-panel p-5">
-            <h2 class="fma-section-title mb-2">
+          <div class="bg-card rounded-xl border shadow-(--shadow-card) p-5">
+            <h2 class="text-foreground text-sm font-semibold mb-2">
               Offspring ({{ offspring().length }})
             </h2>
             <ul class="-mx-2 flex flex-col">
@@ -139,8 +153,10 @@
         }
       </div>
 
-      <div class="fma-panel p-5 lg:col-span-3">
-        <h2 class="fma-section-title mb-4">History</h2>
+      <div
+        class="bg-card rounded-xl border shadow-(--shadow-card) p-5 lg:col-span-3"
+      >
+        <h2 class="text-foreground text-sm font-semibold mb-4">History</h2>
         @if (history().length === 0) {
           <p class="text-muted-foreground py-8 text-center text-sm">
             Nothing recorded for this animal yet.
@@ -177,11 +193,13 @@
       </div>
     </div>
   } @else if (animalStore.herd().length) {
-    <div class="fma-empty">
+    <div
+      class="bg-card flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-12 text-center"
+    >
       <p class="font-medium">Animal not found</p>
       <a routerLink="/animals" hlmBtn variant="outline">Back to animals</a>
     </div>
   } @else {
-    <div class="fma-skeleton h-64"></div>
+    <div class="bg-muted animate-pulse rounded-xl h-64"></div>
   }
 </section>

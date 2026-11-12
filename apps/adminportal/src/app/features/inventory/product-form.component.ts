@@ -23,7 +23,7 @@ import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
   selector: 'fma-product-form',
   imports: [ReactiveFormsModule, SelectFieldComponent, ...SpartanUiImports],
   templateUrl: './product-form.component.html',
-  host: { class: 'fma-modal' },
+  host: { class: 'flex min-h-0 flex-1 flex-col' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductFormComponent {

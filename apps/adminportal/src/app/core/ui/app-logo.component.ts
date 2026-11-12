@@ -1,6 +1,11 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-/** AgroHerd mark: a cattle head on an emerald tile. Same artwork as public/logo.svg. */
+let nextId = 0;
+
+/**
+ * OmniFarmGrid mark: a map pin with a sprout growing in its window.
+ * Same artwork as libs/img/brand/omnifarmgrid/svg/omnifarmgrid-icon.svg.
+ */
 @Component({
   selector: 'app-logo',
   host: { class: 'inline-flex shrink-0' },
@@ -8,30 +13,66 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
     <svg
       [attr.width]="size()"
       [attr.height]="size()"
-      viewBox="0 0 64 64"
+      viewBox="12 4 96 116"
       role="img"
-      aria-label="AgroHerd"
+      aria-label="OmniFarmGrid"
     >
-      <rect width="64" height="64" rx="15" fill="#059669" />
-      <g fill="#fff">
-        <path d="M23.5 23.5C16.5 22 12.5 17 13 10c3 4.6 7.6 7.3 13.4 8.4z" />
-        <path d="M40.5 23.5C47.5 22 51.5 17 51 10c-3 4.6-7.6 7.3-13.4 8.4z" />
-        <path d="M22.6 28.4c-4.6.6-8.4-.8-10.6-3.9 3.8-1.4 7.6-1.3 11.2.3z" />
-        <path d="M41.4 28.4c4.6.6 8.4-.8 10.6-3.9-3.8-1.4-7.6-1.3-11.2.3z" />
-        <path
-          d="M25 20.5h14c2.4 0 4 2.1 3.6 4.4l-3.2 18.4C38.7 47.4 35.6 51 32 51s-6.7-3.6-7.4-7.7l-3.2-18.4c-.4-2.3 1.2-4.4 3.6-4.4z"
-        />
-      </g>
-      <g fill="#059669">
-        <circle cx="27.6" cy="30.5" r="1.9" />
-        <circle cx="36.4" cy="30.5" r="1.9" />
-        <ellipse cx="29.3" cy="44.2" rx="1.5" ry="1.9" />
-        <ellipse cx="34.7" cy="44.2" rx="1.5" ry="1.9" />
-      </g>
+      <defs>
+        <mask
+          [attr.id]="maskId"
+          maskUnits="userSpaceOnUse"
+          x="0"
+          y="0"
+          width="120"
+          height="120"
+        >
+          <rect width="120" height="120" fill="#fff" />
+          <circle cx="60" cy="48" r="28" fill="#000" />
+        </mask>
+      </defs>
+      <path
+        d="M60 116 C60 116 20 76 20 48 A40 40 0 1 1 100 48 C100 76 60 116 60 116 Z"
+        [attr.class]="
+          inverse() ? 'fill-white' : 'fill-[#064E3B] dark:fill-white'
+        "
+        [attr.mask]="'url(#' + maskId + ')'"
+      />
+      <path
+        d="M60 69 L60 49"
+        [attr.class]="
+          inverse()
+            ? 'stroke-[#6EE7B7]'
+            : 'stroke-[#059669] dark:stroke-[#6EE7B7]'
+        "
+        stroke-width="5"
+        stroke-linecap="round"
+      />
+      <path
+        d="M59 57 C47 58 38 51 37 39 C50 38 58 45 59 57 Z"
+        [attr.class]="
+          inverse() ? 'fill-[#6EE7B7]' : 'fill-[#059669] dark:fill-[#6EE7B7]'
+        "
+      />
+      <path
+        d="M61 51 C62 37 72 29 85 29 C85 43 75 51 61 51 Z"
+        [attr.class]="
+          inverse() ? 'fill-[#6EE7B7]' : 'fill-[#059669] dark:fill-[#6EE7B7]'
+        "
+      />
+      <path
+        d="M46 69 Q60 64 74 69"
+        stroke="#F59E0B"
+        stroke-width="5"
+        stroke-linecap="round"
+        fill="none"
+      />
     </svg>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppLogoComponent {
   readonly size = input(36);
+  /** Always use the white pin (on coloured backgrounds). Dark theme switches automatically. */
+  readonly inverse = input(false);
+  protected readonly maskId = `ofg-logo-win-${nextId++}`;
 }

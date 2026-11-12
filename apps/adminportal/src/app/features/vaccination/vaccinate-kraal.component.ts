@@ -28,7 +28,7 @@ import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
   selector: 'fma-vaccinate-kraal',
   imports: [SelectFieldComponent, DateFieldComponent, ...SpartanUiImports],
   templateUrl: './vaccinate-kraal.component.html',
-  host: { class: 'fma-modal' },
+  host: { class: 'flex min-h-0 flex-1 flex-col' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaccinateKraalComponent {

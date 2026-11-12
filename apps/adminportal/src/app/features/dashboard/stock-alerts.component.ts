@@ -58,7 +58,10 @@ const TONE: Record<Severity, { icon: string; tile: string; label: string }> = {
   imports: [RouterLink, NgIcon, HlmButtonImports],
   template: `
     @if (visible().length) {
-      <section class="fma-panel overflow-hidden" aria-labelledby="alerts-title">
+      <section
+        class="bg-card rounded-xl border shadow-(--shadow-card) overflow-hidden"
+        aria-labelledby="alerts-title"
+      >
         <header class="flex items-center gap-3 border-b px-4 py-3">
           <span
             class="flex size-8 items-center justify-center rounded-lg"

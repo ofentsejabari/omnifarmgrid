@@ -27,7 +27,7 @@ type KraalDraft = Pick<KraalRow, 'species' | 'name' | 'notes'>;
   selector: 'fma-kraal-form',
   imports: [FormField, FormRoot, SpeciesAvatarComponent, ...SpartanUiImports],
   templateUrl: './kraal-form.component.html',
-  host: { class: 'fma-modal' },
+  host: { class: 'flex min-h-0 flex-1 flex-col' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KraalFormComponent {
