@@ -77,6 +77,69 @@
       }
     </div>
 
+    <app-page-guide
+      heading="Who lives here"
+      [description]="
+        'The buttons above work on this whole ' +
+        words().location +
+        '. Vaccinate includes every animal here; you untick the few you skip.'
+      "
+      icon="lucideFence"
+    >
+      @if (animals().length) {
+        <div class="mt-4 flex flex-col gap-3">
+          <div
+            class="bg-card flex h-3 overflow-hidden rounded-full"
+            role="img"
+            [attr.aria-label]="
+              makeup()[0].count +
+              ' ' +
+              makeup()[0].label +
+              ', ' +
+              makeup()[1].count +
+              ' ' +
+              makeup()[1].label +
+              ', ' +
+              makeup()[2].count +
+              ' castrated'
+            "
+          >
+            @for (part of makeup(); track part.label) {
+              @if (part.count) {
+                <span
+                  class="h-full first:rounded-s-full last:rounded-e-full"
+                  [class]="part.bar"
+                  [style.width.%]="part.share"
+                ></span>
+              }
+            }
+          </div>
+          <ul class="grid grid-cols-3 gap-2">
+            @for (part of makeup(); track part.label) {
+              <li class="flex items-start gap-2">
+                <span
+                  class="mt-1 size-2.5 shrink-0 rounded-full"
+                  [class]="part.bar"
+                  aria-hidden="true"
+                ></span>
+                <span class="min-w-0">
+                  <span class="block text-sm">
+                    <span class="font-semibold tabular-nums">{{
+                      part.count
+                    }}</span>
+                    {{ part.label | sentence }}
+                  </span>
+                  <span class="text-muted-foreground block text-xs">{{
+                    part.hint
+                  }}</span>
+                </span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </app-page-guide>
+
     @if (animals().length === 0) {
       <div
         class="bg-card flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-12 text-center"

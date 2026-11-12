@@ -10,6 +10,10 @@ import { ModalService } from '../../core/ui/modal.service';
 import { ToastService } from '../../core/ui/toast.service';
 import { expiresWithinDays, isExpired } from '../../core/utils/dates';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
+import {
+  GuideStep,
+  PageGuideComponent,
+} from '../../core/ui/page-guide.component';
 
 const KIND_TONE: Record<ProductKind, string> = {
   vaccine: 'bg-info text-info-foreground',
@@ -20,11 +24,37 @@ const KIND_TONE: Record<ProductKind, string> = {
 
 @Component({
   selector: 'fma-inventory-list',
-  imports: [...SpartanUiImports],
+  imports: [PageGuideComponent, ...SpartanUiImports],
   templateUrl: './inventory-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InventoryListComponent {
+  protected readonly guideSteps: readonly GuideStep[] = [
+    {
+      icon: 'lucidePlus',
+      title: 'Add a product',
+      text: 'Each vaccine, dewormer or dip you use, with a low-stock warning level.',
+    },
+    {
+      icon: 'lucidePackagePlus',
+      title: 'Receive stock',
+      text: 'Log each new batch with its quantity and expiry date.',
+      tone: 'bg-info text-info-foreground',
+    },
+    {
+      icon: 'lucideSyringe',
+      title: 'Vaccinate a kraal',
+      text: 'Doses come off the batch you choose. Expired batches cannot be used.',
+      tone: 'bg-warning text-warning-foreground',
+    },
+    {
+      icon: 'lucideBell',
+      title: 'Get warned in time',
+      text: 'Low stock and batches expiring within 30 days show on the dashboard.',
+      tone: 'bg-destructive/10 text-destructive',
+    },
+  ];
+
   private readonly inventoryStore = inject(InventoryStore);
   private readonly toast = inject(ToastService);
   protected readonly modal = inject(ModalService);

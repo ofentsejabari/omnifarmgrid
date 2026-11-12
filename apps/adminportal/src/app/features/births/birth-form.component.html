@@ -10,6 +10,12 @@
     <p class="text-muted-foreground mt-0.5 text-sm">
       Choose the mother, then tag each {{ vocabulary(species()).young }}.
     </p>
+    <app-page-guide
+      class="mt-3"
+      compact
+      heading="Steps"
+      [steps]="guideSteps()"
+    />
   </header>
 
   <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5">

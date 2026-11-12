@@ -16,10 +16,15 @@ import { SpeciesFilterStore } from '../../core/stores/species-filter.store';
 import { ModalService } from '../../core/ui/modal.service';
 import { SpeciesAvatarComponent } from '../../core/ui/species-avatar.component';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
+import {
+  GuideStep,
+  PageGuideComponent,
+} from '../../core/ui/page-guide.component';
 
 @Component({
   selector: 'app-kraal-list',
   imports: [
+    PageGuideComponent,
     RouterLink,
     HlmNumberedPagination,
     SpeciesAvatarComponent,
@@ -29,6 +34,26 @@ import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KraalListComponent {
+  protected readonly guideSteps: readonly GuideStep[] = [
+    {
+      icon: 'lucideFence',
+      title: 'Add a kraal or pen',
+      text: 'Choose who lives there. Each place holds one species, so records stay tidy.',
+    },
+    {
+      icon: 'lucidePawPrint',
+      title: 'Put animals in it',
+      text: 'Pick the kraal when you add an animal, or move it later.',
+      tone: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300',
+    },
+    {
+      icon: 'lucideSyringe',
+      title: 'Work the whole group',
+      text: 'Open a kraal to vaccinate everyone at once or record births and deaths.',
+      tone: 'bg-warning text-warning-foreground',
+    },
+  ];
+
   protected readonly kraalStore = inject(KraalStore);
   protected readonly modal = inject(ModalService);
   private readonly animalStore = inject(AnimalStore);

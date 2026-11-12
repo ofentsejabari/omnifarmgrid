@@ -31,6 +31,10 @@ import { SpeciesAvatarComponent } from '../../core/ui/species-avatar.component';
 import { ToastService } from '../../core/ui/toast.service';
 import { friendlyDate, longDate, todayIsoDate } from '../../core/utils/dates';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
+import {
+  GuideStep,
+  PageGuideComponent,
+} from '../../core/ui/page-guide.component';
 
 interface DetailRow {
   label: string;
@@ -41,6 +45,7 @@ interface DetailRow {
 @Component({
   selector: 'fma-animal-detail',
   imports: [
+    PageGuideComponent,
     RouterLink,
     SpeciesAvatarComponent,
     SelectFieldComponent,
@@ -50,6 +55,35 @@ interface DetailRow {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnimalDetailComponent {
+  protected readonly guideSteps = computed<GuideStep[]>(() => {
+    const words = this.words();
+    return [
+      {
+        icon: 'lucidePencil',
+        title: 'Keep details current',
+        text: 'Use Edit to fix the tag, breed, birth date or notes.',
+      },
+      {
+        icon: 'lucideBaby',
+        title: words.birthVerb,
+        text: `For a ${words.dam}: her ${words.youngPlural} are linked to her and listed under Offspring.`,
+        tone: 'bg-info text-info-foreground',
+      },
+      {
+        icon: 'lucideMoveHorizontal',
+        title: `Move ${words.location}`,
+        text: `Changed ${words.location}? Pick the new one in the Move box.`,
+        tone: 'bg-warning text-warning-foreground',
+      },
+      {
+        icon: 'lucideHeartOff',
+        title: 'Record a death',
+        text: 'The record is kept, marked dead or culled, with its full history.',
+        tone: 'bg-destructive/10 text-destructive',
+      },
+    ];
+  });
+
   protected readonly animalStore = inject(AnimalStore);
   private readonly eventStore = inject(EventStore);
   private readonly kraalStore = inject(KraalStore);

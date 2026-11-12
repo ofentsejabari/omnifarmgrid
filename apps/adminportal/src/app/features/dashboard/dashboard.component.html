@@ -14,6 +14,13 @@
     </div>
   </header>
 
+  <app-page-guide
+    heading="How Farm Manager works"
+    description="Your whole farm on one page. Everything you record on the other screens is added up here. Use the species switch at the top to look at one kind of animal."
+    icon="lucideLayoutDashboard"
+    [steps]="guideSteps"
+  />
+
   <app-stock-alerts />
 
   <!-- KPIs -->
@@ -48,7 +55,9 @@
     >
       <div>
         <h2 class="text-foreground text-sm font-semibold">Herd by species</h2>
-        <p class="text-muted-foreground text-xs">Living animals today</p>
+        <p class="text-muted-foreground text-xs">
+          Living animals today, split by species. Hover a slice for the count.
+        </p>
       </div>
       @if (aliveAll().length) {
         <app-donut-chart [slices]="speciesSlices()" totalLabel="animals" />
@@ -64,7 +73,8 @@
       <div>
         <h2 class="text-foreground text-sm font-semibold">Births and deaths</h2>
         <p class="text-muted-foreground text-xs">
-          Last 6 months{{ scopeSuffix() }}
+          Last 6 months{{ scopeSuffix() }}. Births higher than deaths means the
+          herd is growing.
         </p>
       </div>
       <app-bar-chart [labels]="monthly().labels" [series]="monthly().series" />
@@ -81,7 +91,9 @@
           <h2 class="text-foreground text-sm font-semibold">
             Animals per kraal
           </h2>
-          <p class="text-muted-foreground text-xs">Where the herd lives</p>
+          <p class="text-muted-foreground text-xs">
+            Where the herd lives. Longer bars are fuller kraals.
+          </p>
         </div>
         <a
           routerLink="/kraals"

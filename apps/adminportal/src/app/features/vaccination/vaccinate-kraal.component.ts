@@ -22,16 +22,36 @@ import { InsufficientStockError } from '../../core/utils/errors';
 import { DateFieldComponent } from '../../core/ui/date-field.component';
 import { SelectFieldComponent } from '../../core/ui/select-field.component';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
+import {
+  GuideStep,
+  PageGuideComponent,
+} from '../../core/ui/page-guide.component';
 
 /** Popup: vaccinate everyone in a kraal, minus the exceptions. Params: `kraalId`. */
 @Component({
   selector: 'fma-vaccinate-kraal',
-  imports: [SelectFieldComponent, DateFieldComponent, ...SpartanUiImports],
+  imports: [
+    PageGuideComponent,
+    SelectFieldComponent,
+    DateFieldComponent,
+    ...SpartanUiImports,
+  ],
   templateUrl: './vaccinate-kraal.component.html',
   host: { class: 'flex min-h-0 flex-1 flex-col' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaccinateKraalComponent {
+  protected readonly guideSteps = computed<GuideStep[]>(() => [
+    {
+      icon: 'lucideFence',
+      title: `Pick the ${this.words().location}`,
+      text: '',
+    },
+    { icon: 'lucideSyringe', title: 'Pick product and batch', text: '' },
+    { icon: 'lucideX', title: 'Untick any you skip', text: '' },
+    { icon: 'lucideCircleCheck', title: 'Save', text: '' },
+  ]);
+
   protected readonly kraalStore = inject(KraalStore);
   protected readonly inventoryStore = inject(InventoryStore);
   private readonly animalStore = inject(AnimalStore);

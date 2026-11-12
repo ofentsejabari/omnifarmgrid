@@ -34,12 +34,17 @@ import {
 import { SpeciesAvatarComponent } from '../../core/ui/species-avatar.component';
 import { StockAlertsComponent } from './stock-alerts.component';
 import { daysAgoIsoDate, friendlyDate } from '../../core/utils/dates';
+import {
+  GuideStep,
+  PageGuideComponent,
+} from '../../core/ui/page-guide.component';
 
 const MONTHS_SHOWN = 6;
 
 @Component({
   selector: 'fma-dashboard',
   imports: [
+    PageGuideComponent,
     RouterLink,
     NgIcon,
     DonutChartComponent,
@@ -51,6 +56,32 @@ const MONTHS_SHOWN = 6;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent {
+  protected readonly guideSteps: readonly GuideStep[] = [
+    {
+      icon: 'lucideFence',
+      title: 'Set up kraals',
+      text: 'Name each kraal or pen where your animals are kept.',
+    },
+    {
+      icon: 'lucideTag',
+      title: 'Tag your animals',
+      text: 'Add each animal with its ear tag and the kraal it lives in.',
+      tone: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300',
+    },
+    {
+      icon: 'lucideClipboardList',
+      title: 'Record what happens',
+      text: 'Births, deaths and vaccinations, on the day they happen.',
+      tone: 'bg-info text-info-foreground',
+    },
+    {
+      icon: 'lucideChartColumn',
+      title: 'Read the farm here',
+      text: 'This page adds it all up: herd size, trends and stock alerts.',
+      tone: 'bg-warning text-warning-foreground',
+    },
+  ];
+
   private readonly animalStore = inject(AnimalStore);
   private readonly eventStore = inject(EventStore);
   private readonly inventoryStore = inject(InventoryStore);

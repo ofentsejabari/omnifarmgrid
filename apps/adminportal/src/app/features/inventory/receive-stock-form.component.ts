@@ -14,11 +14,16 @@ import { todayIsoDate } from '../../core/utils/dates';
 import { DateFieldComponent } from '../../core/ui/date-field.component';
 import { SelectFieldComponent } from '../../core/ui/select-field.component';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
+import {
+  GuideStep,
+  PageGuideComponent,
+} from '../../core/ui/page-guide.component';
 
 /** Popup: receive a batch of stock. Params: `productId`. */
 @Component({
   selector: 'fma-receive-stock-form',
   imports: [
+    PageGuideComponent,
     ReactiveFormsModule,
     SelectFieldComponent,
     DateFieldComponent,
@@ -29,6 +34,13 @@ import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReceiveStockFormComponent {
+  protected readonly guideSteps: readonly GuideStep[] = [
+    { icon: 'lucidePackage', title: 'Product', text: '' },
+    { icon: 'lucidePackagePlus', title: 'Quantity', text: '' },
+    { icon: 'lucideCalendarClock', title: 'Batch and expiry', text: '' },
+    { icon: 'lucideCircleCheck', title: 'Save', text: '' },
+  ];
+
   protected readonly inventoryStore = inject(InventoryStore);
   private readonly toast = inject(ToastService);
   protected readonly modal = inject(ModalService);

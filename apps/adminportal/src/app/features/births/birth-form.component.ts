@@ -26,11 +26,16 @@ import { DuplicateTagError } from '../../core/utils/errors';
 import { DateFieldComponent } from '../../core/ui/date-field.component';
 import { SelectFieldComponent } from '../../core/ui/select-field.component';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
+import {
+  GuideStep,
+  PageGuideComponent,
+} from '../../core/ui/page-guide.component';
 
 /** Popup: record a birth. Params: `damId`, `kraalId`. */
 @Component({
   selector: 'fma-birth-form',
   imports: [
+    PageGuideComponent,
     ReactiveFormsModule,
     SelectFieldComponent,
     DateFieldComponent,
@@ -41,6 +46,16 @@ import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BirthFormComponent {
+  protected readonly guideSteps = computed<GuideStep[]>(() => {
+    const words = speciesVocabulary(this.species());
+    return [
+      { icon: 'lucideBaby', title: 'Choose the mother', text: '' },
+      { icon: 'lucideCalendar', title: 'Set the date', text: '' },
+      { icon: 'lucideTag', title: `Tag each ${words.young}`, text: '' },
+      { icon: 'lucideCircleCheck', title: 'Save', text: '' },
+    ];
+  });
+
   private readonly formBuilder = inject(FormBuilder).nonNullable;
   private readonly animalStore = inject(AnimalStore);
   private readonly kraalStore = inject(KraalStore);

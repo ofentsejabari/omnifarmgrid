@@ -36,6 +36,55 @@
     </div>
   </header>
 
+  <app-page-guide
+    heading="How medicine stock works"
+    description="Know what is in the medicine cupboard before you need it. Stock goes up when you receive a batch and down when you vaccinate."
+    icon="lucidePackage"
+    [steps]="guideSteps"
+  >
+    <div class="border-primary/15 mt-4 border-t pt-4">
+      <p class="text-secondary-foreground mb-3 text-xs font-semibold">
+        Reading a stock card
+      </p>
+      <div class="grid gap-4 md:grid-cols-[1.4fr_1fr]">
+        <div class="flex flex-col gap-1.5" aria-hidden="true">
+          <div class="relative h-2 rounded-full bg-card">
+            <div class="bg-primary h-full w-[70%] rounded-full"></div>
+            <span
+              class="bg-amber-500 absolute -top-1 left-1/4 h-4 w-0.5 rounded-full"
+            ></span>
+          </div>
+          <div class="text-muted-foreground relative h-4 text-[11px]">
+            <span class="absolute left-0 hidden sm:inline">Empty</span>
+            <span
+              class="absolute left-1/4 -translate-x-1/2 text-amber-700 dark:text-amber-300"
+              >Low-stock level</span
+            >
+            <span class="absolute right-0">Full (4× low level)</span>
+          </div>
+        </div>
+        <ul class="flex flex-wrap items-start gap-x-4 gap-y-2 text-xs">
+          <li class="inline-flex items-center gap-1.5">
+            <span hlmBadge class="bg-warning text-warning-foreground"
+              >Low stock</span
+            >
+            <span class="text-muted-foreground">at or under the level</span>
+          </li>
+          <li class="inline-flex items-center gap-1.5">
+            <span hlmBadge class="bg-info text-info-foreground"
+              >Expiring soon</span
+            >
+            <span class="text-muted-foreground">within 30 days</span>
+          </li>
+          <li class="inline-flex items-center gap-1.5">
+            <span hlmBadge variant="destructive">Expired</span>
+            <span class="text-muted-foreground">do not use, discard</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </app-page-guide>
+
   @if (rows().length === 0) {
     <div
       class="bg-card flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-12 text-center"

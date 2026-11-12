@@ -21,6 +21,7 @@ import {
 import { SpeciesAvatarComponent } from '../../core/ui/species-avatar.component';
 import { ToastService } from '../../core/ui/toast.service';
 import { SpartanUiImports } from '../../core/utils/spartan-ui-imports';
+import { PageGuideComponent } from '../../core/ui/page-guide.component';
 
 interface KraalAction {
   label: string;
@@ -32,7 +33,12 @@ interface KraalAction {
 
 @Component({
   selector: 'app-kraal-detail',
-  imports: [RouterLink, SpeciesAvatarComponent, ...SpartanUiImports],
+  imports: [
+    PageGuideComponent,
+    RouterLink,
+    SpeciesAvatarComponent,
+    ...SpartanUiImports,
+  ],
   templateUrl: './kraal-detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -64,6 +70,38 @@ export class KraalDetailComponent {
       )
       .sort((a, b) => a.tag.localeCompare(b.tag)),
   );
+
+  /** Who lives here, split by sex, for the make-up bar. */
+  protected readonly makeup = computed(() => {
+    const animals = this.animals();
+    const words = this.words();
+    const total = animals.length;
+    const count = (sex: string) =>
+      animals.filter((animal) => animal.sex === sex).length;
+    return [
+      {
+        label: `${words.dam}s`,
+        hint: 'Breeding females',
+        count: count('female'),
+        bar: 'bg-emerald-500',
+      },
+      {
+        label: `${words.sire}s`,
+        hint: 'Breeding males',
+        count: count('male'),
+        bar: 'bg-blue-500',
+      },
+      {
+        label: 'Castrated',
+        hint: 'Kept for meat or work',
+        count: count('wether'),
+        bar: 'bg-amber-500',
+      },
+    ].map((part) => ({
+      ...part,
+      share: total ? (part.count / total) * 100 : 0,
+    }));
+  });
 
   protected readonly actions = computed<KraalAction[]>(() => {
     const kraalId = this.kraalId();
