@@ -1,8 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { Models, Query } from 'appwrite';
 import { AppwriteClient } from '../appwrite/appwrite-client.service';
-import { APPWRITE_DATABASE_ID } from '../appwrite/appwrite.constants';
 import { createId } from '../utils/id';
+
+const DATABASE_ID = import.meta.env.NG_APP_APPWRITE_DATABASE_ID;
 
 export const LIST_PAGE_SIZE = 10;
 const LIST_MAX_PAGE_SIZE = 100;
@@ -35,7 +36,7 @@ export class AppwriteClientService {
   ): Promise<Row[]> {
     await this.appwrite.ready;
     const page = await this.appwrite.tables.listRows<Row>({
-      databaseId: APPWRITE_DATABASE_ID,
+      databaseId: DATABASE_ID,
       tableId: table,
       queries,
     });
@@ -49,7 +50,7 @@ export class AppwriteClientService {
     await this.appwrite.ready;
     try {
       return await this.appwrite.tables.getRow<Row>({
-        databaseId: APPWRITE_DATABASE_ID,
+        databaseId: DATABASE_ID,
         tableId: table,
         rowId: id,
       });
@@ -64,7 +65,7 @@ export class AppwriteClientService {
   ): Promise<Row> {
     await this.appwrite.ready;
     const created = await this.appwrite.tables.createRow<Row>({
-      databaseId: APPWRITE_DATABASE_ID,
+      databaseId: DATABASE_ID,
       tableId: table,
       rowId: createId(),
       data: data as never,
@@ -76,7 +77,7 @@ export class AppwriteClientService {
   async update(table: string, id: string, data: Record<string, unknown>): Promise<void> {
     await this.appwrite.ready;
     await this.appwrite.tables.updateRow({
-      databaseId: APPWRITE_DATABASE_ID,
+      databaseId: DATABASE_ID,
       tableId: table,
       rowId: id,
       data,
@@ -87,7 +88,7 @@ export class AppwriteClientService {
   async delete(table: string, id: string): Promise<void> {
     await this.appwrite.ready;
     await this.appwrite.tables.deleteRow({
-      databaseId: APPWRITE_DATABASE_ID,
+      databaseId: DATABASE_ID,
       tableId: table,
       rowId: id,
     });
@@ -101,7 +102,7 @@ export class AppwriteClientService {
       this.listeners.set(table, listeners);
     }
     listeners.add(onChange);
-    const channel = `databases.${APPWRITE_DATABASE_ID}.tables.${table}.rows`;
+    const channel = `databases.${DATABASE_ID}.tables.${table}.rows`;
     let closed = false;
     let closeRealtime: (() => void) | undefined;
     void this.appwrite.ready
@@ -139,7 +140,7 @@ export class AppwriteClientService {
     const limit = Math.min(Math.max(Math.trunc(pagination.limit), 1), LIST_MAX_PAGE_SIZE);
     const offset = Math.max(Math.trunc(pagination.offset ?? 0), 0);
     return this.appwrite.tables.listRows<Row>({
-      databaseId: APPWRITE_DATABASE_ID,
+      databaseId: DATABASE_ID,
       tableId: table,
       queries: [...queries, Query.limit(limit), Query.offset(offset)],
     });
@@ -158,7 +159,7 @@ export class AppwriteClientService {
         pageQueries.push(Query.cursorAfter(cursor));
       }
       const page = await this.appwrite.tables.listRows<Row>({
-        databaseId: APPWRITE_DATABASE_ID,
+        databaseId: DATABASE_ID,
         tableId: table,
         queries: pageQueries,
       });

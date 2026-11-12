@@ -46,3 +46,7 @@ Thumbs.db
 .claude/settings.local.json
 
 .angular
+
+# Machine-specific env overrides (.env itself holds public local-dev defaults and is committed)
+.env.local
+.env.*.local

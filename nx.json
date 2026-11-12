@@ -27,6 +27,27 @@
         "^production"
       ]
     },
+    "@ngx-env/builder:application": {
+      "cache": true,
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "production",
+        "^production",
+        "{workspaceRoot}/.env",
+        "{workspaceRoot}/.env.*",
+        {
+          "env": "NG_APP_APPWRITE_ENDPOINT"
+        },
+        {
+          "env": "NG_APP_APPWRITE_PROJECT_ID"
+        },
+        {
+          "env": "NG_APP_APPWRITE_DATABASE_ID"
+        }
+      ]
+    },
     "@nx/eslint:lint": {
       "cache": true,
       "inputs": [

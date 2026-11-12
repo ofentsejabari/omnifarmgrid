@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Account, Client, Models, Realtime, TablesDB } from 'appwrite';
-import { APPWRITE_ENDPOINT, APPWRITE_PROJECT_ID } from './appwrite.constants';
 
 export const isRegisteredUser = (user: Models.User): boolean => user.email.trim().length > 0;
 
@@ -13,7 +12,9 @@ export class AppwriteClient {
   private sessionReady: Promise<void> | undefined;
 
   constructor() {
-    this.client = new Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT_ID);
+    this.client = new Client()
+      .setEndpoint(import.meta.env.NG_APP_APPWRITE_ENDPOINT)
+      .setProject(import.meta.env.NG_APP_APPWRITE_PROJECT_ID);
     this.account = new Account(this.client);
     this.tables = new TablesDB(this.client);
     this.realtime = new Realtime(this.client);

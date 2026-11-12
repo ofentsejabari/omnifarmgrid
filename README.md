@@ -239,7 +239,8 @@ pnpm nx serve website
 ```
 
 In the Appwrite console, add a **Web platform** for `localhost` and create a user (email + password) to sign in
-with. The project and database ids are in `apps/adminportal/src/app/core/appwrite/appwrite.constants.ts`.
+with. The Appwrite endpoint, project id and database id come from `.env` at the repo root (see
+[Environment variables](docs/STACK_SETUP.md#52-environment-variables-env)).
 
 | Command                                         | What it does                                                |
 | ----------------------------------------------- | ----------------------------------------------------------- |

@@ -13,7 +13,7 @@ items off or delete them as they are resolved.
 | 1   | [No separation between farms](#1-no-separation-between-farms)                                                    | Security / data     | 🔴       |
 | 2   | [Multi-step writes are not atomic](#2-multi-step-writes-are-not-atomic)                                          | Data integrity      | 🔴       |
 | 3   | ["Works offline" is promised but not built](#3-works-offline-is-promised-but-not-built)                          | Product / honesty   | 🔴       |
-| 4   | [Hard-coded Appwrite endpoint and ids](#4-hard-coded-appwrite-endpoint-and-ids)                                  | Config / deploy     | 🔴       |
+| 4   | [Hard-coded Appwrite endpoint and ids](#4-hard-coded-appwrite-endpoint-and-ids)                                  | Config / deploy     | ✅ Fixed |
 | 5   | [Auth settings are looser than needed](#5-auth-settings-are-looser-than-needed)                                  | Security            | 🟠       |
 | 6   | [No automated tests](#6-no-automated-tests)                                                                      | Quality             | 🟠       |
 | 7   | [No CI/CD pipeline](#7-no-cicd-pipeline)                                                                         | Delivery            | 🟠       |
@@ -99,18 +99,18 @@ believe were saved.
 
 ### 4. Hard-coded Appwrite endpoint and ids
 
-**What:** `appwrite.constants.ts` hard-codes the project and database ids. It also picks the endpoint by checking
-whether the browser is on port 4200, and falls back to `http://localhost:81/v1`.
+**Status: fixed.**
 
-**Why it matters:** A production build points at `localhost`. Staging and production can't share one build, and
-changing the Appwrite host means editing code.
+**What (was):** `appwrite.constants.ts` hard-coded the project and database ids. It also picked the endpoint by checking
+whether the browser was on port 4200, and fell back to `http://localhost:81/v1`.
 
-**Fix:**
+**Why it mattered:** A production build pointed at `localhost`. Staging and production couldn't share one build, and
+changing the Appwrite host meant editing code.
 
-- Load runtime config from `/config.json`, fetched before bootstrap, or use Angular `environment.*.ts` with
-  `fileReplacements`, holding `endpoint`, `projectId` and `databaseId`.
-- Serve `config.json` per environment from the hosting layer so the same build artifact can be promoted from
-  staging to production.
+**Fixed:** `@ngx-env/builder` reads `.env` and exposes `import.meta.env.NG_APP_*` (see
+[Environment variables](STACK_SETUP.md#52-environment-variables-env)). Override per branch with CI environment
+variables, or replace the generated `ngx-env.js` per environment so one build can be promoted from dev to
+production.
 
 ---
 
@@ -326,7 +326,7 @@ flowchart LR
   U[Farmers' phones & laptops] -->|HTTPS| CDN
   subgraph CDN[Static hosting + CDN]
     W[agroherd.co.bw<br/>website build]
-    A[app.agroherd.co.bw<br/>adminportal build + config.json]
+    A[app.agroherd.co.bw<br/>adminportal build + ngx-env.js]
   end
   U -->|HTTPS + WSS| API[api.agroherd.co.bw<br/>Appwrite]
   API --> DB[(MariaDB)]
@@ -342,8 +342,8 @@ Both apps build to static files (`dist/apps/*/browser`). Host them on any static
 **Appwrite Sites** (keeps everything in one platform), **Cloudflare Pages** or **Netlify**. Configure:
 
 - SPA fallback: unknown paths → `index.html` (needed for deep links like `/animals/abc`).
-- Long cache headers for hashed assets (`*.js`, `*.css`) and `no-cache` for `index.html` and `config.json`.
-- Per-environment `config.json` (see item 4).
+- Long cache headers for hashed assets (`*.js`, `*.css`) and `no-cache` for `index.html` and `ngx-env.js`.
+- Per-environment `ngx-env.js`, or `NG_APP_*` variables set in CI per branch (see item 4).
 
 ### 2. Backend: Appwrite on the same root domain
 
@@ -367,9 +367,10 @@ Choose one:
 
 ### 3. Environments
 
-Use **two Appwrite projects**, staging and production, with the same `appwrite.config.json` pushed to both. Promote
-the same frontend build from staging to production by swapping `config.json` only. In the Appwrite console, register
-the production hostnames as Web platforms in each project.
+Use **two Appwrite projects**, dev and production, with the same `appwrite.config.json` pushed to both. CI sets the
+`NG_APP_APPWRITE_*` variables per branch (`dev` → dev Appwrite, `main` → production), or builds once and swaps
+`ngx-env.js` when promoting. In the Appwrite console, register each site's hostname as a Web platform in its
+project.
 
 ### 4. Pipeline
 

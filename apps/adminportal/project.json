@@ -7,7 +7,7 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@angular/build:application",
+      "executor": "@ngx-env/builder:application",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
@@ -20,7 +20,11 @@
             "input": "apps/adminportal/public"
           }
         ],
-        "styles": ["apps/adminportal/src/styles.css"]
+        "styles": ["apps/adminportal/src/styles.css"],
+        "ngxEnv": {
+          "prefix": "NG_APP_",
+          "runtime": true
+        }
       },
       "configurations": {
         "production": {
@@ -47,7 +51,7 @@
     },
     "serve": {
       "continuous": true,
-      "executor": "@angular/build:dev-server",
+      "executor": "@ngx-env/builder:dev-server",
       "defaultConfiguration": "development",
       "options": {
         "proxyConfig": "proxy.conf.json"

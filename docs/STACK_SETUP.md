@@ -286,23 +286,30 @@ pnpm add appwrite
 
 Use **TablesDB**, not the deprecated `Databases` / collections API.
 
-### 5.2 Constants
+### 5.2 Environment variables (`.env`)
 
-`apps/adminportal/src/app/core/appwrite/appwrite.constants.ts`:
+[`@ngx-env/builder`](https://www.npmjs.com/package/@ngx-env/builder) wraps the Angular builders (see
+`apps/adminportal/project.json`) and reads `.env` at the repo root with dotenv. Only `NG_APP_*` variables reach the
+app, as `import.meta.env.NG_APP_*`. Their types are declared in `apps/adminportal/src/env.d.ts`.
 
-```ts
-const browserOrigin = typeof globalThis.location === 'undefined' ? '' : globalThis.location.origin;
-const browserPort = typeof globalThis.location === 'undefined' ? '' : globalThis.location.port;
-
-export const APPWRITE_ENDPOINT =
-  browserPort === '4200' ? `${browserOrigin}/v1` : 'http://localhost/v1';
-export const APPWRITE_PROJECT_ID = '6a956c6d0038a1f7b9cb';
-export const APPWRITE_DATABASE_ID = '6a956d9a0006188dc2cc';
+```sh
+# .env (committed: public local-dev defaults, never secrets)
+NG_APP_APPWRITE_ENDPOINT=http://localhost:4200/v1
+NG_APP_APPWRITE_PROJECT_ID=6a956c6d0038a1f7b9cb
+NG_APP_APPWRITE_DATABASE_ID=6a956d9a0006188dc2cc
 ```
 
-On the Nx dev server (`:4200`) the SDK calls **same-origin** `/v1/...`. The Angular proxy forwards that to Appwrite (see [Dev-server proxy](#7-dev-server-proxy)). Outside port 4200 it talks to the self-hosted instance on `http://localhost/v1`.
+Per environment or branch, override the values without touching `.env`:
 
-Copy `APPWRITE_PROJECT_ID` and `APPWRITE_DATABASE_ID` from `appwrite.config.json` (`projectId` and `tablesDB[0].$id`). If you recreate the Appwrite project, update both files.
+- **At build time:** shell variables beat `.env`, so CI sets them per branch:
+  `NG_APP_APPWRITE_ENDPOINT=https://api.agroherd.co.bw/v1 pnpm nx build adminportal`.
+- **After the build:** `ngxEnv.runtime` is on, so the build writes `dist/apps/adminportal/browser/ngx-env.js`
+  (`globalThis._NGX_ENV_ = {...}`), which `index.html` loads before the app. Replace that file per environment to
+  promote one build from dev to production. Serve it with `Cache-Control: no-cache`.
+- **On your machine:** put personal overrides in `.env.local` (git-ignored).
+
+Everything in these variables ends up in the browser. Never put secrets in them. Restart `nx serve` after changing
+`.env`.
 
 ### 5.3 Client service
 
@@ -539,7 +546,7 @@ In `apps/adminportal/project.json`, under `targets.serve.options`:
 
 ### 7.3 How the SDK uses it
 
-When `location.port === '4200'`, `APPWRITE_ENDPOINT` is `${location.origin}/v1` (for example `http://localhost:4200/v1`). The browser sends:
+`.env` sets the endpoint to the dev server's own origin, `http://localhost:4200/v1`. The browser sends:
 
 ```text
 http://localhost:4200/v1/tablesdb/...
@@ -555,7 +562,7 @@ http://localhost/v1/realtime?...
 
 If Realtime never fires, confirm `ws: true` and that Appwrite's websocket protocol is enabled (`settings.protocols.websocket` in `appwrite.config.json`).
 
-If you change the Appwrite host or port, update **both** `proxy.conf.json` `target` and the non-4200 branch of `APPWRITE_ENDPOINT`.
+If you change the local Appwrite host or port, update `proxy.conf.json` `target`. Deployed builds have no proxy, so set `NG_APP_APPWRITE_ENDPOINT` to the full Appwrite URL there.
 
 ---
 
@@ -592,14 +599,16 @@ Copy `.postcssrc.json`, import `libs/css/theme.css` from that app's `styles.css`
 
 ```text
 appwrite.config.json          Appwrite project + TablesDB schema
+.env                          NG_APP_* variables: Appwrite endpoint + ids (local defaults)
 proxy.conf.json               /v1 → local Appwrite (HTTP + WebSocket)
 components.json               Spartan Helm generator settings
 apps/adminportal/             Farm Manager UI
   .postcssrc.json
   project.json                serve.proxyConfig → proxy.conf.json
+  src/env.d.ts                Types for the NG_APP_* variables from .env
   src/styles.css              @import shared theme
   src/app/core/
-    appwrite/                 Client, endpoint, project/database ids
+    appwrite/                 Appwrite SDK client
     data/                     AppwriteRowStore + mappers helpers
     models/ services/ stores/
 apps/website/                 Marketing site (same Tailwind theme)
