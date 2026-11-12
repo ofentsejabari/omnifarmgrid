@@ -1,0 +1,115 @@
+<div hlmSidebarWrapper>
+  <hlm-sidebar variant="inset">
+    <hlm-sidebar-header>
+      <ul hlmSidebarMenu>
+        <li hlmSidebarMenuItem>
+          <a hlmSidebarMenuButton size="lg" routerLink="/">
+            <app-logo [size]="32" />
+            <span class="grid flex-1 text-start text-sm leading-tight">
+              <span class="truncate font-semibold">AgroHerd</span>
+              <span class="text-muted-foreground truncate text-xs"
+                >Farm Manager</span
+              >
+            </span>
+          </a>
+        </li>
+      </ul>
+    </hlm-sidebar-header>
+
+    <hlm-sidebar-content>
+      <app-nav-main [items]="navItems" />
+      <app-nav-record [actions]="record.all()" />
+      <app-nav-secondary class="mt-auto" />
+    </hlm-sidebar-content>
+
+    <hlm-sidebar-footer>
+      <app-nav-user />
+    </hlm-sidebar-footer>
+  </hlm-sidebar>
+
+  <main hlmSidebarInset>
+    <header
+      class="bg-background/90 sticky top-0 z-20 flex h-16 shrink-0 items-center gap-2 rounded-t-xl border-b px-4 backdrop-blur"
+    >
+      <button hlmSidebarTrigger class="-ms-1"></button>
+      <hlm-separator
+        orientation="vertical"
+        class="me-2 data-vertical:h-4 data-vertical:self-center"
+      />
+      <nav hlmBreadcrumb class="min-w-0">
+        <ol hlmBreadcrumbList>
+          @for (crumb of breadcrumbs(); track crumb.label; let last = $last) {
+            @if (last) {
+              <li hlmBreadcrumbItem>
+                <span hlmBreadcrumbPage class="truncate">{{
+                  crumb.label
+                }}</span>
+              </li>
+            } @else {
+              <li hlmBreadcrumbItem class="hidden sm:inline-flex">
+                <a hlmBreadcrumbLink [link]="crumb.url">{{ crumb.label }}</a>
+              </li>
+              <li hlmBreadcrumbSeparator class="hidden sm:inline-flex"></li>
+            }
+          }
+        </ol>
+      </nav>
+
+      <div class="ms-auto flex items-center gap-2">
+        <app-select
+          class="hidden w-40 sm:block"
+          size="sm"
+          [value]="speciesFilter.selected()"
+          (valueChange)="setFilter($event)"
+          [options]="speciesOptions"
+          ariaLabel="Show species"
+        />
+        <button
+          hlmBtn
+          size="sm"
+          [hlmDropdownMenuTrigger]="recordMenu"
+          align="end"
+        >
+          <ng-icon name="lucidePlus" />
+          <span class="hidden sm:inline">Record</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 lg:px-8">
+      <app-select
+        class="mb-4 sm:hidden"
+        [value]="speciesFilter.selected()"
+        (valueChange)="setFilter($event)"
+        [options]="speciesOptions"
+        ariaLabel="Show species"
+      />
+      <router-outlet />
+    </div>
+  </main>
+</div>
+
+<ng-template #recordMenu>
+  <hlm-dropdown-menu class="w-64">
+    <hlm-dropdown-menu-label>Record</hlm-dropdown-menu-label>
+    <hlm-dropdown-menu-separator />
+    @for (action of record.all(); track action.modal) {
+      <button
+        hlmDropdownMenuItem
+        class="items-start justify-start gap-3 py-2 text-start"
+        (click)="action.run()"
+      >
+        <ng-icon [name]="action.icon" class="mt-0.5" />
+        <span>
+          <span class="block font-medium">{{ action.label }}</span>
+          <span class="text-muted-foreground block text-xs">{{
+            action.hint
+          }}</span>
+        </span>
+      </button>
+    }
+  </hlm-dropdown-menu>
+</ng-template>
+
+<app-modal-host />
+<app-toaster />

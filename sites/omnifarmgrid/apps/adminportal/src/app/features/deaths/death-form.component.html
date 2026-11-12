@@ -1,0 +1,65 @@
+<form class="fma-modal" [formGroup]="form" (ngSubmit)="save()">
+  <header class="fma-modal-header">
+    <h2 class="fma-modal-title">Record a death</h2>
+    <p class="fma-modal-desc">
+      The animal is marked dead (or culled, for slaughter) and kept in its
+      history.
+    </p>
+  </header>
+
+  <div class="fma-modal-body">
+    @if (error()) {
+      <p class="fma-error" role="alert">
+        <ng-icon name="lucideTriangleAlert" size="16" class="mt-0.5 shrink-0" />
+        {{ error() }}
+      </p>
+    }
+
+    <div hlmField>
+      <label hlmFieldLabel for="death-animal">Animal</label>
+      <app-select
+        inputId="death-animal"
+        formControlName="animalId"
+        [options]="animalOptions()"
+        placeholder="Choose an animal…"
+        emptyText="No living animals"
+      />
+    </div>
+
+    <div class="fma-field-row">
+      <div hlmField>
+        <label hlmFieldLabel for="death-reason">Reason</label>
+        <app-select
+          inputId="death-reason"
+          formControlName="reason"
+          [options]="reasonOptions()"
+        />
+      </div>
+      <div hlmField>
+        <label hlmFieldLabel for="death-date">Date</label>
+        <app-date-field inputId="death-date" formControlName="date" />
+      </div>
+    </div>
+
+    <div hlmField>
+      <label hlmFieldLabel for="death-notes"
+        >Notes <span class="fma-optional">(optional)</span></label
+      >
+      <textarea
+        id="death-notes"
+        hlmTextarea
+        formControlName="notes"
+        placeholder="What did you notice?"
+      ></textarea>
+    </div>
+  </div>
+
+  <footer class="fma-modal-footer">
+    <button type="button" hlmBtn variant="outline" (click)="modal.close()">
+      Cancel
+    </button>
+    <button type="submit" hlmBtn [disabled]="saving()">
+      {{ saving() ? 'Saving…' : 'Save' }}
+    </button>
+  </footer>
+</form>

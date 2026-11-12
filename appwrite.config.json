@@ -1,6 +1,5 @@
 {
-    "organizationId": "6a8f0fff001b22f7439a",
-    "projectId": "6a956c6d0038a1f7b9cb",
+    "projectId": "6af59249003051957fd0",
     "projectName": "Agroherd Farm Manager",
     "settings": {
         "services": {
@@ -35,7 +34,7 @@
             "security": {
                 "duration": 31536000,
                 "limit": null,
-                "sessionsLimit": null,
+                "sessionsLimit": 10,
                 "passwordHistory": null,
                 "passwordDictionary": false,
                 "personalDataCheck": false,
@@ -191,7 +190,7 @@
                 },
                 {
                     "key": "dateOfBirth",
-                    "type": "datetime", 
+                    "type": "datetime",
                     "required": false,
                     "array": false,
                     "default": null,

@@ -1,0 +1,173 @@
+<form class="fma-modal" [formRoot]="animalForm">
+  <header class="fma-modal-header">
+    <h2 class="fma-modal-title">
+      {{ isEdit ? 'Edit ' + words().noun : 'Add an animal' }}
+    </h2>
+    <p class="fma-modal-desc">
+      Ear tag and {{ words().location }} are required; the rest can wait.
+    </p>
+  </header>
+
+  <div class="fma-modal-body">
+    @if (error()) {
+      <p class="fma-error" role="alert">
+        <ng-icon name="lucideTriangleAlert" size="16" class="mt-0.5 shrink-0" />
+        {{ error() }}
+      </p>
+    }
+
+    @if (loaded()) {
+      <div hlmField>
+        <span hlmFieldLabel id="animal-species">Species</span>
+        <div
+          class="grid grid-cols-4 gap-2"
+          role="radiogroup"
+          aria-labelledby="animal-species"
+        >
+          @for (value of speciesOptions; track value) {
+            <button
+              type="button"
+              role="radio"
+              [attr.aria-checked]="currentSpecies() === value"
+              class="flex flex-col items-center gap-1.5 rounded-lg border px-1 py-2.5 text-xs font-medium transition-colors"
+              [class]="
+                currentSpecies() === value
+                  ? 'border-primary bg-secondary text-secondary-foreground ring-primary/20 ring-2'
+                  : 'hover:bg-muted'
+              "
+              (click)="animalForm.species().value.set(value)"
+            >
+              <app-species-avatar [species]="value" size="sm" />
+              {{ speciesName(value) }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="fma-field-row">
+        <div hlmField>
+          <label hlmFieldLabel for="animal-tag">Ear tag</label>
+          <input
+            id="animal-tag"
+            hlmInput
+            [formField]="animalForm.tag"
+            autocomplete="off"
+            placeholder="e.g. BW-0042"
+          />
+          @if (animalForm.tag().touched() && animalForm.tag().invalid()) {
+            <p class="text-destructive text-sm">Ear tag is required.</p>
+          }
+        </div>
+        <div hlmField>
+          <label hlmFieldLabel for="animal-name"
+            >Name <span class="fma-optional">(optional)</span></label
+          >
+          <input id="animal-name" hlmInput [formField]="animalForm.name" />
+        </div>
+      </div>
+
+      <div class="fma-field-row">
+        <div hlmField>
+          <label hlmFieldLabel for="animal-kraal">{{
+            words().location | sentence
+          }}</label>
+          <app-select
+            inputId="animal-kraal"
+            [formField]="animalForm.kraalId"
+            [options]="kraalOptions()"
+          />
+          @if (kraalOptions().length === 0) {
+            <p class="text-muted-foreground text-xs">
+              Add a {{ words().location }} for {{ words().plural }} first.
+            </p>
+          } @else if (
+            animalForm.kraalId().touched() && animalForm.kraalId().invalid()
+          ) {
+            <p class="text-destructive text-sm">
+              Choose a {{ words().location }}.
+            </p>
+          }
+        </div>
+        <div hlmField>
+          <label hlmFieldLabel for="animal-sex">Sex</label>
+          <app-select
+            inputId="animal-sex"
+            [formField]="animalForm.sex"
+            [options]="sexOptions()"
+          />
+        </div>
+      </div>
+
+      <div class="fma-field-row">
+        <div hlmField>
+          <label hlmFieldLabel for="animal-breed"
+            >Breed <span class="fma-optional">(optional)</span></label
+          >
+          <input
+            id="animal-breed"
+            hlmInput
+            list="animal-breeds"
+            [formField]="animalForm.breed"
+          />
+          <datalist id="animal-breeds">
+            @for (breed of breeds(); track breed) {
+              <option [value]="breed"></option>
+            }
+          </datalist>
+        </div>
+        <div hlmField>
+          <label hlmFieldLabel for="animal-dob"
+            >Date of birth <span class="fma-optional">(optional)</span></label
+          >
+          <app-date-field
+            inputId="animal-dob"
+            [formField]="animalForm.dateOfBirth"
+            placeholder="Unknown"
+          />
+        </div>
+      </div>
+
+      <div hlmField orientation="horizontal">
+        <hlm-checkbox
+          inputId="animal-dob-estimated"
+          [formField]="animalForm.birthDateEstimated"
+        />
+        <label hlmFieldLabel for="animal-dob-estimated"
+          >Birth date is an estimate</label
+        >
+      </div>
+
+      <div hlmField>
+        <label hlmFieldLabel for="animal-notes"
+          >Notes <span class="fma-optional">(optional)</span></label
+        >
+        <textarea
+          id="animal-notes"
+          hlmTextarea
+          [formField]="animalForm.notes"
+        ></textarea>
+      </div>
+    } @else {
+      <div class="fma-skeleton h-64"></div>
+    }
+  </div>
+
+  <footer class="fma-modal-footer">
+    <button type="button" hlmBtn variant="outline" (click)="modal.close()">
+      Cancel
+    </button>
+    <button
+      type="submit"
+      hlmBtn
+      [disabled]="animalForm().submitting() || !loaded()"
+    >
+      {{
+        animalForm().submitting()
+          ? 'Saving…'
+          : isEdit
+            ? 'Save changes'
+            : 'Add ' + words().noun
+      }}
+    </button>
+  </footer>
+</form>

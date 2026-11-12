@@ -1,0 +1,90 @@
+<form class="fma-modal" [formRoot]="kraalForm">
+  <header class="fma-modal-header">
+    <h2 class="fma-modal-title">
+      {{ isEdit ? 'Edit ' + words().location : 'Add a kraal or pen' }}
+    </h2>
+    <p class="fma-modal-desc">
+      Name the place you keep {{ words().plural }} — home, the lands, or a sick
+      pen.
+    </p>
+  </header>
+
+  <div class="fma-modal-body">
+    @if (error()) {
+      <p class="fma-error" role="alert">
+        <ng-icon name="lucideTriangleAlert" size="16" class="mt-0.5 shrink-0" />
+        {{ error() }}
+      </p>
+    }
+
+    @if (!isEdit) {
+      <div hlmField>
+        <span hlmFieldLabel id="kraal-species">Who lives here?</span>
+        <div
+          class="grid grid-cols-4 gap-2"
+          role="radiogroup"
+          aria-labelledby="kraal-species"
+        >
+          @for (value of speciesOptions; track value) {
+            <button
+              type="button"
+              role="radio"
+              [attr.aria-checked]="kraalModel().species === value"
+              class="flex flex-col items-center gap-1.5 rounded-lg border px-1 py-2.5 text-xs font-medium transition-colors"
+              [class]="
+                kraalModel().species === value
+                  ? 'border-primary bg-secondary text-secondary-foreground ring-primary/20 ring-2'
+                  : 'hover:bg-muted'
+              "
+              (click)="kraalForm.species().value.set(value)"
+            >
+              <app-species-avatar [species]="value" size="sm" />
+              {{ speciesName(value) }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <div hlmField>
+      <label hlmFieldLabel for="kraal-name">Name</label>
+      <input
+        id="kraal-name"
+        hlmInput
+        [formField]="kraalForm.name"
+        autocomplete="off"
+        [placeholder]="'e.g. Home ' + words().location"
+      />
+      @if (kraalForm.name().touched() && kraalForm.name().invalid()) {
+        <p class="text-destructive text-sm">Give this place a name.</p>
+      }
+    </div>
+
+    <div hlmField>
+      <label hlmFieldLabel for="kraal-notes"
+        >Notes <span class="fma-optional">(optional)</span></label
+      >
+      <textarea
+        id="kraal-notes"
+        hlmTextarea
+        [formField]="kraalForm.notes"
+        placeholder="Water, shade, rams only…"
+      ></textarea>
+    </div>
+  </div>
+
+  <footer class="fma-modal-footer">
+    <button type="button" hlmBtn variant="outline" (click)="modal.close()">
+      Cancel
+    </button>
+    <button type="submit" hlmBtn [disabled]="kraalForm().submitting()">
+      {{
+        kraalForm().submitting()
+          ? 'Saving…'
+          : isEdit
+            ? 'Save changes'
+            : 'Add ' + words().location
+      }}
+    </button>
+  </footer>
+</form>

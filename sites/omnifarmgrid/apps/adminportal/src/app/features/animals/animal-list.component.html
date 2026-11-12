@@ -1,0 +1,141 @@
+<section class="fma-page">
+  <header class="fma-page-header">
+    <div>
+      <h1 class="fma-title">{{ heading() }}</h1>
+      <p class="fma-subtitle">
+        {{ animals().length }} {{ animals().length === 1 ? 'animal' : 'animals'
+        }}{{ showInactive() ? '' : ' alive' }}
+      </p>
+    </div>
+    <button type="button" hlmBtn (click)="add()">
+      <ng-icon name="lucidePlus" />
+      {{ addLabel() }}
+    </button>
+  </header>
+
+  <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+    <div class="relative grow">
+      <ng-icon
+        name="lucideSearch"
+        size="16"
+        class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+      />
+      <input
+        hlmInput
+        class="ps-9"
+        type="search"
+        placeholder="Search by name or tag"
+        aria-label="Search animals"
+        [value]="animalStore.filters.name()"
+        (input)="search($any($event.target).value)"
+      />
+    </div>
+    <div class="grid grid-cols-2 gap-2 sm:flex">
+      <app-select
+        class="sm:w-48"
+        [value]="animalStore.filters.kraalId() ?? ''"
+        (valueChange)="filterKraal($event)"
+        [options]="kraalOptions()"
+        placeholder="All kraals"
+        ariaLabel="Kraal"
+      />
+      <app-select
+        class="sm:w-40"
+        [value]="animalStore.filters.sex() ?? ''"
+        (valueChange)="filterSex($event)"
+        [options]="sexOptions"
+        placeholder="Any sex"
+        ariaLabel="Sex"
+      />
+    </div>
+    <label
+      class="text-muted-foreground flex items-center gap-2 px-1 text-sm whitespace-nowrap"
+    >
+      <hlm-checkbox
+        [checked]="showInactive()"
+        (checkedChange)="setShowInactive($event)"
+      />
+      Include sold &amp; dead
+    </label>
+  </div>
+
+  @if (animalStore.isLoading() && animals().length === 0) {
+    <div class="fma-skeleton h-72"></div>
+  } @else if (animals().length === 0) {
+    <div class="fma-empty">
+      <span class="fma-empty-icon"
+        ><ng-icon name="lucidePawPrint" size="22"
+      /></span>
+      <div>
+        <p class="font-medium">
+          {{ hasFilters() ? 'No matches' : 'No animals yet' }}
+        </p>
+        <p class="text-muted-foreground text-sm">
+          {{
+            hasFilters()
+              ? 'Try another name, kraal or sex.'
+              : 'Add the first animal to start the herd record.'
+          }}
+        </p>
+      </div>
+      @if (!hasFilters()) {
+        <button type="button" hlmBtn (click)="add()">
+          <ng-icon name="lucidePlus" />{{ addLabel() }}
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="fma-list">
+      <div
+        class="text-muted-foreground bg-muted/50 hidden grid-cols-[2.5fr_1fr_1.5fr_1fr_1.25rem] gap-4 px-4 py-2 text-xs font-medium md:grid"
+      >
+        <span>Animal</span><span>Sex</span><span>Kraal</span><span>Breed</span
+        ><span></span>
+      </div>
+      @for (animal of animals(); track animal.$id) {
+        <a
+          [routerLink]="['/animals', animal.$id]"
+          class="fma-row md:grid md:grid-cols-[2.5fr_1fr_1.5fr_1fr_1.25rem] md:gap-4"
+        >
+          <span class="flex min-w-0 grow items-center gap-3">
+            <app-species-avatar [species]="animal.species" size="sm" />
+            <span class="min-w-0">
+              <span class="flex items-center gap-2">
+                <span class="truncate text-sm font-medium">{{
+                  label(animal)
+                }}</span>
+                @if (animal.status !== 'alive') {
+                  <span hlmBadge [class]="statusClass(animal.status)">{{
+                    statusLabel(animal.status)
+                  }}</span>
+                }
+              </span>
+              <span
+                class="text-muted-foreground block truncate text-xs md:hidden"
+              >
+                {{ sexLabel(animal.species, animal.sex) }} ·
+                {{ kraalName(animal.kraalId) }}
+              </span>
+            </span>
+          </span>
+          <span class="hidden text-sm md:block">{{
+            sexLabel(animal.species, animal.sex)
+          }}</span>
+          <span
+            class="text-muted-foreground hidden truncate text-sm md:block"
+            >{{ kraalName(animal.kraalId) }}</span
+          >
+          <span
+            class="text-muted-foreground hidden truncate text-sm md:block"
+            >{{ animal.breed || '—' }}</span
+          >
+          <ng-icon
+            name="lucideChevronRight"
+            size="16"
+            class="text-muted-foreground shrink-0"
+          />
+        </a>
+      }
+    </div>
+  }
+</section>

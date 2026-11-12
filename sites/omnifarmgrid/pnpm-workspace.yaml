@@ -1,0 +1,14 @@
+packages:
+  - 'apps/*'
+  - 'libs/*'
+autoInstallPeers: true
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  lmdb: true
+  msgpackr-extract: true
+  nx: true
+minimumReleaseAgeExclude:
+  - '@spartan-ng/cli@1.4.1'
+  - postcss@8.5.28
+  - '@spartan-ng/brain@1.4.1'

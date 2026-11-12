@@ -1,0 +1,71 @@
+<form class="fma-modal" [formGroup]="form" (ngSubmit)="save()">
+  <header class="fma-modal-header">
+    <h2 class="fma-modal-title">Receive stock</h2>
+    <p class="fma-modal-desc">
+      Log a new batch so it can be used when you vaccinate.
+    </p>
+  </header>
+
+  <div class="fma-modal-body">
+    @if (error()) {
+      <p class="fma-error" role="alert">
+        <ng-icon name="lucideTriangleAlert" size="16" class="mt-0.5 shrink-0" />
+        {{ error() }}
+      </p>
+    }
+    <div hlmField>
+      <label hlmFieldLabel for="receive-product">Product</label>
+      <app-select
+        inputId="receive-product"
+        formControlName="productId"
+        [options]="productOptions()"
+        placeholder="Choose a product…"
+      />
+    </div>
+    <div class="fma-field-row">
+      <div hlmField>
+        <label hlmFieldLabel for="receive-qty">Quantity</label>
+        <input
+          id="receive-qty"
+          hlmInput
+          type="number"
+          min="1"
+          inputmode="numeric"
+          formControlName="quantity"
+        />
+      </div>
+      <div hlmField>
+        <label hlmFieldLabel for="receive-batch"
+          >Batch number <span class="fma-optional">(optional)</span></label
+        >
+        <input id="receive-batch" hlmInput formControlName="batchNumber" />
+      </div>
+    </div>
+    <div class="fma-field-row">
+      <div hlmField>
+        <label hlmFieldLabel for="receive-expiry"
+          >Expiry date <span class="fma-optional">(optional)</span></label
+        >
+        <app-date-field
+          inputId="receive-expiry"
+          formControlName="expiryDate"
+          placeholder="No expiry"
+          [allowFuture]="true"
+        />
+      </div>
+      <div hlmField>
+        <label hlmFieldLabel for="receive-date">Received on</label>
+        <app-date-field inputId="receive-date" formControlName="date" />
+      </div>
+    </div>
+  </div>
+
+  <footer class="fma-modal-footer">
+    <button type="button" hlmBtn variant="outline" (click)="modal.close()">
+      Cancel
+    </button>
+    <button type="submit" hlmBtn [disabled]="saving()">
+      {{ saving() ? 'Saving…' : 'Save batch' }}
+    </button>
+  </footer>
+</form>

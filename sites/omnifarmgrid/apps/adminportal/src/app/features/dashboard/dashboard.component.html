@@ -1,0 +1,143 @@
+<section class="fma-page">
+  <header class="fma-page-header">
+    <div>
+      <h1 class="fma-title">Dashboard</h1>
+      <p class="fma-subtitle">{{ todayLabel }} · {{ scopeLabel() }}</p>
+    </div>
+  </header>
+
+  <app-stock-alerts />
+
+  <!-- KPIs -->
+  <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    @for (kpi of kpis(); track kpi.label) {
+      <div class="fma-kpi">
+        <span class="fma-kpi-label">
+          <span
+            class="flex size-7 items-center justify-center rounded-lg"
+            [class]="kpi.tone"
+          >
+            <ng-icon [name]="kpi.icon" size="14" />
+          </span>
+          {{ kpi.label }}
+        </span>
+        <span class="fma-kpi-value mt-1">{{ kpi.value }}</span>
+        <span class="text-muted-foreground text-xs">{{ kpi.hint }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- Charts -->
+  <div class="grid gap-3 lg:grid-cols-5">
+    <div class="fma-panel flex flex-col gap-4 p-5 lg:col-span-2">
+      <div>
+        <h2 class="fma-section-title">Herd by species</h2>
+        <p class="text-muted-foreground text-xs">Living animals today</p>
+      </div>
+      @if (aliveAll().length) {
+        <app-donut-chart [slices]="speciesSlices()" totalLabel="animals" />
+      } @else {
+        <p class="text-muted-foreground py-10 text-center text-sm">
+          No animals recorded yet.
+        </p>
+      }
+    </div>
+    <div class="fma-panel flex flex-col gap-4 p-5 lg:col-span-3">
+      <div>
+        <h2 class="fma-section-title">Births and deaths</h2>
+        <p class="text-muted-foreground text-xs">
+          Last 6 months{{ scopeSuffix() }}
+        </p>
+      </div>
+      <app-bar-chart [labels]="monthly().labels" [series]="monthly().series" />
+    </div>
+  </div>
+
+  <div class="grid gap-3 lg:grid-cols-5">
+    <!-- Kraals -->
+    <div class="fma-panel flex flex-col p-5 lg:col-span-3">
+      <div class="mb-4 flex items-center justify-between">
+        <div>
+          <h2 class="fma-section-title">Animals per kraal</h2>
+          <p class="text-muted-foreground text-xs">Where the herd lives</p>
+        </div>
+        <a
+          routerLink="/kraals"
+          class="text-primary text-sm font-medium hover:underline"
+          >All kraals</a
+        >
+      </div>
+      @if (kraalBars().length === 0) {
+        <p class="text-muted-foreground py-8 text-center text-sm">
+          No kraals yet.
+        </p>
+      } @else {
+        <ul class="flex flex-col gap-3">
+          @for (row of kraalBars(); track row.id) {
+            <li>
+              <a
+                [routerLink]="['/kraals', row.id]"
+                class="group flex items-center gap-3"
+              >
+                <app-species-avatar [species]="row.species" size="sm" />
+                <span class="flex min-w-0 grow flex-col gap-1">
+                  <span
+                    class="flex items-baseline justify-between gap-2 text-sm"
+                  >
+                    <span class="truncate font-medium group-hover:underline">{{
+                      row.name
+                    }}</span>
+                    <span class="tabular-nums">{{ row.count }}</span>
+                  </span>
+                  <span class="bg-muted h-2 overflow-hidden rounded-full">
+                    <span
+                      class="block h-full rounded-full"
+                      [style.width.%]="row.share"
+                      [style.background]="row.color"
+                    ></span>
+                  </span>
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <!-- Activity -->
+    <div class="fma-panel flex flex-col p-5 lg:col-span-2">
+      <h2 class="fma-section-title mb-4">Recent activity</h2>
+      @if (recentEvents().length === 0) {
+        <p class="text-muted-foreground py-8 text-center text-sm">
+          Births, deaths and vaccinations will show here.
+        </p>
+      } @else {
+        <ol class="flex flex-col gap-4">
+          @for (event of recentEvents(); track event.$id) {
+            <li class="flex gap-3">
+              <span
+                class="flex size-8 shrink-0 items-center justify-center rounded-lg"
+                [class]="eventTone(event.type)"
+              >
+                <ng-icon [name]="eventIcon(event.type)" size="15" />
+              </span>
+              <span class="min-w-0 grow">
+                <span class="flex items-baseline justify-between gap-2">
+                  <span class="text-sm font-medium">{{
+                    eventLabel(event.type)
+                  }}</span>
+                  <span class="text-muted-foreground shrink-0 text-xs">{{
+                    when(event.date)
+                  }}</span>
+                </span>
+                <span class="text-muted-foreground block truncate text-xs">{{
+                  eventDetail(event)
+                }}</span>
+              </span>
+            </li>
+          }
+        </ol>
+      }
+    </div>
+  </div>
+</section>

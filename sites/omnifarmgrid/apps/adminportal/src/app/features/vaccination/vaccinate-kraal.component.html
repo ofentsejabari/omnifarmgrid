@@ -1,0 +1,124 @@
+<div class="fma-modal">
+  <header class="fma-modal-header">
+    <h2 class="fma-modal-title">Vaccinate a {{ words().location }}</h2>
+    <p class="fma-modal-desc">
+      Everyone is included — untick the few you skip.
+    </p>
+  </header>
+
+  <div class="fma-modal-body">
+    @if (error()) {
+      <p class="fma-error" role="alert">
+        <ng-icon name="lucideTriangleAlert" size="16" class="mt-0.5 shrink-0" />
+        {{ error() }}
+      </p>
+    }
+
+    <div hlmField>
+      <label hlmFieldLabel for="vax-kraal">{{
+        words().location | sentence
+      }}</label>
+      <app-select
+        inputId="vax-kraal"
+        [value]="kraalId()"
+        (valueChange)="selectKraal($event)"
+        [options]="kraalOptions()"
+        placeholder="Choose a kraal or pen…"
+      />
+    </div>
+
+    <div class="fma-field-row">
+      <div hlmField>
+        <label hlmFieldLabel for="vax-product">Product</label>
+        <app-select
+          inputId="vax-product"
+          [value]="productId()"
+          (valueChange)="productId.set($event)"
+          [options]="productOptions()"
+          emptyText="Add a product under Stock first"
+        />
+      </div>
+      <div hlmField>
+        <label hlmFieldLabel for="vax-batch">Batch</label>
+        <app-select
+          inputId="vax-batch"
+          [value]="batchId()"
+          (valueChange)="batchId.set($event)"
+          [options]="batchOptions()"
+          [emptyText]="
+            productId()
+              ? 'No usable stock — receive a batch first'
+              : 'Choose a product first'
+          "
+        />
+      </div>
+    </div>
+
+    <div hlmField>
+      <label hlmFieldLabel for="vax-date">Date</label>
+      <app-date-field
+        inputId="vax-date"
+        [value]="date()"
+        (valueChange)="date.set($event)"
+      />
+    </div>
+
+    @if (kraalId()) {
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between text-sm">
+          <span class="font-medium">Animals</span>
+          <span class="text-muted-foreground tabular-nums"
+            >{{ treatedCount() }} of {{ animals().length }} included</span
+          >
+        </div>
+        @if (animals().length === 0) {
+          <p
+            class="text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm"
+          >
+            No living animals in this {{ words().location }}.
+          </p>
+        } @else {
+          <ul
+            class="divide-border max-h-64 divide-y overflow-y-auto rounded-lg border"
+          >
+            @for (animal of animals(); track animal.$id) {
+              <li
+                class="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2"
+                [class]="isSelected(animal.$id) ? '' : 'bg-muted/50'"
+              >
+                <hlm-checkbox
+                  [inputId]="'vax-' + animal.$id"
+                  [checked]="isSelected(animal.$id)"
+                  (checkedChange)="toggle(animal.$id, $event)"
+                />
+                <label class="grow text-sm" [for]="'vax-' + animal.$id">{{
+                  label(animal)
+                }}</label>
+                @if (!isSelected(animal.$id)) {
+                  <app-select
+                    class="w-40"
+                    size="sm"
+                    [value]="reasons()[animal.$id]"
+                    (valueChange)="setReason(animal.$id, $event)"
+                    [options]="reasonOptions"
+                    placeholder="Why skipped?"
+                    ariaLabel="Why skipped?"
+                  />
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </div>
+
+  <footer class="fma-modal-footer">
+    <button type="button" hlmBtn variant="outline" (click)="modal.close()">
+      Cancel
+    </button>
+    <button type="button" hlmBtn [disabled]="saving()" (click)="save()">
+      {{ saving() ? 'Saving…' : 'Vaccinate ' + treatedCount() }}
+    </button>
+  </footer>
+</div>

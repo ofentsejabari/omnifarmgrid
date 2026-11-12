@@ -1,0 +1,121 @@
+<section class="fma-page">
+  <header class="fma-page-header">
+    <div>
+      <h1 class="fma-title">Medicine stock</h1>
+      <p class="fma-subtitle">Vaccines, dewormers and dips on hand.</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      @if (rows().length === 0) {
+        <button type="button" hlmBtn variant="outline" (click)="addCommon()">
+          <ng-icon name="lucideSparkles" />
+          Add common vaccines
+        </button>
+      } @else {
+        <button
+          type="button"
+          hlmBtn
+          variant="outline"
+          (click)="modal.open('receive')"
+        >
+          <ng-icon name="lucidePackagePlus" />
+          Receive stock
+        </button>
+      }
+      <button type="button" hlmBtn (click)="modal.open('product')">
+        <ng-icon name="lucidePlus" />
+        Add product
+      </button>
+    </div>
+  </header>
+
+  @if (rows().length === 0) {
+    <div class="fma-empty">
+      <span class="fma-empty-icon"
+        ><ng-icon name="lucidePackage" size="22"
+      /></span>
+      <div>
+        <p class="font-medium">No products yet</p>
+        <p class="text-muted-foreground text-sm">
+          Start with the common vaccines, or add pulpy kidney, PPR or a
+          dewormer.
+        </p>
+      </div>
+    </div>
+  } @else {
+    <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      @for (row of rows(); track row.product.$id) {
+        <li class="fma-panel flex flex-col gap-4 p-4">
+          <div class="flex items-start gap-3">
+            <span
+              class="flex size-10 shrink-0 items-center justify-center rounded-xl"
+              [class]="row.tone"
+            >
+              <ng-icon
+                [name]="
+                  row.product.kind === 'vaccine'
+                    ? 'lucideSyringe'
+                    : 'lucidePackage'
+                "
+                size="18"
+              />
+            </span>
+            <div class="min-w-0 grow">
+              <h2 class="truncate font-medium">{{ row.product.name }}</h2>
+              <p class="text-muted-foreground text-xs">
+                {{ kindLabel(row.product.kind) }}
+              </p>
+            </div>
+            <button
+              type="button"
+              hlmBtn
+              variant="outline"
+              size="sm"
+              (click)="modal.open('receive', { productId: row.product.$id })"
+            >
+              Receive
+            </button>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <div class="flex items-baseline justify-between">
+              <span class="text-2xl font-semibold tabular-nums">{{
+                row.onHand
+              }}</span>
+              <span class="text-muted-foreground text-xs"
+                >{{ row.product.unit }}s on hand</span
+              >
+            </div>
+            <div
+              class="bg-muted h-1.5 overflow-hidden rounded-full"
+              aria-hidden="true"
+            >
+              <div
+                class="h-full rounded-full"
+                [class]="row.low ? 'bg-amber-500' : 'bg-primary'"
+                [style.width.%]="row.level"
+              ></div>
+            </div>
+          </div>
+          @if (row.low || row.expiring || row.expired) {
+            <div class="flex flex-wrap gap-1.5">
+              @if (row.low) {
+                <span hlmBadge class="bg-warning text-warning-foreground"
+                  >Low stock</span
+                >
+              }
+              @if (row.expiring) {
+                <span hlmBadge class="bg-info text-info-foreground"
+                  >Expiring soon</span
+                >
+              }
+              @if (row.expired) {
+                <span hlmBadge variant="destructive"
+                  >Expired doses on hand</span
+                >
+              }
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+</section>
